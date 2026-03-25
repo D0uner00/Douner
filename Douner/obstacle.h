@@ -9,6 +9,10 @@
 #define GROUND_Y 350.0f
 #define GRAVITY 0.5f
 #define MAX_OBS 99
+typedef struct {
+    int timer;
+    int interval;
+} SpawnManager;
 
 // 장애물 종류
 typedef enum {
@@ -40,5 +44,6 @@ void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x);
 void DrawObstacles(Obstacle obs[], int size);
 void SpawnObstacle(Obstacle obs[], ObstacleType type);
 void DrawObstaclesWithImage(Obstacle obs[], int size);
-
+void InitSpawnManager(SpawnManager* sm);
+void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size);
 #endif

@@ -24,6 +24,8 @@ int main() {
     // 2. ���� �غ�
     Obstacle obs_pool[MAX_OBS];
     InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
 
     float player_x = 100; // �÷��̾��� ���� ��ġ (��ֹ� ���� ������)
     srand(time(NULL));
@@ -38,17 +40,15 @@ int main() {
 
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            // �����̽��� ������ ������ ��ֹ� �ϳ� Ȱ��ȭ
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                for (int i = 0; i < MAX_OBS; i++) {
-                    if (!obs_pool[i].is_active) {
-                        SpawnObstacle(&obs_pool[i], rand() % 3);
-                        break;
-                    }
-                }
-            }
+
+
+        // ... 게임 루프 내부 ...
+        if (event.type == ALLEGRO_EVENT_TIMER) {
+            // 2. 관리자에게 "시간 흘렀으니까 알아서 소환해"라고 시킴
+            UpdateSpawning(&spawner, obs_pool, MAX_OBS);
         }
+        redraw = 1;
+
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
             // Ű���� �Է����� �÷��̾� �̵� (���� ��ֹ� �׽�Ʈ��)
