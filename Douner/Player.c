@@ -1,4 +1,4 @@
-
+//화면 띄우기
 #if 0
 
 #include <stdio.h>
@@ -116,6 +116,7 @@ int main() {
 
 #endif
 
+//달리기 구현
 #if 0
 #include <stdio.h>
 #include <allegro5/allegro.h>
@@ -256,6 +257,8 @@ int main() {
 
 #endif
 
+//달리기 + 점프
+
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -265,22 +268,22 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 400;
 const int GROUND_HEIGHT = 70;
 
-// 1. 원본 달리기 자르기 정보 (유지)
+// 원본 달리기 자르기 정보
 const int RUN_CROP_X = 43; const int RUN_CROP_Y = 33;
 const int RUN_SRC_W = 45; const int RUN_SRC_H = 45;
-const int RUN_DEST_W = 105; const int RUN_DEST_H = 130; // 화면에 그릴 달리기 높이
+const int RUN_DEST_W = 120; const int RUN_DEST_H = 120; // 화면에 그릴 달리기 높이
 
 // ★ 2. 점프 시트 자르기 정보 (새로 추정해서 입력)
 // 점프 시트의 캐릭터들이 키가 더 크고 넓기 때문에 자르기 영역을 더 크게 잡아야 합니다.
 // (실행해보고 눈으로 확인하며 미세조정이 필요합니다)
-const int JUMP_CROP_X = 32; const int JUMP_CROP_Y = 10;
-const int JUMP_SRC_W = 64; const int JUMP_SRC_H = 90; // 달리기보다 더 크고 긴 영역을 자릅니다.
+const int JUMP_CROP_X = 30; const int JUMP_CROP_Y = 10 ;
+const int JUMP_SRC_W = 60; const int JUMP_SRC_H = 70; // 달리기보다 더 크고 긴 영역을 자릅니다.
 
 // 달리기 비율에 맞춰 점프 시트를 화면에 뻥튀기할 크기
-const int JUMP_DEST_W = 140; const int JUMP_DEST_H = 260; // 달리기보다 약 2배 크게 그림
+const int JUMP_DEST_W = 140; const int JUMP_DEST_H = 230; // 달리기보다 약 2배 크게 그림
 
-const int MAX_RUN_FRAMES = 10;
-const int MAX_JUMP_FRAMES = 6; // 점프 시트도 10프레임으로 보임
+const int MAX_RUN_FRAMES = 9;
+const int MAX_JUMP_FRAMES = 6; 
 
 int main() {
     if (!al_init()) return -1;
@@ -316,8 +319,9 @@ int main() {
 
     bool isJumping = false;
     int jumpDirection = 0;
-    float jumpSpeed = 22.0f;
-    float maxJumpHeight = 150;
+    float jumpSpeed = 20.0f;
+    float maxJumpHeight = 100;
+
 
     bool done = false;
     bool redraw = true;
@@ -349,9 +353,6 @@ int main() {
                 runFrame = (runFrame + 1) % MAX_RUN_FRAMES;
             }
             else {
-                // 점프 중일 때는 점프 전용 애니메이션을 재생합니다.
-                // 위로 올라갈 때는 상승 모션(0~4 프레임), 내려올 때는 하강 모션(5~9 프레임)으로 고정해도 좋습니다.
-                // 여기서는 일단 순차적으로 재생합니다.
                 jumpFrame = (jumpFrame + 1);
                 if (jumpFrame >= MAX_JUMP_FRAMES) jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
             }
