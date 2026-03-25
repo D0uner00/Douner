@@ -20,6 +20,7 @@ int main()
 {
     al_init();
     al_install_keyboard();
+    al_init_image_addon();
 
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
@@ -29,9 +30,9 @@ int main()
     ALLEGRO_DISPLAY* display = al_create_display(320, 200);
     ALLEGRO_FONT* font = al_create_builtin_font();
 
-    al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
+    al_register_event_source(queue, al_get_keyboard_event_source());
 
     keyboard_init();
     item_init();
@@ -91,26 +92,25 @@ int main()
         {
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            // ÇÃ·¹ÀÌ¾î ´ë½Å Å×½ºÆ® ¹Ú½º
+            // í”Œë ˆì´ì–´ ëŒ€ì‹  í…ŒìŠ¤íŠ¸ ë°•ìŠ¤
             al_draw_filled_rectangle(player_x, player_y,
                 player_x + player_w,
                 player_y + player_h,
                 al_map_rgb(0, 255, 0));
 
-            // ¾ÆÀÌÅÛ
+            // ì•„ì´í…œ
             item_draw();
 
             al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
             al_flip_display();
-
-            redraw = false;
+            redraw = 0;
         }
     }
 
-    al_destroy_font(font);
-    al_destroy_display(display);
+    // 5. ï¿½ï¿½ï¿½ï¿½
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
+    al_destroy_display(display);
 
     return 0;
 }
