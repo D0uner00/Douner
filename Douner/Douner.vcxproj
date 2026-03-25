@@ -134,10 +134,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="hud.c" />
+    <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hud.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="keyboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
