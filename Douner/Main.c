@@ -1,17 +1,14 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <stdio.h>
+#include "global.h"
 #include "keyboard.h"
 
 
 int main() {
-    // 1. Allegro �ʱ�ȭ
     if (!al_init()) return -1;
-    al_init_primitives_addon();
-    al_install_keyboard();
-    al_init_image_addon();
+    must_init(al_init_primitives_addon(),"primitives_addon");
+	must_init(al_install_keyboard(), "keyboard");
+	must_init(al_init_image_addon(), "image_addon");
 
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_W, SCREEN_H);
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
 
@@ -25,7 +22,7 @@ int main() {
     bool redraw = true;
     ALLEGRO_EVENT event;
 
-    float player_x = 100; // �÷��̾��� ���� ��ġ (��ֹ� ���� ������)
+    float player_x = 100; 
     srand(time(NULL));
 
     int redraw = 1;
