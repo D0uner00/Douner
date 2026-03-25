@@ -139,6 +139,7 @@
     <ClCompile Include="obstacle.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="global.h" />
     <ClInclude Include="obstacle.h" />
   </ItemGroup>
   <ItemGroup>
