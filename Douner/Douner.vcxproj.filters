@@ -21,8 +21,13 @@
     <ClCompile Include="Main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Player.c">
+    <ClCompile Include="keyboard.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="keyboard.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

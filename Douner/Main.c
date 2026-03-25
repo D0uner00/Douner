@@ -1,9 +1,7 @@
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include "obstacle.h" // �ۼ��Ͻ� ��� ����
+#include "keyboard.h"
 
 
 int main() {
@@ -21,9 +19,11 @@ int main() {
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
 
-    // 2. ���� �غ�
-    Obstacle obs_pool[MAX_OBS];
-    InitObstacles(obs_pool, MAX_OBS);
+    keyboard_init();
+
+    bool done = false;
+    bool redraw = true;
+    ALLEGRO_EVENT event;
 
     float player_x = 100; // �÷��̾��� ���� ��ġ (��ֹ� ���� ������)
     srand(time(NULL));
@@ -36,7 +36,42 @@ int main() {
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+        switch (event.type) {
+
+        case ALLEGRO_EVENT_KEY_DOWN:
+            if(event.keyboard.keycode == ALLEGRO_KEY_UP)
+                printf("UP\n");
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+                printf("DOWN\n");
+            break;
+
+        case ALLEGRO_EVENT_KEY_UP:
+            if (event.keyboard.keycode == ALLEGRO_KEY_UP)
+                printf("Stand\n");
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+                printf("Stand\n");
+            break;
+
+        case ALLEGRO_EVENT_TIMER:
+            if (key[ALLEGRO_KEY_ESCAPE])
+                done = true;
+
+            if (key[ALLEGRO_KEY_DOWN])
+                printf("Holding DOWN\n");
+
+            redraw = true;
+            break;
+        case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            done = true;
+            break;
+        
+        }
+
+        
+        if (done)
+            break;
+
+        keyboard_update(&event);
 
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             // �����̽��� ������ ������ ��ֹ� �ϳ� Ȱ��ȭ
