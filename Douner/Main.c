@@ -1,6 +1,13 @@
 #include "global.h"
 #include "keyboard.h"
+#include "hud.h"
+#include "item.h"
 
+long frames;
+int player_x = 50;
+int player_y = 100;
+int player_w = 20;
+int player_h = 20;
 
 int main() {
     if (!al_init()) return -1;
@@ -8,15 +15,20 @@ int main() {
 	must_init(al_install_keyboard(), "keyboard");
 	must_init(al_init_image_addon(), "image_addon");
 
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    al_init();
+    al_install_keyboard();
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
+
+
+    ALLEGRO_DISPLAY* display = al_create_display(320, 200);
+    ALLEGRO_FONT* font = al_create_builtin_font();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
 
     keyboard_init();
+    item_init();
 
     bool done = false;
     bool redraw = true;
@@ -27,10 +39,8 @@ int main() {
 
     int redraw = 1;
     al_start_timer(timer);
-
-    // 3. ���� ����
-    while (1) {
-        ALLEGRO_EVENT event;
+    while (1)
+    {
         al_wait_for_event(queue, &event);
 
         switch (event.type) {
@@ -50,6 +60,10 @@ int main() {
             break;
 
         case ALLEGRO_EVENT_TIMER:
+
+            item_update();
+            item_collision_check();
+
             if (key[ALLEGRO_KEY_ESCAPE])
                 done = true;
 
@@ -57,6 +71,7 @@ int main() {
                 printf("Holding DOWN\n");
 
             redraw = true;
+            frames++;
             break;
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
@@ -70,46 +85,20 @@ int main() {
 
         keyboard_update(&event);
 
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            // �����̽��� ������ ������ ��ֹ� �ϳ� Ȱ��ȭ
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                for (int i = 0; i < MAX_OBS; i++) {
-                    if (!obs_pool[i].is_active) {
-                        SpawnObstacle(&obs_pool[i], rand() % 3);
-                        break;
-                    }
-                }
-            }
-        }
+        if (redraw && al_is_event_queue_empty(queue))
+        {
+            al_clear_to_color(al_map_rgb(0, 0, 0));
 
-        if (event.type == ALLEGRO_EVENT_TIMER) {
-            // Ű���� �Է����� �÷��̾� �̵� (���� ��ֹ� �׽�Ʈ��)
-            ALLEGRO_KEYBOARD_STATE ks;
-            al_get_keyboard_state(&ks);
-            if (al_key_down(&ks, ALLEGRO_KEY_LEFT)) player_x -= 5;
-            if (al_key_down(&ks, ALLEGRO_KEY_RIGHT)) player_x += 5;
+            // 플레이어 대신 테스트 박스
+            al_draw_filled_rectangle(player_x, player_y,
+                player_x + player_w,
+                player_y + player_h,
+                al_map_rgb(0, 255, 0));
 
-            // ��ֹ� ������Ʈ
-            UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player_x);
-            redraw = 1;
-        }
+            // 아이템
+            item_draw();
 
-        // 4. �׸���
-        if (redraw && al_is_event_queue_empty(queue)) {
-            al_clear_to_color(al_map_rgb(200, 200, 200)); // ��� ȸ��
-
-            // �ٴ� ��
-            al_draw_line(0, GROUND_Y, SCREEN_W, GROUND_Y, al_map_rgb(0, 0, 0), 2);
-
-            // �÷��̾� ǥ�� (�ܼ��� ��)
-            al_draw_filled_circle(player_x, GROUND_Y - 20, 20, al_map_rgb(50, 50, 50));
-
-            // ��ֹ� �׸���
-            DrawObstaclesWithImage(obs_pool, MAX_OBS);
-
-            // ���̵� �ؽ�Ʈ (�˷��׷� ��Ʈ ����, ������ ����)
-            // ���� ���� �ÿ� al_draw_text ��� ����
-
+            al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
             al_flip_display();
             redraw = 0;
         }

@@ -118,6 +118,7 @@ int main() {
 
 #endif
 
+//달리기 구현
 #if 0
 #include <stdio.h>
 #include <allegro5/allegro.h>
@@ -292,8 +293,9 @@ int main() {
 
     bool isJumping = false;
     int jumpDirection = 0;
-    float jumpSpeed = 22.0f;
-    float maxJumpHeight = 150;
+    float jumpSpeed = 20.0f;
+    float maxJumpHeight = 100;
+
 
     bool done = false;
     bool redraw = true;
@@ -325,9 +327,6 @@ int main() {
                 runFrame = (runFrame + 1) % MAX_RUN_FRAMES;
             }
             else {
-                // 점프 중일 때는 점프 전용 애니메이션을 재생합니다.
-                // 위로 올라갈 때는 상승 모션(0~4 프레임), 내려올 때는 하강 모션(5~9 프레임)으로 고정해도 좋습니다.
-                // 여기서는 일단 순차적으로 재생합니다.
                 jumpFrame = (jumpFrame + 1);
                 if (jumpFrame >= MAX_JUMP_FRAMES) jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
             }
