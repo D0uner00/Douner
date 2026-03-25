@@ -134,6 +134,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="hud.c" />
+    <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="obstacle.c" />
@@ -147,6 +149,8 @@
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hud.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="keyboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
