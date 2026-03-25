@@ -30,6 +30,15 @@
     <ClCompile Include="item.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="obstacle.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="global.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="keyboard.h">
@@ -41,5 +50,22 @@
     <ClInclude Include="item.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="obstacle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

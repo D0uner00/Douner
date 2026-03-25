@@ -134,6 +134,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="global.c" />
     <ClCompile Include="hud.c" />
     <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />

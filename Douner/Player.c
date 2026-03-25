@@ -1,6 +1,95 @@
-#include "global.h"
 #include "Player.h"
 
+void init_player(Player* p, float startX, float startY) {
+    p->runSheet = al_load_bitmap("male_hero-run.png");
+    p->jumpSheet = al_load_bitmap("male_hero-jump.png");
+
+    if (!p->runSheet || !p->jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
+        fprintf(stderr, "이미지 로드 실패!\n");
+        return -1;
+    }
+
+    p->runFrame = 0;
+    p->jumpFrame = 0;
+    p->x = startX;
+    p->baseY = startY;
+    p->y = p->baseY;
+    p->isJumping = false;
+    p->jumpDirection = 0;
+    p->jumpSpeed = 20.0f;
+    p->maxJumpHeight = 100;
+}
+
+void update_player(Player* p) {
+    // ★ 변경 3: 애니메이션 재생 로직 분리
+    if (!p->isJumping) {
+        // 달리 중일 때만 달리기 프레임을 넘깁니다.
+        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+    }
+    else {
+        p->jumpFrame = (p->jumpFrame + 1);
+        if (p->jumpFrame >= MAX_JUMP_FRAMES) p->jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
+    }
+
+    // 점프 Y축 물리 로직 (기존 유지)
+    if (p->isJumping) {
+        if (p->jumpDirection == 1) {
+            p->y -= p->jumpSpeed;
+            if (p->y <= p->baseY - p->maxJumpHeight) {
+                p->y = p->baseY - p->maxJumpHeight;
+                p->jumpDirection = -1;
+            }
+        }
+        else if (p->jumpDirection == -1) {
+            p->y += p->jumpSpeed;
+            if (p->y >= p->baseY) {
+                p->y = p->baseY;
+                p->isJumping = false;
+                p->jumpDirection = 0;
+                p->jumpFrame = 0; // 착지 시 초기화
+            }
+        }
+    }
+}
+
+void draw_player(Player* p) {
+    // ★ 변경 4: 상태에 따라 그리는 시트 변경
+    if (!p->isJumping) {
+        // [달리기 그리기] - 기존 로직 유지
+        int frameStartX = p->runFrame * 128;
+        al_draw_scaled_bitmap(p->runSheet,
+            frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
+            p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
+    }
+    else {
+        // [점프 그리기] - 새로운 자르기 정보와 크기 사용
+        int frameStartX = p->jumpFrame * 128;
+
+        // ★중요 Y 보정★: 달리기 그림(130높이) 기준으로 Y 좌표가 계산되어 있습니다.
+        // 더 큰 점프 그림(260높이)을 그리면 발이 땅밑으로 파고듭니다.
+        // 그릴 때만 머리 위치를 위로 보정해 줘야 합니다.
+        // (보정값 = 점프그림높이 - 달리그림높이 = 260 - 130 = 130만큼 머리를 위로(-))
+        float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
+        float compensatedY = p->y - yDrawCompensation;
+
+        al_draw_scaled_bitmap(p->jumpSheet,
+            frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
+            p->x, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
+    }
+}
+
+void destroy_player(Player* p) {
+    al_destroy_bitmap(p->runSheet);
+    al_destroy_bitmap(p->jumpSheet); // 메모리 해제 추가
+}
+
+//      임시      //
+void draw_map() {
+    al_clear_to_color(al_map_rgb(135, 206, 235));
+    al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
+        SCREEN_WIDTH, SCREEN_HEIGHT,
+        al_map_rgb(34, 139, 34));
+}
 #if 0
 
 #include <stdio.h>
@@ -10,7 +99,6 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 400;
-const int GROUND_HEIGHT = 70;
 
 // 캐릭터 원본 및 출력 크기 설정
 const int FRAME_WIDTH = 128;
@@ -127,7 +215,6 @@ int main() {
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 400;
-const int GROUND_HEIGHT = 70; //땅 높이
 const int FRAME_WIDTH = 128;
 const int FRAME_HEIGHT = 128;
 const int CROP_X = 43;
@@ -258,7 +345,99 @@ int main() {
 }
 
 #endif
-/*
+
+#if 0
+long frames = 0;
+long score = 0;
+
+int player_x = 50;
+int player_y = 100;
+int player_w = 20;
+int player_h = 20;
+
+void init_player(Player* p, float startX, float startY) {
+    p->runSheet = al_load_bitmap("male_hero-run.png");
+    p->jumpSheet = al_load_bitmap("male_hero-jump.png");
+
+    if (!p->runSheet || !p->jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
+        fprintf(stderr, "이미지 로드 실패!\n");
+        return -1;
+    }
+
+    p->runFrame = 0;
+    p->jumpFrame = 0;
+    p->x = startX;
+    p->baseY = startY;
+    p->y = p->baseY;
+    p->isJumping = false;
+    p->jumpDirection = 0;
+    p->jumpSpeed = 20.0f;
+    p->maxJumpHeight = 100;
+}
+
+void update_player(Player* p) {
+    // ★ 변경 3: 애니메이션 재생 로직 분리
+    if (!p->isJumping) {
+        // 달리 중일 때만 달리기 프레임을 넘깁니다.
+        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+    }
+    else {
+        p->jumpFrame = (p->jumpFrame + 1);
+        if (p->jumpFrame >= MAX_JUMP_FRAMES) p->jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
+    }
+
+    // 점프 Y축 물리 로직 (기존 유지)
+    if (p->isJumping) {
+        if (p->jumpDirection == 1) {
+            p->y -= p->jumpSpeed;
+            if (p->y <= p->baseY - p->maxJumpHeight) {
+                p->y = p->baseY - p->maxJumpHeight;
+                p->jumpDirection = -1;
+            }
+        }
+        else if (p->jumpDirection == -1) {
+            p->y += p->jumpSpeed;
+            if (p->y >= p->baseY) {
+                p->y = p->baseY;
+                p->isJumping = false;
+                p->jumpDirection = 0;
+                p->jumpFrame = 0; // 착지 시 초기화
+            }
+        }
+    }
+}
+
+void draw_player(Player* p) {
+    // ★ 변경 4: 상태에 따라 그리는 시트 변경
+    if (!p->isJumping) {
+        // [달리기 그리기] - 기존 로직 유지
+        int frameStartX = p->runFrame * 128;
+        al_draw_scaled_bitmap(p->runSheet,
+            frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
+            p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
+    }
+    else {
+        // [점프 그리기] - 새로운 자르기 정보와 크기 사용
+        int frameStartX = p->jumpFrame * 128;
+
+        // ★중요 Y 보정★: 달리기 그림(130높이) 기준으로 Y 좌표가 계산되어 있습니다.
+        // 더 큰 점프 그림(260높이)을 그리면 발이 땅밑으로 파고듭니다.
+        // 그릴 때만 머리 위치를 위로 보정해 줘야 합니다.
+        // (보정값 = 점프그림높이 - 달리그림높이 = 260 - 130 = 130만큼 머리를 위로(-))
+        float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
+        float compensatedY = p->y - yDrawCompensation;
+
+        al_draw_scaled_bitmap(p->jumpSheet,
+            frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
+            p->x, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
+    }
+}
+
+void destroy_player(Player* p) {
+    al_destroy_bitmap(p->runSheet);
+    al_destroy_bitmap(p->jumpSheet); // 메모리 해제 추가
+}
+
 int main() {
     if (!al_init()) return -1;
     al_init_image_addon();
@@ -273,28 +452,30 @@ int main() {
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-    ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
-    // ★ 변경 1: 점프 이미지 로드
-    ALLEGRO_BITMAP* jumpSheet = al_load_bitmap("male_hero-jump.png");
+    Player player;
+    init_player(&player, 100, SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H);
+    //ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
+    //// ★ 변경 1: 점프 이미지 로드
+    //ALLEGRO_BITMAP* jumpSheet = al_load_bitmap("male_hero-jump.png");
 
-    if (!runSheet || !jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
-        fprintf(stderr, "이미지 로드 실패!\n");
-        return -1;
-    }
+    //if (!runSheet || !jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
+    //    fprintf(stderr, "이미지 로드 실패!\n");
+    //    return -1;
+    //}
 
-    int runFrame = 0;   // 달리기 프레임 추적
-    // ★ 변경 2: 점프 프레임 추적 변수 추가
-    int jumpFrame = 0;
-    float charX = 100;
+    //int runFrame = 0;   // 달리기 프레임 추적
+    //// ★ 변경 2: 점프 프레임 추적 변수 추가
+    //int jumpFrame = 0;
+    //float charX = 100;
 
-    // Y축 물리 법칙 (기존 유지)
-    float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H; // 땅에 닿아있을 때의 기본 Y 좌표 (상단 130기준)
-    float charY = baseY;
+    //// Y축 물리 법칙 (기존 유지)
+    //float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H; // 땅에 닿아있을 때의 기본 Y 좌표 (상단 130기준)
+    //float charY = baseY;
 
-    bool isJumping = false;
-    int jumpDirection = 0;
-    float jumpSpeed = 20.0f;
-    float maxJumpHeight = 100;
+    //bool isJumping = false;
+    //int jumpDirection = 0;
+    //float jumpSpeed = 20.0f;
+    //float maxJumpHeight = 100;
 
 
     bool done = false;
@@ -311,55 +492,32 @@ int main() {
         }
         else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) done = true;
+
             if (ev.keyboard.keycode == ALLEGRO_KEY_UP || ev.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                if (!isJumping) {
-                    isJumping = true;
-                    jumpDirection = 1;
+                if (!player.isJumping) {
+                    player.isJumping = true;
+                    player.jumpDirection = 1;
                     // ★ 변경: 점프 시작 시 프레임 초기화
-                    jumpFrame = 0;
+                    player.jumpFrame = 0;
                 }
             }
         }
         else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            // ★ 변경 3: 애니메이션 재생 로직 분리
-            if (!isJumping) {
-                // 달리 중일 때만 달리기 프레임을 넘깁니다.
-                runFrame = (runFrame + 1) % MAX_RUN_FRAMES;
-            }
-            else {
-                jumpFrame = (jumpFrame + 1);
-                if (jumpFrame >= MAX_JUMP_FRAMES) jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
-            }
+            update_player(&player);
 
-            // 점프 Y축 물리 로직 (기존 유지)
-            if (isJumping) {
-                if (jumpDirection == 1) {
-                    charY -= jumpSpeed;
-                    if (charY <= baseY - maxJumpHeight) {
-                        charY = baseY - maxJumpHeight;
-                        jumpDirection = -1;
-                    }
-                }
-                else if (jumpDirection == -1) {
-                    charY += jumpSpeed;
-                    if (charY >= baseY) {
-                        charY = baseY;
-                        isJumping = false;
-                        jumpDirection = 0;
-                        jumpFrame = 0; // 착지 시 초기화
-                    }
-                }
-            }
             redraw = true;
         }
 
         if (redraw && al_is_event_queue_empty(event_queue)) {
             redraw = false;
-
+            draw_player(&player);
+            al_flip_display();
             al_clear_to_color(al_map_rgb(135, 206, 235));
             al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
                 SCREEN_WIDTH, SCREEN_HEIGHT,
                 al_map_rgb(34, 139, 34));
+            draw_player(&player);
+            al_flip_display();
 
             // ★ 변경 4: 상태에 따라 그리는 시트 변경
             if (!isJumping) {
@@ -385,10 +543,10 @@ int main() {
                     charX, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
             }
 
-            al_flip_display();
         }
     }
 
+    destroy_player(&player);
     al_destroy_bitmap(runSheet);
     al_destroy_bitmap(jumpSheet); // 메모리 해제 추가
     al_destroy_timer(timer);
@@ -396,4 +554,5 @@ int main() {
     al_destroy_event_queue(event_queue);
 
     return 0;
-}*/
+}
+#endif
