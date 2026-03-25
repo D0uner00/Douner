@@ -135,6 +135,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c" />
+    <ClCompile Include="obstacle.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="obstacle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
