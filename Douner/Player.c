@@ -116,6 +116,7 @@ int main() {
 
 #endif
 
+#if 0
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -124,7 +125,6 @@ int main() {
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 400;
 const int GROUND_HEIGHT = 70; //땅 높이
-
 const int FRAME_WIDTH = 128;
 const int FRAME_HEIGHT = 128;
 const int CROP_X = 43;
@@ -137,18 +137,20 @@ const int DEST_H = 120;
 const int MAX_FRAMES = 10;
 
 int main() {
-    if (!al_init()) {
+    if (!al_init()) { //알레그로 실행
         fprintf(stderr, "Allegro 초기화 실패!\n");
         return -1;
     }
-    al_init_image_addon();
-    al_init_primitives_addon();
-    al_install_keyboard();
+    al_init_image_addon(); //이미지 기능
+    al_init_primitives_addon(); //도형 기능
+    al_install_keyboard(); //키보드 처리
 
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    //애니메이션 속도 임의 설정
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 15.0);
     ALLEGRO_EVENT_QUEUE* event_queue = al_create_event_queue();
 
+    //이벤트 큐의 연결
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -160,9 +162,9 @@ int main() {
     }
 
     int currentFrame = 0;
-    float charX = 100;
+    float charX = 100; //화면상 x좌표
 
-    // 점프를 위한 변수들 추가
+    // 점프를 위한 변수
     float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - DEST_H ; // 땅에 닿아있을 때의 기본 Y 좌표
     float charY = baseY;
 
@@ -195,7 +197,10 @@ int main() {
             }
         }
         else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            currentFrame = (currentFrame + 1) % MAX_FRAMES;
+            if (!isJumping) {
+                currentFrame = (currentFrame + 1) % MAX_FRAMES;
+            }
+            else currentFrame = 0;
 
             // 단순 점프 로직 (물리 법칙 제외)
             if (isJumping) {
@@ -242,6 +247,175 @@ int main() {
     }
 
     al_destroy_bitmap(runSheet);
+    al_destroy_timer(timer);
+    al_destroy_display(display);
+    al_destroy_event_queue(event_queue);
+
+    return 0;
+}
+
+#endif
+
+#include <stdio.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h> 
+
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 400;
+const int GROUND_HEIGHT = 70;
+
+// 1. 원본 달리기 자르기 정보 (유지)
+const int RUN_CROP_X = 43; const int RUN_CROP_Y = 33;
+const int RUN_SRC_W = 45; const int RUN_SRC_H = 45;
+const int RUN_DEST_W = 105; const int RUN_DEST_H = 130; // 화면에 그릴 달리기 높이
+
+// ★ 2. 점프 시트 자르기 정보 (새로 추정해서 입력)
+// 점프 시트의 캐릭터들이 키가 더 크고 넓기 때문에 자르기 영역을 더 크게 잡아야 합니다.
+// (실행해보고 눈으로 확인하며 미세조정이 필요합니다)
+const int JUMP_CROP_X = 32; const int JUMP_CROP_Y = 10;
+const int JUMP_SRC_W = 64; const int JUMP_SRC_H = 90; // 달리기보다 더 크고 긴 영역을 자릅니다.
+
+// 달리기 비율에 맞춰 점프 시트를 화면에 뻥튀기할 크기
+const int JUMP_DEST_W = 140; const int JUMP_DEST_H = 260; // 달리기보다 약 2배 크게 그림
+
+const int MAX_RUN_FRAMES = 10;
+const int MAX_JUMP_FRAMES = 6; // 점프 시트도 10프레임으로 보임
+
+int main() {
+    if (!al_init()) return -1;
+    al_init_image_addon();
+    al_init_primitives_addon();
+    al_install_keyboard();
+
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 15.0);
+    ALLEGRO_EVENT_QUEUE* event_queue = al_create_event_queue();
+
+    al_register_event_source(event_queue, al_get_display_event_source(display));
+    al_register_event_source(event_queue, al_get_timer_event_source(timer));
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
+
+    ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
+    // ★ 변경 1: 점프 이미지 로드
+    ALLEGRO_BITMAP* jumpSheet = al_load_bitmap("male_hero-jump.png");
+
+    if (!runSheet || !jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
+        fprintf(stderr, "이미지 로드 실패!\n");
+        return -1;
+    }
+
+    int runFrame = 0;   // 달리기 프레임 추적
+    // ★ 변경 2: 점프 프레임 추적 변수 추가
+    int jumpFrame = 0;
+    float charX = 100;
+
+    // Y축 물리 법칙 (기존 유지)
+    float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H; // 땅에 닿아있을 때의 기본 Y 좌표 (상단 130기준)
+    float charY = baseY;
+
+    bool isJumping = false;
+    int jumpDirection = 0;
+    float jumpSpeed = 22.0f;
+    float maxJumpHeight = 150;
+
+    bool done = false;
+    bool redraw = true;
+
+    al_start_timer(timer);
+
+    while (!done) {
+        ALLEGRO_EVENT ev;
+        al_wait_for_event(event_queue, &ev);
+
+        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            done = true;
+        }
+        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) done = true;
+            if (ev.keyboard.keycode == ALLEGRO_KEY_UP || ev.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+                if (!isJumping) {
+                    isJumping = true;
+                    jumpDirection = 1;
+                    // ★ 변경: 점프 시작 시 프레임 초기화
+                    jumpFrame = 0;
+                }
+            }
+        }
+        else if (ev.type == ALLEGRO_EVENT_TIMER) {
+            // ★ 변경 3: 애니메이션 재생 로직 분리
+            if (!isJumping) {
+                // 달리 중일 때만 달리기 프레임을 넘깁니다.
+                runFrame = (runFrame + 1) % MAX_RUN_FRAMES;
+            }
+            else {
+                // 점프 중일 때는 점프 전용 애니메이션을 재생합니다.
+                // 위로 올라갈 때는 상승 모션(0~4 프레임), 내려올 때는 하강 모션(5~9 프레임)으로 고정해도 좋습니다.
+                // 여기서는 일단 순차적으로 재생합니다.
+                jumpFrame = (jumpFrame + 1);
+                if (jumpFrame >= MAX_JUMP_FRAMES) jumpFrame = MAX_JUMP_FRAMES - 1; // 마지막 프레임 고정 (landing)
+            }
+
+            // 점프 Y축 물리 로직 (기존 유지)
+            if (isJumping) {
+                if (jumpDirection == 1) {
+                    charY -= jumpSpeed;
+                    if (charY <= baseY - maxJumpHeight) {
+                        charY = baseY - maxJumpHeight;
+                        jumpDirection = -1;
+                    }
+                }
+                else if (jumpDirection == -1) {
+                    charY += jumpSpeed;
+                    if (charY >= baseY) {
+                        charY = baseY;
+                        isJumping = false;
+                        jumpDirection = 0;
+                        jumpFrame = 0; // 착지 시 초기화
+                    }
+                }
+            }
+            redraw = true;
+        }
+
+        if (redraw && al_is_event_queue_empty(event_queue)) {
+            redraw = false;
+
+            al_clear_to_color(al_map_rgb(135, 206, 235));
+            al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
+                SCREEN_WIDTH, SCREEN_HEIGHT,
+                al_map_rgb(34, 139, 34));
+
+            // ★ 변경 4: 상태에 따라 그리는 시트 변경
+            if (!isJumping) {
+                // [달리기 그리기] - 기존 로직 유지
+                int frameStartX = runFrame * 128;
+                al_draw_scaled_bitmap(runSheet,
+                    frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
+                    charX, charY, RUN_DEST_W, RUN_DEST_H, 0);
+            }
+            else {
+                // [점프 그리기] - 새로운 자르기 정보와 크기 사용
+                int frameStartX = jumpFrame * 128;
+
+                // ★중요 Y 보정★: 달리기 그림(130높이) 기준으로 Y 좌표가 계산되어 있습니다.
+                // 더 큰 점프 그림(260높이)을 그리면 발이 땅밑으로 파고듭니다.
+                // 그릴 때만 머리 위치를 위로 보정해 줘야 합니다.
+                // (보정값 = 점프그림높이 - 달리그림높이 = 260 - 130 = 130만큼 머리를 위로(-))
+                float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
+                float compensatedY = charY - yDrawCompensation;
+
+                al_draw_scaled_bitmap(jumpSheet,
+                    frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
+                    charX, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
+            }
+
+            al_flip_display();
+        }
+    }
+
+    al_destroy_bitmap(runSheet);
+    al_destroy_bitmap(jumpSheet); // 메모리 해제 추가
     al_destroy_timer(timer);
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
