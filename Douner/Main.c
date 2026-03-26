@@ -26,6 +26,11 @@ int main() {
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
 
+    // 2. ���� �غ�
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
 
     keyboard_init();
     item_init();
@@ -47,6 +52,14 @@ int main() {
     {
         al_wait_for_event(queue, &event);
 
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+
+
+
+        // ... 게임 루프 내부 ...
+        if (event.type == ALLEGRO_EVENT_TIMER) {
+            // 2. 관리자에게 "시간 흘렀으니까 알아서 소환해"라고 시킴
+            UpdateSpawning(&spawner, obs_pool, MAX_OBS);
         switch (event.type) {
 
         case ALLEGRO_EVENT_KEY_DOWN:
@@ -92,6 +105,8 @@ int main() {
             break;
         
         }
+        redraw = 1;
+
 
         
         if (done)
