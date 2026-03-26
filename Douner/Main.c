@@ -54,8 +54,8 @@ int main() {
             // 플레이어가 공중에 있지않으면 점프할 준비를 한다.
             if (event.keyboard.keycode == ALLEGRO_KEY_UP
                 || event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                if (!player.isJumping) {
-                    player.isJumping = true;
+                if (player.state == PLAYER_RUN) {
+                    player.state = PLAYER_JUMP;
                     player.jumpDirection = 1;
                     player.jumpFrame = 0;
                 }

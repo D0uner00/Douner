@@ -24,17 +24,29 @@
 
 //플레이어 시작 위치
 #define StartX 100
-#define StartY SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+#define StartY 210 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+
+typedef enum {
+	PLAYER_RUN,
+	PLAYER_JUMP,
+	PLAYER_HURT,
+	PLAYER_SLIDING,
+	PLAYER_DEATH
+}PlayerState;
 
 typedef struct player {
+
+	float x, y;
+	float baseY;
+
+	PlayerState state;
+
 	int runFrame;
 	int jumpFrame;
+
 	int jumpDirection;
-	float baseY;
 	float jumpSpeed;
 	float maxJumpHeight;
-	float x, y;
-	bool isJumping;
 
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;
