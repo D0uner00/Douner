@@ -52,6 +52,7 @@ typedef struct player {
 	int hit_offset_y;
 	int hit_w;
 	int hit_h;
+	int hurtTimer;
 
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;
