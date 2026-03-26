@@ -62,7 +62,10 @@ int main() {
                 printf("UP\n");
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
-               
+                if (player.state == PLAYER_RUN) {
+                    player.state = PLAYER_SLIDING;
+                    player.slideFrame = 0; // 프레임 초기화
+                }
                 printf("DOWN\n");
             }
           
@@ -71,8 +74,14 @@ int main() {
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_UP)
                 printf("Stand\n");
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+                if (player.state == PLAYER_SLIDING) {
+                    player.state = PLAYER_RUN;
+                    player.runFrame = 0; // 프레임 초기화
+                }
                 printf("Stand\n");
+            }
+                
             break;
 
         case ALLEGRO_EVENT_TIMER:
