@@ -21,4 +21,7 @@
 void must_init(bool test, const char* description);
 int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh);
 
+//		юс╫ц			//
+void draw_map();
+
 #endif

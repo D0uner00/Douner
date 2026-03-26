@@ -23,7 +23,7 @@ void init_player(Player* p) {
     p->state = PLAYER_RUN;
 }
 
-void update_player(Player* p) { // 애니메이션 재생 로직
+void update_player(Player* p) { // 데이터 및 상태 관리
     
     switch (p->state) {
 
@@ -36,14 +36,14 @@ void update_player(Player* p) { // 애니메이션 재생 로직
         if (p->jumpFrame >= MAX_JUMP_FRAMES)
             p->jumpFrame = MAX_JUMP_FRAMES - 1;
 
-        if (p->jumpDirection == 1) {
+        if (p->jumpDirection == 1) { //상승
             p->y -= p->jumpSpeed;
             if (p->y <= p->baseY - p->maxJumpHeight) {
                 p->y = p->baseY - p->maxJumpHeight;
                 p->jumpDirection = -1;
             }
         }
-        else {
+        else { //하강
             p->y += p->jumpSpeed;
             if (p->y >= p->baseY) {
                 p->y = p->baseY;
@@ -55,7 +55,7 @@ void update_player(Player* p) { // 애니메이션 재생 로직
     }
 }
 
-void draw_player(Player* p) { //프레임 별 시트 변경
+void draw_player(Player* p) { //그래픽 출력
 
     switch (p->state) {
 
@@ -90,10 +90,3 @@ void destroy_player(Player* p) {
     al_destroy_bitmap(p->jumpSheet); // 메모리 해제 추가
 }
 
-//      임시      //
-void draw_map() {
-    al_clear_to_color(al_map_rgb(135, 206, 235));
-    al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
-        SCREEN_WIDTH, SCREEN_HEIGHT,
-        al_map_rgb(34, 139, 34));
-}
