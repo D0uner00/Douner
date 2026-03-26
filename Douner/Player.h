@@ -2,6 +2,7 @@
 #define _PLAYER_H_
 #include "global.h"
 
+/*
 // 달리기 자르기 정보
 #define RUN_CROP_X 43 
 #define RUN_CROP_Y 33
@@ -17,9 +18,26 @@
 #define JUMP_SRC_H 70
 #define JUMP_DEST_W 150
 #define JUMP_DEST_H 230
+*/
+
+// 달리기 자르기 정보
+#define RUN_CROP_X 43 
+#define RUN_CROP_Y 13
+#define RUN_SRC_W 128
+#define RUN_SRC_H 128
+#define RUN_DEST_W 150
+#define RUN_DEST_H 150
+
+//점프 자르기 정보 
+#define JUMP_CROP_X 30
+#define JUMP_CROP_Y 10
+#define JUMP_SRC_W 128
+#define JUMP_SRC_H 128
+#define JUMP_DEST_W 150
+#define JUMP_DEST_H 150
 
 //프레임 수
-#define MAX_RUN_FRAMES 10
+#define MAX_RUN_FRAMES 9
 #define MAX_JUMP_FRAMES 6
 
 //플레이어 시작 위치
