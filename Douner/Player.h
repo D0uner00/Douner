@@ -29,7 +29,6 @@
 typedef enum {
 	PLAYER_RUN,
 	PLAYER_JUMP,
-	PLAYER_HURT,
 	PLAYER_SLIDING,
 	PLAYER_DEATH
 }PlayerState;
@@ -48,8 +47,11 @@ typedef struct player {
 	float jumpSpeed;
 	float maxJumpHeight;
 
+	int hurtTimer;
+
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;
+
 }Player;
 
 void init_player(Player* p);
