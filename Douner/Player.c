@@ -1,558 +1,171 @@
+#include "global.h"
 #include "Player.h"
 
-void init_player(Player* p, float startX, float startY) {
+void init_player(Player* p) {
     p->runSheet = al_load_bitmap("male_hero-run.png");
     p->jumpSheet = al_load_bitmap("male_hero-jump.png");
 
-    if (!p->runSheet || !p->jumpSheet) { // µÑ Áß ÇÏ³ª¶óµµ ·Îµå ½ÇÆÐ ½Ã Á¾·á
-        fprintf(stderr, "ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ!\n");
-        return -1;
+    if (!p->runSheet || !p->jumpSheet) { // ë‘˜ ì¤‘ í•˜ë‚˜ë¼ë„ ë¡œë“œ ì‹¤íŒ¨ ì‹œ ì¢…ë£Œ
+        fprintf(stderr, "ì´ë¯¸ì§€ ë¡œë“œ ì‹¤íŒ¨!\n");
+        return ;
     }
 
     p->runFrame = 0;
     p->jumpFrame = 0;
-    p->x = startX;
-    p->baseY = startY;
+
+    p->x = StartX;
+    p->baseY = StartY;
     p->y = p->baseY;
-    p->isJumping = false;
+
     p->jumpDirection = 0;
-    p->jumpSpeed = 20.0f;
-    p->maxJumpHeight = 100;
+    p->jumpSpeed = 10.0f;
+    p->maxJumpHeight = 120; 
+
+    p->hurtTimer = 0;
+
+    p->state = PLAYER_RUN;
+
+    //ï¿½ï¿½Æ®ï¿½Ú½ï¿½ ï¿½ß°ï¿½
+    p->hit_offset_x = 30;
+    p->hit_offset_y = 8;
+    p->hit_w = 70;
+    p->hit_h = 110;
 }
 
-void update_player(Player* p) {
-    // ¡Ú º¯°æ 3: ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ·ÎÁ÷ ºÐ¸®
-    if (!p->isJumping) {
-        // ´Þ¸® ÁßÀÏ ¶§¸¸ ´Þ¸®±â ÇÁ·¹ÀÓÀ» ³Ñ±é´Ï´Ù.
-        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
-    }
-    else {
-        p->jumpFrame = (p->jumpFrame + 1);
-        if (p->jumpFrame >= MAX_JUMP_FRAMES) p->jumpFrame = MAX_JUMP_FRAMES - 1; // ¸¶Áö¸· ÇÁ·¹ÀÓ °íÁ¤ (landing)
-    }
+void update_player(Player* p) { // ë°ì´í„° ë° ìƒíƒœ ê´€ë¦¬
 
-    // Á¡ÇÁ YÃà ¹°¸® ·ÎÁ÷ (±âÁ¸ À¯Áö)
-    if (p->isJumping) {
-        if (p->jumpDirection == 1) {
+    if (p->hurtTimer > 0) {
+        p->hurtTimer--;
+        if (p->hurtTimer <= 0) {
+            p->state = (p->jumpDirection != 0) ? PLAYER_JUMP : PLAYER_RUN;
+        }
+    }
+    
+    switch (p->state) {
+
+    case PLAYER_RUN:
+        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+        break;
+
+    case PLAYER_JUMP:
+        p->jumpFrame++;
+        if (p->jumpFrame >= MAX_JUMP_FRAMES - 2)
+            p->jumpFrame = MAX_JUMP_FRAMES - 1;
+
+        if (p->jumpDirection == 1) { //ìƒìŠ¹
             p->y -= p->jumpSpeed;
             if (p->y <= p->baseY - p->maxJumpHeight) {
                 p->y = p->baseY - p->maxJumpHeight;
                 p->jumpDirection = -1;
             }
         }
-        else if (p->jumpDirection == -1) {
+        else { //í•˜ê°•
             p->y += p->jumpSpeed;
             if (p->y >= p->baseY) {
                 p->y = p->baseY;
-                p->isJumping = false;
-                p->jumpDirection = 0;
-                p->jumpFrame = 0; // ÂøÁö ½Ã ÃÊ±âÈ­
+                p->state = PLAYER_RUN;
+                p->jumpFrame = 0;
             }
         }
+        break;
+    }    
+}
+//ï¿½×·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½
+float get_player_draw_y(Player* p)
+{
+    if (p->state == PLAYER_JUMP)
+        return p->y - (JUMP_DEST_H - RUN_DEST_H);
+
+    return p->y;
+}
+
+void draw_player(Player* p) { //ê·¸ëž˜í”½ ì¶œë ¥
+
+    ALLEGRO_COLOR tint = al_map_rgb(255, 255, 255); // ê¸°ë³¸ ì›ë³¸ìƒ‰
+    if (p->hurtTimer > 0) {
+        if ((p->hurtTimer % 4) < 2) { // 4í”„ë ˆìž„ ì£¼ê¸°ë¡œ ë¹¨ê°•/ì›ë³¸ ê¹œë¹¡ìž„
+            tint = al_map_rgb(255, 0, 0);
+        }
+    }
+
+    float y = get_player_draw_y(p);
+
+    switch (p->state) {
+
+    case PLAYER_RUN: {
+        int frameStartX = p->runFrame * 128;
+
+        //float y = get_player_draw_y(p);
+        al_draw_scaled_bitmap(p->runSheet,
+            frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
+            p->x, y, RUN_DEST_W, RUN_DEST_H, 0);
+        break;
+    }
+
+    case PLAYER_JUMP: {
+        int frameStartX = p->jumpFrame * 128;
+
+
+        //ë³´ì •ê°’ = ì í”„ê·¸ë¦¼ë†’ì´ - ë‹¬ë¦¬ê·¸ë¦¼ë†’ì´ = 260 - 130 = 130ë§Œí¼ ë¨¸ë¦¬ë¥¼ ìœ„ë¡œ(-)
+        float yComp = JUMP_DEST_H - RUN_DEST_H;
+        float y = p->y - yComp;
+
+
+        al_draw_tinted_scaled_bitmap(p->jumpSheet, tint,
+            frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
+            p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
+
+       //al_draw_rectangle(p->x, y, p->x + JUMP_DEST_W, y + JUMP_DEST_H, al_map_rgb(0, 0, 255), 2);
+        break;
+    }
+
     }
 }
 
-void draw_player(Player* p) {
-    // ¡Ú º¯°æ 4: »óÅÂ¿¡ µû¶ó ±×¸®´Â ½ÃÆ® º¯°æ
-    if (!p->isJumping) {
-        // [´Þ¸®±â ±×¸®±â] - ±âÁ¸ ·ÎÁ÷ À¯Áö
-        int frameStartX = p->runFrame * 128;
-        al_draw_scaled_bitmap(p->runSheet,
-            frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
-            p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
-    }
-    else {
-        // [Á¡ÇÁ ±×¸®±â] - »õ·Î¿î ÀÚ¸£±â Á¤º¸¿Í Å©±â »ç¿ë
-        int frameStartX = p->jumpFrame * 128;
+//hit box ï¿½ß°ï¿½
+Rect get_player_hitbox(Player* p)
+{
+    Rect r;
 
-        // ¡ÚÁß¿ä Y º¸Á¤¡Ú: ´Þ¸®±â ±×¸²(130³ôÀÌ) ±âÁØÀ¸·Î Y ÁÂÇ¥°¡ °è»êµÇ¾î ÀÖ½À´Ï´Ù.
-        // ´õ Å« Á¡ÇÁ ±×¸²(260³ôÀÌ)À» ±×¸®¸é ¹ßÀÌ ¶¥¹ØÀ¸·Î ÆÄ°íµì´Ï´Ù.
-        // ±×¸± ¶§¸¸ ¸Ó¸® À§Ä¡¸¦ À§·Î º¸Á¤ÇØ Áà¾ß ÇÕ´Ï´Ù.
-        // (º¸Á¤°ª = Á¡ÇÁ±×¸²³ôÀÌ - ´Þ¸®±×¸²³ôÀÌ = 260 - 130 = 130¸¸Å­ ¸Ó¸®¸¦ À§·Î(-))
-        float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
-        float compensatedY = p->y - yDrawCompensation;
+    float drawY = get_player_draw_y(p);
 
-        al_draw_scaled_bitmap(p->jumpSheet,
-            frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
-            p->x, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
-    }
+    /*
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (draw ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß±ï¿½)
+    if (p->state == PLAYER_JUMP)
+    {
+        drawY -= (JUMP_DEST_H - RUN_DEST_H);
+    }*/
+
+    // offset ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½)
+    r.x = (int)p->x + p->hit_offset_x;
+    r.y = (int)drawY + p->hit_offset_y;
+
+    // Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    r.w = p->hit_w;
+    r.h = p->hit_h;
+
+    return r;
+}
+
+
+//hit box ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void draw_player_hitbox(Player* p)
+{
+    Rect r = get_player_hitbox(p);
+
+    al_draw_rectangle(
+        r.x, r.y,
+        r.x + r.w,
+        r.y + r.h,
+        al_map_rgb(255, 0, 0),
+        2
+    );
 }
 
 void destroy_player(Player* p) {
     al_destroy_bitmap(p->runSheet);
-    al_destroy_bitmap(p->jumpSheet); // ¸Þ¸ð¸® ÇØÁ¦ Ãß°¡
+    al_destroy_bitmap(p->jumpSheet); // ë©”ëª¨ë¦¬ í•´ì œ ì¶”ê°€
 }
 
-//      ÀÓ½Ã      //
-void draw_map() {
-    al_clear_to_color(al_map_rgb(135, 206, 235));
-    al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
-        SCREEN_WIDTH, SCREEN_HEIGHT,
-        al_map_rgb(34, 139, 34));
-}
-#if 0
 
-#include <stdio.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h> // µµÇü(¶¥)À» ±×¸®±â À§ÇØ ÇÊ¿ä
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 400;
-
-// Ä³¸¯ÅÍ ¿øº» ¹× Ãâ·Â Å©±â ¼³Á¤
-const int FRAME_WIDTH = 128;
-const int FRAME_HEIGHT = 128;
-const int CROP_X = 34;
-const int CROP_Y = 28;
-const int SRC_W = 60;
-const int SRC_H = 72;
-const int DEST_W =100;
-const int DEST_H = 200;
-const int MAX_FRAMES = 10;
-
-int main() {
-    // 1. Allegro ÃÊ±âÈ­
-    if (!al_init()) {
-        fprintf(stderr, "Allegro ÃÊ±âÈ­ ½ÇÆÐ!\n");
-        return -1;
-    }
-    al_init_image_addon();
-    al_init_primitives_addon();
-    al_install_keyboard();
-
-    // 2. µð½ºÇÃ·¹ÀÌ, Å¸ÀÌ¸Ó, ÀÌº¥Æ® Å¥ »ý¼º
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 15.0); // 1ÃÊ¿¡ 15ÇÁ·¹ÀÓ (´Þ¸®±â ¼Óµµ Á¶Àý)
-    ALLEGRO_EVENT_QUEUE* event_queue = al_create_event_queue();
-
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-
-    // 3. ÀÌ¹ÌÁö ·Îµå (¹Ýµå½Ã ½ÇÇà ÆÄÀÏ°ú °°Àº Æú´õ¿¡ male_hero-run.png°¡ ÀÖ¾î¾ß ÇÔ)
-    ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
-    if (!runSheet) {
-        fprintf(stderr, "ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ! ÆÄÀÏ °æ·Î¸¦ È®ÀÎÇÏ¼¼¿ä.\n");
-        return -1;
-    }
-
-    // Ä³¸¯ÅÍ ÃÊ±â º¯¼ö
-    int currentFrame = 0;
-    float charX = 100; // È­¸é ¿ÞÂÊ¿¡¼­ ¾à°£ ¶³¾îÁø À§Ä¡
-    float yOffset = 55;
-    float charY = SCREEN_HEIGHT - GROUND_HEIGHT - DEST_H + yOffset; // 400 - 30 - 100 = 270
-
-    bool done = false;
-    bool redraw = true;
-
-    al_start_timer(timer);
-
-    // 4. ¸ÞÀÎ °ÔÀÓ ·çÇÁ
-    while (!done) {
-        ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
-
-        // Ã¢ ´Ý±â ¹öÆ°ÀÌ³ª ESC Å°¸¦ ´©¸£¸é Á¾·á
-        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-            done = true;
-        }
-        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) done = true;
-        }
-        // Å¸ÀÌ¸Ó ÀÌº¥Æ®: ÇÁ·¹ÀÓ Áõ°¡
-        else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            currentFrame = (currentFrame + 1) % MAX_FRAMES; // 0~9 ÇÁ·¹ÀÓ ¹Ýº¹
-            redraw = true;
-        }
-
-        // ·»´õ¸µ (È­¸é ±×¸®±â)
-        if (redraw && al_is_event_queue_empty(event_queue)) {
-            redraw = false;
-
-            // ¹è°æ ±×¸®±â (ÇÏ´Ã»ö)
-            al_clear_to_color(al_map_rgb(135, 206, 235));
-
-            // ¶¥ ±×¸®±â (ÃÊ·Ï»ö, yÁÂÇ¥ 370ºÎÅÍ 400±îÁö)
-            al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
-                SCREEN_WIDTH, SCREEN_HEIGHT,
-                al_map_rgb(34, 139, 34));
-
-            // ÇöÀç ÇÁ·¹ÀÓÀÇ X ½ÃÀÛ ÁÂÇ¥ °è»ê
-            int frameStartX = currentFrame * FRAME_WIDTH;
-
-            // Ä³¸¯ÅÍ ½ºÄÉÀÏ¸µÇÏ¿© ±×¸®±â
-            al_draw_scaled_bitmap(
-                runSheet,
-                frameStartX + CROP_X, CROP_Y,  // ¿øº» X, Y
-                SRC_W, SRC_H,                  // ÀÚ¸¦ Å©±â
-                charX, charY,                  // ±×¸± À§Ä¡
-                DEST_W, DEST_H,                // ´Ã¸± Å©±â (65x100)
-                0                              // ¹æÇâ ±×´ë·Î
-            );
-
-            al_flip_display(); // È­¸é ¾÷µ¥ÀÌÆ®
-        }
-    }
-
-    // 5. ¸Þ¸ð¸® ÇØÁ¦
-    al_destroy_bitmap(runSheet);
-    al_destroy_timer(timer);
-    al_destroy_display(display);
-    al_destroy_event_queue(event_queue);
-
-    return 0;
-}
-
-#endif
-
-//´Þ¸®±â ±¸Çö
-#if 0
-#include <stdio.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h> 
-
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 400;
-const int FRAME_WIDTH = 128;
-const int FRAME_HEIGHT = 128;
-const int CROP_X = 43;
-const int CROP_Y = 33;
-const int SRC_W = 45;
-const int SRC_H = 45; 
-//45x45 -> 120x120
-const int DEST_W = 120;
-const int DEST_H = 120;
-const int MAX_FRAMES = 10;
-
-int main() {
-    if (!al_init()) { //¾Ë·¹±×·Î ½ÇÇà
-        fprintf(stderr, "Allegro ÃÊ±âÈ­ ½ÇÆÐ!\n");
-        return -1;
-    }
-    al_init_image_addon(); //ÀÌ¹ÌÁö ±â´É
-    al_init_primitives_addon(); //µµÇü ±â´É
-    al_install_keyboard(); //Å°º¸µå Ã³¸®
-
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    //¾Ö´Ï¸ÞÀÌ¼Ç ¼Óµµ ÀÓÀÇ ¼³Á¤
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 15.0);
-    ALLEGRO_EVENT_QUEUE* event_queue = al_create_event_queue();
-
-    //ÀÌº¥Æ® Å¥ÀÇ ¿¬°á
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-
-    ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
-    if (!runSheet) {
-        fprintf(stderr, "ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ! ÆÄÀÏ °æ·Î¸¦ È®ÀÎÇÏ¼¼¿ä.\n");
-        return -1;
-    }
-
-    int currentFrame = 0;
-    float charX = 100; //È­¸é»ó xÁÂÇ¥
-
-    // Á¡ÇÁ¸¦ À§ÇÑ º¯¼ö
-    float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - DEST_H ; // ¶¥¿¡ ´ê¾ÆÀÖÀ» ¶§ÀÇ ±âº» Y ÁÂÇ¥
-    float charY = baseY;
-
-    bool isJumping = false;
-    int jumpDirection = 0;       // 1: À§·Î ¿Ã¶ó°¨, -1: ¾Æ·¡·Î ³»·Á¿È
-    float jumpSpeed = 22.0f;     // Á¡ÇÁ »ó½Â/ÇÏ°­ ¼Óµµ (¼ýÀÚ°¡ Å¬¼ö·Ï ºü¸§)
-    float maxJumpHeight = 150;// Ä³¸¯ÅÍ Å°(180)¸¸Å­ Á¡ÇÁ
-
-    bool done = false;
-    bool redraw = true;
-
-    al_start_timer(timer);
-
-    while (!done) {
-        ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
-
-        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-            done = true;
-        }
-        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) done = true;
-
-            // ½ºÆäÀÌ½º¹Ù³ª À§ÂÊ È­»ìÇ¥¸¦ ´©¸£¸é Á¡ÇÁ ½ÃÀÛ
-            if (ev.keyboard.keycode == ALLEGRO_KEY_UP || ev.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                if (!isJumping) {
-                    isJumping = true;
-                    jumpDirection = 1; // À§·Î ÀÌµ¿ ½ÃÀÛ
-                }
-            }
-        }
-        else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            if (!isJumping) {
-                currentFrame = (currentFrame + 1) % MAX_FRAMES;
-            }
-            else currentFrame = 0;
-
-            // ´Ü¼ø Á¡ÇÁ ·ÎÁ÷ (¹°¸® ¹ýÄ¢ Á¦¿Ü)
-            if (isJumping) {
-                if (jumpDirection == 1) { // ¿Ã¶ó°¡´Â Áß
-                    charY -= jumpSpeed;
-                    if (charY <= baseY - maxJumpHeight) {
-                        charY = baseY - maxJumpHeight; // ÃÖ´ë ³ôÀÌ¿¡ µµ´ÞÇÏ¸é °íÁ¤
-                        jumpDirection = -1;            // ³»·Á¿À±â ½ÃÀÛ
-                    }
-                }
-                else if (jumpDirection == -1) { // ³»·Á¿À´Â Áß
-                    charY += jumpSpeed;
-                    if (charY >= baseY) {
-                        charY = baseY;      // ¶¥¿¡ ÂøÁöÇÏ¸é ÁÂÇ¥¸¦ ¿ø·¡´ë·Î °íÁ¤
-                        isJumping = false;  // Á¡ÇÁ »óÅÂ ÇØÁ¦
-                        jumpDirection = 0;
-                    }
-                }
-            }
-            redraw = true;
-        }
-
-        if (redraw && al_is_event_queue_empty(event_queue)) {
-            redraw = false;
-
-            al_clear_to_color(al_map_rgb(135, 206, 235));
-            al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
-                SCREEN_WIDTH, SCREEN_HEIGHT,
-                al_map_rgb(34, 139, 34));
-
-            int frameStartX = currentFrame * FRAME_WIDTH;
-
-            al_draw_scaled_bitmap(
-                runSheet,
-                frameStartX + CROP_X, CROP_Y,
-                SRC_W, SRC_H,
-                charX, charY,                  // º¯°æµÈ charY Àû¿ë
-                DEST_W, DEST_H,
-                0
-            );
-
-            al_flip_display();
-        }
-    }
-
-    al_destroy_bitmap(runSheet);
-    al_destroy_timer(timer);
-    al_destroy_display(display);
-    al_destroy_event_queue(event_queue);
-
-    return 0;
-}
-
-#endif
-
-#if 0
-long frames = 0;
-long score = 0;
-
-int player_x = 50;
-int player_y = 100;
-int player_w = 20;
-int player_h = 20;
-
-void init_player(Player* p, float startX, float startY) {
-    p->runSheet = al_load_bitmap("male_hero-run.png");
-    p->jumpSheet = al_load_bitmap("male_hero-jump.png");
-
-    if (!p->runSheet || !p->jumpSheet) { // µÑ Áß ÇÏ³ª¶óµµ ·Îµå ½ÇÆÐ ½Ã Á¾·á
-        fprintf(stderr, "ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ!\n");
-        return -1;
-    }
-
-    p->runFrame = 0;
-    p->jumpFrame = 0;
-    p->x = startX;
-    p->baseY = startY;
-    p->y = p->baseY;
-    p->isJumping = false;
-    p->jumpDirection = 0;
-    p->jumpSpeed = 20.0f;
-    p->maxJumpHeight = 100;
-}
-
-void update_player(Player* p) {
-    // ¡Ú º¯°æ 3: ¾Ö´Ï¸ÞÀÌ¼Ç Àç»ý ·ÎÁ÷ ºÐ¸®
-    if (!p->isJumping) {
-        // ´Þ¸® ÁßÀÏ ¶§¸¸ ´Þ¸®±â ÇÁ·¹ÀÓÀ» ³Ñ±é´Ï´Ù.
-        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
-    }
-    else {
-        p->jumpFrame = (p->jumpFrame + 1);
-        if (p->jumpFrame >= MAX_JUMP_FRAMES) p->jumpFrame = MAX_JUMP_FRAMES - 1; // ¸¶Áö¸· ÇÁ·¹ÀÓ °íÁ¤ (landing)
-    }
-
-    // Á¡ÇÁ YÃà ¹°¸® ·ÎÁ÷ (±âÁ¸ À¯Áö)
-    if (p->isJumping) {
-        if (p->jumpDirection == 1) {
-            p->y -= p->jumpSpeed;
-            if (p->y <= p->baseY - p->maxJumpHeight) {
-                p->y = p->baseY - p->maxJumpHeight;
-                p->jumpDirection = -1;
-            }
-        }
-        else if (p->jumpDirection == -1) {
-            p->y += p->jumpSpeed;
-            if (p->y >= p->baseY) {
-                p->y = p->baseY;
-                p->isJumping = false;
-                p->jumpDirection = 0;
-                p->jumpFrame = 0; // ÂøÁö ½Ã ÃÊ±âÈ­
-            }
-        }
-    }
-}
-
-void draw_player(Player* p) {
-    // ¡Ú º¯°æ 4: »óÅÂ¿¡ µû¶ó ±×¸®´Â ½ÃÆ® º¯°æ
-    if (!p->isJumping) {
-        // [´Þ¸®±â ±×¸®±â] - ±âÁ¸ ·ÎÁ÷ À¯Áö
-        int frameStartX = p->runFrame * 128;
-        al_draw_scaled_bitmap(p->runSheet,
-            frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
-            p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
-    }
-    else {
-        // [Á¡ÇÁ ±×¸®±â] - »õ·Î¿î ÀÚ¸£±â Á¤º¸¿Í Å©±â »ç¿ë
-        int frameStartX = p->jumpFrame * 128;
-
-        // ¡ÚÁß¿ä Y º¸Á¤¡Ú: ´Þ¸®±â ±×¸²(130³ôÀÌ) ±âÁØÀ¸·Î Y ÁÂÇ¥°¡ °è»êµÇ¾î ÀÖ½À´Ï´Ù.
-        // ´õ Å« Á¡ÇÁ ±×¸²(260³ôÀÌ)À» ±×¸®¸é ¹ßÀÌ ¶¥¹ØÀ¸·Î ÆÄ°íµì´Ï´Ù.
-        // ±×¸± ¶§¸¸ ¸Ó¸® À§Ä¡¸¦ À§·Î º¸Á¤ÇØ Áà¾ß ÇÕ´Ï´Ù.
-        // (º¸Á¤°ª = Á¡ÇÁ±×¸²³ôÀÌ - ´Þ¸®±×¸²³ôÀÌ = 260 - 130 = 130¸¸Å­ ¸Ó¸®¸¦ À§·Î(-))
-        float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
-        float compensatedY = p->y - yDrawCompensation;
-
-        al_draw_scaled_bitmap(p->jumpSheet,
-            frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
-            p->x, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
-    }
-}
-
-void destroy_player(Player* p) {
-    al_destroy_bitmap(p->runSheet);
-    al_destroy_bitmap(p->jumpSheet); // ¸Þ¸ð¸® ÇØÁ¦ Ãß°¡
-}
-
-int main() {
-    if (!al_init()) return -1;
-    al_init_image_addon();
-    al_init_primitives_addon();
-    al_install_keyboard();
-
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 15.0);
-    ALLEGRO_EVENT_QUEUE* event_queue = al_create_event_queue();
-
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-
-    Player player;
-    init_player(&player, 100, SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H);
-    //ALLEGRO_BITMAP* runSheet = al_load_bitmap("male_hero-run.png");
-    //// ¡Ú º¯°æ 1: Á¡ÇÁ ÀÌ¹ÌÁö ·Îµå
-    //ALLEGRO_BITMAP* jumpSheet = al_load_bitmap("male_hero-jump.png");
-
-    //if (!runSheet || !jumpSheet) { // µÑ Áß ÇÏ³ª¶óµµ ·Îµå ½ÇÆÐ ½Ã Á¾·á
-    //    fprintf(stderr, "ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ!\n");
-    //    return -1;
-    //}
-
-    //int runFrame = 0;   // ´Þ¸®±â ÇÁ·¹ÀÓ ÃßÀû
-    //// ¡Ú º¯°æ 2: Á¡ÇÁ ÇÁ·¹ÀÓ ÃßÀû º¯¼ö Ãß°¡
-    //int jumpFrame = 0;
-    //float charX = 100;
-
-    //// YÃà ¹°¸® ¹ýÄ¢ (±âÁ¸ À¯Áö)
-    //float baseY = SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H; // ¶¥¿¡ ´ê¾ÆÀÖÀ» ¶§ÀÇ ±âº» Y ÁÂÇ¥ (»ó´Ü 130±âÁØ)
-    //float charY = baseY;
-
-    //bool isJumping = false;
-    //int jumpDirection = 0;
-    //float jumpSpeed = 20.0f;
-    //float maxJumpHeight = 100;
-
-
-    bool done = false;
-    bool redraw = true;
-
-    al_start_timer(timer);
-
-    while (!done) {
-        ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
-
-        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-            done = true;
-        }
-        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) done = true;
-
-            if (ev.keyboard.keycode == ALLEGRO_KEY_UP || ev.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                if (!player.isJumping) {
-                    player.isJumping = true;
-                    player.jumpDirection = 1;
-                    // ¡Ú º¯°æ: Á¡ÇÁ ½ÃÀÛ ½Ã ÇÁ·¹ÀÓ ÃÊ±âÈ­
-                    player.jumpFrame = 0;
-                }
-            }
-        }
-        else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            update_player(&player);
-
-            redraw = true;
-        }
-
-        if (redraw && al_is_event_queue_empty(event_queue)) {
-            redraw = false;
-            draw_player(&player);
-            al_flip_display();
-            al_clear_to_color(al_map_rgb(135, 206, 235));
-            al_draw_filled_rectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT,
-                SCREEN_WIDTH, SCREEN_HEIGHT,
-                al_map_rgb(34, 139, 34));
-            draw_player(&player);
-            al_flip_display();
-
-            // ¡Ú º¯°æ 4: »óÅÂ¿¡ µû¶ó ±×¸®´Â ½ÃÆ® º¯°æ
-            if (!isJumping) {
-                // [´Þ¸®±â ±×¸®±â] - ±âÁ¸ ·ÎÁ÷ À¯Áö
-                int frameStartX = runFrame * 128;
-                al_draw_scaled_bitmap(runSheet,
-                    frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
-                    charX, charY, RUN_DEST_W, RUN_DEST_H, 0);
-            }
-            else {
-                // [Á¡ÇÁ ±×¸®±â] - »õ·Î¿î ÀÚ¸£±â Á¤º¸¿Í Å©±â »ç¿ë
-                int frameStartX = jumpFrame * 128;
-
-                // ¡ÚÁß¿ä Y º¸Á¤¡Ú: ´Þ¸®±â ±×¸²(130³ôÀÌ) ±âÁØÀ¸·Î Y ÁÂÇ¥°¡ °è»êµÇ¾î ÀÖ½À´Ï´Ù.
-                // ´õ Å« Á¡ÇÁ ±×¸²(260³ôÀÌ)À» ±×¸®¸é ¹ßÀÌ ¶¥¹ØÀ¸·Î ÆÄ°íµì´Ï´Ù.
-                // ±×¸± ¶§¸¸ ¸Ó¸® À§Ä¡¸¦ À§·Î º¸Á¤ÇØ Áà¾ß ÇÕ´Ï´Ù.
-                // (º¸Á¤°ª = Á¡ÇÁ±×¸²³ôÀÌ - ´Þ¸®±×¸²³ôÀÌ = 260 - 130 = 130¸¸Å­ ¸Ó¸®¸¦ À§·Î(-))
-                float yDrawCompensation = JUMP_DEST_H - RUN_DEST_H;
-                float compensatedY = charY - yDrawCompensation;
-
-                al_draw_scaled_bitmap(jumpSheet,
-                    frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
-                    charX, compensatedY, JUMP_DEST_W, JUMP_DEST_H, 0);
-            }
-
-        }
-    }
-
-    destroy_player(&player);
-    al_destroy_bitmap(runSheet);
-    al_destroy_bitmap(jumpSheet); // ¸Þ¸ð¸® ÇØÁ¦ Ãß°¡
-    al_destroy_timer(timer);
-    al_destroy_display(display);
-    al_destroy_event_queue(event_queue);
-
-    return 0;
-}
-#endif
