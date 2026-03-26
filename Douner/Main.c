@@ -11,9 +11,9 @@ long score = 0;
 int main() {
    
     if (!al_init()) return -1;
-    must_init(al_init_primitives_addon(),"primitives_addon");
-	must_init(al_install_keyboard(), "keyboard");
-	must_init(al_init_image_addon(), "image_addon");
+    must_init(al_init_primitives_addon(), "primitives_addon");
+    must_init(al_install_keyboard(), "keyboard");
+    must_init(al_init_image_addon(), "image_addon");
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -54,7 +54,7 @@ int main() {
     {
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+      
 
 
         // ... 게임 루프 내부 ...
@@ -85,7 +85,7 @@ int main() {
             // 위로 가는 버튼이거나 스페이스를 누르면
             // 플레이어가 공중에 있지않으면 점프할 준비를 한다.
             if (event.keyboard.keycode == ALLEGRO_KEY_UP
-                || event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+                ) {
                 if (player.state == PLAYER_RUN) {
                     player.state = PLAYER_JUMP;
                     player.jumpDirection = 1;
@@ -93,8 +93,11 @@ int main() {
                 }
                 printf("UP\n");
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+               
                 printf("DOWN\n");
+            }
+          
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -107,12 +110,10 @@ int main() {
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
-        
+
         }
-        redraw = 1;
 
 
-        
         if (done)
             break;
 

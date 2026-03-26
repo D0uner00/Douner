@@ -139,17 +139,20 @@
     <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="menu.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png" />
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\troll.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud.h" />
