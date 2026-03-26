@@ -24,9 +24,14 @@ typedef struct {
     int difficulty;
 } GameState;
 
+typedef struct {
+    int x, y, w, h;
+} Rect;
+
 void must_init(bool test, const char* description);
-int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh);
+//int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh);
 void game_init(GameState* game);
+int collide_rect(Rect a, Rect b);
 
 //		юс╫ц			//
 void draw_map();

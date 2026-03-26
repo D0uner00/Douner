@@ -4,19 +4,19 @@
 
 // 달리기 자르기 정보
 #define RUN_CROP_X 43 
-#define RUN_CROP_Y 33
+#define RUN_CROP_Y 43
 #define RUN_SRC_W 45
-#define RUN_SRC_H 45
+#define RUN_SRC_H 38
 #define RUN_DEST_W 120
 #define RUN_DEST_H 120
 
 //점프 자르기 정보 
-#define JUMP_CROP_X 30
-#define JUMP_CROP_Y 10
-#define JUMP_SRC_W 60
-#define JUMP_SRC_H 70
-#define JUMP_DEST_W 150
-#define JUMP_DEST_H 230
+#define JUMP_CROP_X 43
+#define JUMP_CROP_Y 38
+#define JUMP_SRC_W 33
+#define JUMP_SRC_H 40
+#define JUMP_DEST_W 110
+#define JUMP_DEST_H 120
 
 //프레임 수
 #define MAX_RUN_FRAMES 10
@@ -48,6 +48,12 @@ typedef struct player {
 	float jumpSpeed;
 	float maxJumpHeight;
 
+	//추가
+	int hit_offset_x;
+	int hit_offset_y;
+	int hit_w;
+	int hit_h;
+
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;
 }Player;
@@ -56,6 +62,9 @@ void init_player(Player* p);
 void update_player(Player* p);
 void draw_player(Player* p);
 void destroy_player(Player* p);
+//그려지는 좌표 통일
+float get_player_draw_y(Player* p);
+Rect get_player_hitbox(Player* p);
+void draw_player_hitbox(Player* p);
 
-
-#endif // !_PLAYER_H_
+#endif
