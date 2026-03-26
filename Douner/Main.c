@@ -12,6 +12,7 @@ int player_w = 20;
 int player_h = 20;
 
 int main() {
+   
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(),"primitives_addon");
 	must_init(al_install_keyboard(), "keyboard");
@@ -29,6 +30,9 @@ int main() {
 
     keyboard_init();
     item_init();
+
+    GameState game;
+    game_init(&game);
 
     // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
