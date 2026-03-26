@@ -32,7 +32,7 @@ int main() {
 
     // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
-    init_player(&player, 100, SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H);
+    init_player(&player);
 
     bool done = false;
     bool redraw = true;

@@ -16,11 +16,15 @@
 #define JUMP_SRC_W 64
 #define JUMP_SRC_H 90
 #define JUMP_DEST_W 140
-#define JUMP_DEST_H 260
+#define JUMP_DEST_H 230
 
 //프레임 수
 #define MAX_RUN_FRAMES 10
 #define MAX_JUMP_FRAMES 6
+
+//플레이어 시작 위치
+#define StartX 100
+#define StartY SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
 
 typedef struct player {
 	int runFrame;
@@ -36,7 +40,7 @@ typedef struct player {
 	ALLEGRO_BITMAP* jumpSheet;
 }Player;
 
-void init_player(Player* p, float startX, float startY);
+void init_player(Player* p);
 void update_player(Player* p);
 void draw_player(Player* p);
 void destroy_player(Player* p);
