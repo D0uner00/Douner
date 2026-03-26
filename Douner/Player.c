@@ -1,8 +1,8 @@
 #include "Player.h"
 
 void init_player(Player* p) {
-    p->runSheet = al_load_bitmap("dooner_run.png");
-    p->jumpSheet = al_load_bitmap("dooner_jump.png");
+    p->runSheet = al_load_bitmap("male_hero-run.png");
+    p->jumpSheet = al_load_bitmap("male_hero-jump.png");
 
     if (!p->runSheet || !p->jumpSheet) { // 둘 중 하나라도 로드 실패 시 종료
         fprintf(stderr, "이미지 로드 실패!\n");
@@ -77,12 +77,10 @@ void draw_player(Player* p) { //그래픽 출력
 
     case PLAYER_RUN: {
         int frameStartX = p->runFrame * 128;
-        float yComp = JUMP_DEST_H - RUN_DEST_H;
-        float drawY = p->y - yComp;
         al_draw_tinted_scaled_bitmap(p->runSheet, tint,
             frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
             p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
-        //al_draw_rectangle(p->x, drawY, p->x + JUMP_DEST_W, drawY + JUMP_DEST_H, al_map_rgb(0, 255, 0), 2);
+        //al_draw_rectangle(p->x, p->y, p->x + RUN_DEST_W, p->y + RUN_DEST_H, al_map_rgb(255, 0, 0), 2);
         break;
     }
 
@@ -96,7 +94,7 @@ void draw_player(Player* p) { //그래픽 출력
             frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
             p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
 
-        //al_draw_rectangle(p->x, p->y, p->x + RUN_DEST_W, p->y + RUN_DEST_H, al_map_rgb(0, 255, 0), 2);
+        //al_draw_rectangle(p->x, y, p->x + JUMP_DEST_W, y + JUMP_DEST_H, al_map_rgb(0, 0, 255), 2);
         break;
     }
 
