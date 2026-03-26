@@ -77,9 +77,12 @@ void draw_player(Player* p) { //그래픽 출력
 
     case PLAYER_RUN: {
         int frameStartX = p->runFrame * 128;
+        float yComp = JUMP_DEST_H - RUN_DEST_H;
+        float drawY = p->y - yComp;
         al_draw_tinted_scaled_bitmap(p->runSheet, tint,
             frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
             p->x, p->y, RUN_DEST_W, RUN_DEST_H, 0);
+        //al_draw_rectangle(p->x, drawY, p->x + JUMP_DEST_W, drawY + JUMP_DEST_H, al_map_rgb(0, 255, 0), 2);
         break;
     }
 
@@ -92,6 +95,8 @@ void draw_player(Player* p) { //그래픽 출력
         al_draw_tinted_scaled_bitmap(p->jumpSheet, tint,
             frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
             p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
+
+        //al_draw_rectangle(p->x, p->y, p->x + RUN_DEST_W, p->y + RUN_DEST_H, al_map_rgb(0, 255, 0), 2);
         break;
     }
 
