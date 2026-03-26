@@ -5,6 +5,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include "item.h"
+#include "global.h"
 
 Item items[ITEM_MAX];
 extern long frames;
@@ -67,12 +68,6 @@ void item_draw()
     }
 }
 
-int collide(int ax, int ay, int aw, int ah,
-    int bx, int by, int bw, int bh)
-{
-    return !(ax > bx + bw || ax + aw < bx ||
-        ay > by + bh || ay + ah < by);
-}
 
 void item_collision_check()
 {
