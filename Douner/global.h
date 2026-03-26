@@ -1,11 +1,17 @@
+
 #ifndef _GLOBAL_H_ 
+
 #define _GLOBAL_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <allegro5/allegro.h>
+
 #include <allegro5/allegro_primitives.h> // µµÇü ±×¸®±â¸¦ À§ÇØ ÇÊ¿ä
+
+#include <allegro5/allegro_primitives.h> // ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
+
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 
@@ -20,6 +26,7 @@
 
 void must_init(bool test, const char* description);
 int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh);
+
 
 //		ÀÓ½Ã			//
 void draw_map();
