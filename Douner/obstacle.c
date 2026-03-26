@@ -18,7 +18,7 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size) {
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
                 // 랜덤하게 3가지 타입 중 하나 소환
-                SpawnObstacle(&obs[i], (ObstacleType)(rand() % 3));
+                SpawnObstacle(&obs[i], (ObstacleType)(rand() % 1));
                 break;
             }
         }
@@ -45,7 +45,7 @@ void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x) {
 
         // 점프 로직
         if (obs[i].type == OBS_JUMPING) {
-            if (!obs[i].is_jumping && (obs[i].x - player_x < 150)) {
+            if (!obs[i].is_jumping && (obs[i].x - player_x < 200)) {
                 obs[i].is_jumping = 1;
                 obs[i].vy = obs[i].jump_power;
             }
@@ -78,7 +78,7 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type) {
     obs->is_active = 1;
     obs->type = type;
     obs->x = SCREEN_WIDTH;
-    obs->speed = 5.0f;
+    obs->speed = 10.0f;
 
     // 규격 설정 (쓰레기통은 90, 나머지는 40)
     if (type == OBS_GROUND) {         // 쓰레기통
@@ -143,8 +143,8 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size)
         float ph = (player->state == PLAYER_JUMP) ? JUMP_DEST_H : RUN_DEST_H;
 
         // 판정을 넉넉하게 하기 위해 60% 크기만 사용
-        float p_hit_w = pw * 0.4f;
-        float p_hit_h = ph * 0.4f;
+        float p_hit_w = pw * 0.2f;
+        float p_hit_h = ph * 0.2f;
         float p_hit_x = player->x + (pw - p_hit_w) / 2;
         float p_hit_y = player->y + (ph - p_hit_h) / 2;
 
