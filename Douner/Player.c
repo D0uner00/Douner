@@ -17,7 +17,7 @@ void init_player(Player* p) {
     p->isJumping = false;
     p->jumpDirection = 0;
     p->jumpSpeed = 15.0f;
-    p->maxJumpHeight = 100;
+    p->maxJumpHeight = 120;
 }
 
 void update_player(Player* p) {
