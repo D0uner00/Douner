@@ -21,20 +21,20 @@
 */
 
 // 달리기 자르기 정보
-#define RUN_CROP_X 43 
-#define RUN_CROP_Y 13
-#define RUN_SRC_W 128
-#define RUN_SRC_H 128
-#define RUN_DEST_W 150
-#define RUN_DEST_H 150
+#define RUN_CROP_X 40 
+#define RUN_CROP_Y 20
+#define RUN_SRC_W 60
+#define RUN_SRC_H 95
+#define RUN_DEST_W 90
+#define RUN_DEST_H 140
 
 //점프 자르기 정보 
-#define JUMP_CROP_X 30
+#define JUMP_CROP_X 40
 #define JUMP_CROP_Y 10
-#define JUMP_SRC_W 128
-#define JUMP_SRC_H 128
-#define JUMP_DEST_W 150
-#define JUMP_DEST_H 150
+#define JUMP_SRC_W 50
+#define JUMP_SRC_H 95
+#define JUMP_DEST_W 75
+#define JUMP_DEST_H 140
 
 //프레임 수
 #define MAX_RUN_FRAMES 9
@@ -42,7 +42,7 @@
 
 //플레이어 시작 위치
 #define StartX 100
-#define StartY 210 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+#define StartY 195 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
 
 typedef enum {
 	PLAYER_RUN,
