@@ -150,6 +150,7 @@
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png" />
+    <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\troll.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud.h" />
