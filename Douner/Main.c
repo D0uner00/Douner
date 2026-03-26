@@ -3,15 +3,13 @@
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
+//#include "obstacle.h"
 
 long frames;
 long score = 0;
-int player_x = 50;
-int player_y = 100;
-int player_w = 20;
-int player_h = 20;
 
 int main() {
+   
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -26,9 +24,18 @@ int main() {
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
 
+    /*
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
+    */
 
     keyboard_init();
     item_init();
+
+    GameState game;
+    game_init(&game);
 
     // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
@@ -47,7 +54,32 @@ int main() {
     {
         al_wait_for_event(queue, &event);
 
+      
+
+
+        // ... 게임 루프 내부 ...
         switch (event.type) {
+
+        case ALLEGRO_EVENT_TIMER:
+            // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
+            // 아이템의 위치도 변경시킨다
+            //UpdateSpawning(&spawner, obs_pool, MAX_OBS);
+            item_update();
+            item_draw();
+
+            update_player(&player);
+            
+            item_collision_check(&game, &player);
+
+            if (key[ALLEGRO_KEY_ESCAPE])
+                done = true;
+
+            if (key[ALLEGRO_KEY_DOWN])
+                printf("Holding DOWN\n");
+
+            redraw = true;
+            frames++;
+            break;
 
         case ALLEGRO_EVENT_KEY_DOWN:
             // 위로 가는 버튼이거나 스페이스를 누르면
@@ -75,21 +107,6 @@ int main() {
                 printf("Stand\n");
             break;
 
-        case ALLEGRO_EVENT_TIMER:
-            // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
-            // 아이템의 위치도 변경시킨다
-            item_update();
-            item_collision_check();
-            update_player(&player);
-            if (key[ALLEGRO_KEY_ESCAPE])
-                done = true;
-
-            if (key[ALLEGRO_KEY_DOWN])
-                printf("Holding DOWN\n");
-
-            redraw = true;
-            frames++;
-            break;
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
@@ -115,7 +132,10 @@ int main() {
                 player_y + player_h,
                 al_map_rgb(0, 255, 0));*/
 
-                // 아이템
+            //디버깅용
+            //draw_player_hitbox(&player);
+
+            // 아이템
             item_draw();
 
             //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
@@ -124,7 +144,6 @@ int main() {
         }
     }
 
-    // 5. ����
     // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
     destroy_player(&player);
     al_destroy_timer(timer);
