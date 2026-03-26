@@ -27,6 +27,11 @@ int main() {
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
 
+    // 2. ���� �غ�
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
 
     keyboard_init();
     item_init();
@@ -36,7 +41,7 @@ int main() {
 
     // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
-    init_player(&player, 100, SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H);
+    init_player(&player);
 
     bool done = false;
     bool redraw = true;
@@ -51,6 +56,14 @@ int main() {
     {
         al_wait_for_event(queue, &event);
 
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+
+
+
+        // ... 게임 루프 내부 ...
+        if (event.type == ALLEGRO_EVENT_TIMER) {
+            // 2. 관리자에게 "시간 흘렀으니까 알아서 소환해"라고 시킴
+            UpdateSpawning(&spawner, obs_pool, MAX_OBS);
         switch (event.type) {
 
         case ALLEGRO_EVENT_KEY_DOWN:
@@ -58,8 +71,8 @@ int main() {
             // 플레이어가 공중에 있지않으면 점프할 준비를 한다.
             if (event.keyboard.keycode == ALLEGRO_KEY_UP
                 || event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-                if (!player.isJumping) {
-                    player.isJumping = true;
+                if (player.state == PLAYER_RUN) {
+                    player.state = PLAYER_JUMP;
                     player.jumpDirection = 1;
                     player.jumpFrame = 0;
                 }
@@ -96,6 +109,8 @@ int main() {
             break;
         
         }
+        redraw = 1;
+
 
         
         if (done)
