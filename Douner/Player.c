@@ -17,7 +17,7 @@ void init_player(Player* p) {
     p->y = p->baseY;
 
     p->jumpDirection = 0;
-    p->jumpSpeed = 15.0f;
+    p->jumpSpeed = 10.0f;
     p->maxJumpHeight = 120; 
 
     p->hurtTimer = 0;
@@ -42,7 +42,7 @@ void update_player(Player* p) { // 데이터 및 상태 관리
 
     case PLAYER_JUMP:
         p->jumpFrame++;
-        if (p->jumpFrame >= MAX_JUMP_FRAMES)
+        if (p->jumpFrame >= MAX_JUMP_FRAMES - 2)
             p->jumpFrame = MAX_JUMP_FRAMES - 1;
 
         if (p->jumpDirection == 1) { //상승
@@ -94,7 +94,7 @@ void draw_player(Player* p) { //그래픽 출력
             frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
             p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
 
-        //al_draw_rectangle(p->x, y, p->x + JUMP_DEST_W, y + JUMP_DEST_H, al_map_rgb(0, 0, 255), 2);
+       //al_draw_rectangle(p->x, y, p->x + JUMP_DEST_W, y + JUMP_DEST_H, al_map_rgb(0, 0, 255), 2);
         break;
     }
 

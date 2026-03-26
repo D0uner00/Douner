@@ -61,8 +61,10 @@ int main() {
                 }
                 printf("UP\n");
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+               
                 printf("DOWN\n");
+            }
           
             break;
 
