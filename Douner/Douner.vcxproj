@@ -134,15 +134,27 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="global.c" />
+    <ClCompile Include="hud.c" />
+    <ClCompile Include="item.c" />
+    <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="obstacle.c" />
+    <ClCompile Include="Player.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="global.h" />
     <ClInclude Include="obstacle.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\trash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="hud.h" />
+    <ClInclude Include="item.h" />
+    <ClInclude Include="keyboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
