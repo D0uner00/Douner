@@ -25,3 +25,17 @@ void keyboard_update(ALLEGRO_EVENT* event)
         break;
     }
 }
+
+bool key_down(int keycode) {
+    if (key[keycode] & KEY_DOWN) {
+		key[keycode] &= ~KEY_SEEN;
+
+        return true;
+    }
+    return false;
+}
+
+bool key_pressed(int keycode) {
+	return key[keycode] & KEY_SEEN;
+}
+
