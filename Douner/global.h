@@ -20,4 +20,7 @@
 
 void must_init(bool test, const char* description);
 
+//		юс╫ц			//
+void draw_map();
+
 #endif

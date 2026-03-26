@@ -57,6 +57,5 @@ void update_player(Player* p);
 void draw_player(Player* p);
 void destroy_player(Player* p);
 
-//		юс╫ц			//
-void draw_map();
+
 #endif // !_PLAYER_H_
