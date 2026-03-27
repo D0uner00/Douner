@@ -20,7 +20,6 @@ void draw_map() {
 void game_init(GameState* game)
 {
     game->score = 0;
-    game->life = 3;
     game->hp = 100.0f;
     game->difficulty = 0;
 }

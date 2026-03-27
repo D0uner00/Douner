@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <string.h>
 #include <allegro5/allegro.h>
@@ -27,7 +28,6 @@
 
 typedef struct {
     int score;
-    int life;
     float hp;
     int difficulty;
     char player_name[NAME_MAX]; // 이 플레이어의 주인 이름
@@ -36,7 +36,8 @@ typedef struct {
 typedef enum {
     SCREEN_MENU,
     SCREEN_PLAY,
-    SCREEN_NAME_INPUT
+    SCREEN_NAME_INPUT,
+	SCREEN_RANKING
 } GameScreen;
 
 typedef struct {

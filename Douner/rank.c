@@ -1,6 +1,6 @@
-#ifndef RNAK_H
-#define RANK_H
-
+#define _CRT_SECURE_NO_WARNINGS
+#include "rank.h"
+extern FILE* rank_file;
 /*
 int exists_in_ranking(const char* name)
 {
@@ -12,4 +12,3 @@ int exists_in_ranking(const char* name)
     return 0;
 }
 */
-#endif // !
