@@ -10,7 +10,7 @@ void InitSpawnManager(SpawnManager* sm) {
 }
 
 // 2. 실시간 소환 로직 (타이머 이벤트마다 호출)
-void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size) {
+void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game) {
     sm->timer++;
 
     if (sm->timer >= sm->interval) {
