@@ -8,7 +8,6 @@
 #include <allegro5/allegro.h>
 
 #include <allegro5/allegro_primitives.h> // 도형 그리기를 위해 필요
-
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
@@ -24,7 +23,8 @@
 
 typedef struct {
     int score;
-    int life;
+    float life;
+    int hp;
     int difficulty;
 } GameState;
 
