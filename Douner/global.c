@@ -22,14 +22,6 @@ int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
         ay > by + bh || ay + ah < by);
 }*/
 
-int collide_rect(Rect a, Rect b)
-{
-    return !(a.x > b.x + b.w ||
-        a.x + a.w < b.x ||
-        a.y > b.y + b.h ||
-        a.y + a.h < b.y);
-}
-
 void game_init(GameState* game)
 {
     game->score = 0;

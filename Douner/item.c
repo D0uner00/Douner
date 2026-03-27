@@ -7,6 +7,7 @@
 #include "item.h"
 #include "global.h"
 #include "Player.h"
+#include "hitbox.h"
 
 Item items[ITEM_MAX];
 extern long frames;
@@ -60,17 +61,6 @@ void item_draw()
                 items[i].x + 10,
                 items[i].y + 10,
                 al_map_rgb(255, 255, 0)
-            );
-
-            //디버깅용
-            // 히트박스 표시 (빨간색)
-            al_draw_rectangle(
-                items[i].x,
-                items[i].y,
-                items[i].x + 10,
-                items[i].y + 10,
-                al_map_rgb(255, 0, 0),
-                1
             );
         }
     }
