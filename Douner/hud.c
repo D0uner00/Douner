@@ -3,6 +3,10 @@
 // Main.c에 선언된 폰트 전역 변수를 공유해서 사용합니다.
 extern ALLEGRO_FONT* menu_font;
 
+hud_init() {
+
+}
+
 void hud_draw(GameState* game)
 {
     // 아이템을 먹어서 올라간 점수(game->score)를 화면 우측 상단에 출력합니다. 
@@ -14,4 +18,8 @@ void hud_draw(GameState* game)
         "SCORE: %d",             // 000010 형식
         game->score
     );
+}
+
+hud_deinit() {
+
 }
