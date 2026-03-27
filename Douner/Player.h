@@ -18,7 +18,7 @@
 #define JUMP_DEST_W 110
 #define JUMP_DEST_H 120
 
-//�����̵� �ڸ��� ����
+//슬라이딩 자르기 정보
 #define SLIDE_CROP_X 35
 #define SLIDE_CROP_Y 57
 #define SLIDE_SRC_W 55
@@ -26,7 +26,6 @@
 #define SLIDE_DEST_W 130
 #define SLIDE_DEST_H 80
 
-//������ ��
 //프레임 수
 #define MAX_RUN_FRAMES 9
 #define MAX_JUMP_FRAMES 6
