@@ -3,10 +3,12 @@
 #include "mouse.h"
 #include "menu.h"
 #include "item.h"
+#include "rank.h"
 #include "Player.h"
 #include "obstacle.h"
 
 ALLEGRO_FONT* menu_font;
+FILE* rank_file;
 long frames;
 long score = 0;
 bool done = false;
@@ -28,11 +30,13 @@ void on_enter_name() {
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",NULL),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
 
 int main() {
+    processRank();
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -42,7 +46,7 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT); 
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
     hud_init();
@@ -112,7 +116,7 @@ int main() {
             case SCREEN_NAME_INPUT:
                 break;
             }
-            
+
             redraw = true;
             frames++;
             mouse_tick();
@@ -120,7 +124,7 @@ int main() {
 
         case ALLEGRO_EVENT_KEY_DOWN:
 
-            switch(cur_screen){
+            switch (cur_screen) {
             case SCREEN_PLAY:
                 if (event.keyboard.keycode == ALLEGRO_KEY_UP
                     ) {
@@ -141,8 +145,8 @@ int main() {
             case SCREEN_NAME_INPUT:
                 break;
             }
-        
-        break;
+
+            break;
 
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
@@ -182,12 +186,12 @@ int main() {
                 case SCREEN_NAME_INPUT:
                     break;
                 }
-                
+
                 al_flip_display();
                 redraw = false;
             }
         }
-
+    }
     // --- 정리 및 자원 해제 ---
     destroy_player(&player);
     hud_deinit();

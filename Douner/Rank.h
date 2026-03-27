@@ -2,11 +2,14 @@
 #define _RANK_H_
 #include "global.h"
 
-typedef struct rank{
+typedef struct record{
 	char name[20];
 	int score;
 	int difficulty;
-}Rank;
+}Record;
 
+
+void file_read(Record* records, int count);
+void file_write(Record* records, int count);
 
 #endif // !_RANK_H_
