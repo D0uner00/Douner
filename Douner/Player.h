@@ -34,7 +34,7 @@
 
 //플레이어 시작 위치
 #define StartX 100
-#define StartY 215 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+#define StartY 230 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
 
 typedef enum {
 	PLAYER_RUN,

@@ -184,7 +184,7 @@ int main() {
                 draw_background(&bg);
                 // draw_map(); // 기존에 있었다면 통합해서 관리하세요.
                 draw_player(&player);
-                draw_player_hitbox(&player);
+                //draw_player_hitbox(&player);
                 item_draw();
                 DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
                 hud_draw(&game); // HP바와 점수 출력 
