@@ -1,6 +1,7 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 #include "global.h"
+#include "hitbox.h"
 
 // 달리기 자르기 정보
 #define RUN_CROP_X 43 
@@ -57,12 +58,14 @@ typedef struct player {
 	float jumpSpeed;
 	float maxJumpHeight;
 
-	//추가
-	int hit_offset_x;
-	int hit_offset_y;
-	int hit_w;
-	int hit_h;
 	int hurtTimer;
+
+	//추가
+	Hitbox run_hitbox;
+	Hitbox jump_hitbox;
+	Hitbox slide_hitbox;
+
+	Hitbox* cur_hitbox;
 
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;

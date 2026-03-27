@@ -174,13 +174,9 @@ int main() {
                         //al_clear_to_color(al_map_rgb(0, 0, 0));
                     draw_map();
                     draw_player(&player);
-                    // 플레이어 대신 테스트 박스
-                    /*al_draw_filled_rectangle(player_x, player_y,
-                        player_x + player_w,
-                        player_y + player_h,
-                        al_map_rgb(0, 255, 0));*/
-                        //디버깅용
-                        //draw_player_hitbox(&player);
+                    
+                    //디버깅용
+                    draw_player_hitbox(&player);
 
                         // 아이템
                     item_draw();
