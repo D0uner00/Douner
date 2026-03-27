@@ -15,7 +15,12 @@ void draw_map() {
         al_map_rgb(34, 139, 34));
 }
 
-
+/*
+int collide(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
+{
+    return !(ax > bx + bw || ax + aw < bx ||
+        ay > by + bh || ay + ah < by);
+}*/
 
 void game_init(GameState* game)
 {

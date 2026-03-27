@@ -2,6 +2,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "menu.h"
+#include "hud.h"
 #include "item.h"
 #include "Player.h"
 //#include "obstacle.h"
@@ -11,23 +12,18 @@ ALLEGRO_FONT* menu_font;
 long frames;
 long score = 0;
 bool done = false;
-
-GameScreen cur_screen = SCREEN_MENU;
+bool in_menu = true;
 
 void on_start() {
-    cur_screen = SCREEN_PLAY; // 게임 시작
+    in_menu = false; // 게임 시작
 }
 
 void on_exit() {
     done = true;    // 프로그램 종료
 }
 
-void on_enter_name() {
-    cur_screen = SCREEN_NAME_INPUT;
-}
-
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Enter Name",on_enter_name),
+    MENU_BUTTON("TEMP",NULL),
     MENU_BUTTON("Start Game",on_start),
     MENU_BUTTON("Exit", on_exit),
     MENU_BUTTON("TEMP",NULL),
@@ -64,7 +60,6 @@ int main() {
 
     keyboard_init();
     item_init();
-
     menu_init(main_menu);
 
     GameState game;
@@ -77,8 +72,10 @@ int main() {
     bool redraw = true;
     ALLEGRO_EVENT event;
 
+    //float player_x = 100; 
     srand(time(NULL));
 
+    //int redraw = 1;
     al_start_timer(timer);
     while (!done)
     {
@@ -87,38 +84,43 @@ int main() {
         keyboard_update(&event);
         mouse_update(&event);
 
+
+        // ... 게임 루프 내부 ...
         switch (event.type) {
 
         case ALLEGRO_EVENT_TIMER:
-
-            switch (cur_screen) {
-            case SCREEN_MENU:
-                menu_update(main_menu);
-                break;
-
-            case SCREEN_PLAY:
+            if (in_menu) {
+                int result = menu_update(main_menu);
+                if (result == MENU_EXIT) {
+                    done = true;
+                }
+            }
+            else {
+                // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
+                // 아이템의 위치도 변경시킨다
+                //UpdateSpawning(&spawner, obs_pool, MAX_OBS);
                 item_update();
+                item_draw();
 
                 update_player(&player);
 
                 item_collision_check(&game, &player);
-
                 if (key[ALLEGRO_KEY_ESCAPE])
-                    cur_screen = SCREEN_MENU;
-
-            case SCREEN_NAME_INPUT:
-                break;
+                    in_menu = true;
             }
-            
+
+            if (key[ALLEGRO_KEY_DOWN])
+                printf("Holding DOWN\n");
+
             redraw = true;
             frames++;
             mouse_tick();
             break;
 
         case ALLEGRO_EVENT_KEY_DOWN:
-
-            switch(cur_screen){
-            case SCREEN_PLAY:
+            if (!in_menu) {
+                // 위로 가는 버튼이거나 스페이스를 누르면
+                // 플레이어가 공중에 있지않으면 점프할 준비를 한다.
                 if (event.keyboard.keycode == ALLEGRO_KEY_UP
                     ) {
                     if (player.state == PLAYER_RUN) {
@@ -135,13 +137,8 @@ int main() {
                         printf("DOWN\n");
                     }
                 }
-                break;
-
-            case SCREEN_NAME_INPUT:
-                break;
             }
-        
-        break;
+                break;
 
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_UP)
@@ -168,23 +165,24 @@ int main() {
 
             if (redraw && al_is_event_queue_empty(queue))
             {
-                switch (cur_screen) {
-                case SCREEN_MENU:
+                if (in_menu) {
                     menu_draw(main_menu);
-                    break;
-
-                case SCREEN_PLAY:
+                }
+                else {
+                    // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
+                        // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
+                        //al_clear_to_color(al_map_rgb(0, 0, 0));
                     draw_map();
                     draw_player(&player);
-                    //debug
+                    
+                    //디버깅용
                     draw_player_hitbox(&player);
-                    item_draw();
-                    break;
 
-                case SCREEN_NAME_INPUT:
-                    break;
+                        // 아이템
+                    item_draw();
+
+                    //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
                 }
-                
                 al_flip_display();
                 redraw = false;
             }
