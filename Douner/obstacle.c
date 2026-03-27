@@ -50,7 +50,7 @@ void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x) {
 
         // 점프 로직
         if (obs[i].type == OBS_JUMPING) {
-            if (!obs[i].is_jumping && (obs[i].x - player_x < 150)) {
+            if (!obs[i].is_jumping && (obs[i].x - player_x < 190)) {
                 obs[i].is_jumping = 1;
                 obs[i].vy = obs[i].jump_power;
             }
@@ -99,7 +99,7 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type) {
         obs->height = 60;
     }
     // Y 좌표 설정
-    if (type == OBS_FLYING) obs->y = GROUND_Y - 190;
+    if (type == OBS_FLYING) obs->y = GROUND_Y - 180;
     else if (type == OBS_GROUND) obs->y = GROUND_Y - obs->height;
     else obs->y = GROUND_Y - obs->height;
 
