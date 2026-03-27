@@ -8,7 +8,7 @@ typedef struct record{
 	int difficulty;
 }Record;
 
-
+//int exists_in_ranking(const char* name);
 void file_read(Record* records, int count);
 void file_write(Record* records, int count);
 
