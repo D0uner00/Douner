@@ -95,6 +95,12 @@ int main() {
                     done = true;
                 }
             }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+                if (player.state == PLAYER_RUN) {
+                    player.state = PLAYER_SLIDING;
+                    player.slideFrame = 0; // 프레임 초기화
+                }
+                printf("DOWN\n");
             else {
                 // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
                 // 아이템의 위치도 변경시킨다
@@ -140,8 +146,14 @@ int main() {
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_UP)
                 printf("Stand\n");
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+                if (player.state == PLAYER_SLIDING) {
+                    player.state = PLAYER_RUN;
+                    player.runFrame = 0; // 프레임 초기화
+                }
                 printf("Stand\n");
+            }
+                
             break;
 
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
