@@ -1,8 +1,9 @@
 #ifndef HUD_H
 #define HUD_H
-#endif // !_HUD_H
 
-void hud_init();
-void hud_deinit();
-void hud_update();
-void hud_draw();
+#include "global.h"
+hud_init();
+void hud_draw(GameState* game);
+hud_deinit();
+
+#endif // !_HUD_H
