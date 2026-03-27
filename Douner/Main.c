@@ -25,8 +25,8 @@ void on_exit() {
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("TEMP",NULL),
     MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",NULL),
     MENU_BUTTON("Exit", on_exit),
-    MENU_BUTTON("TEMP",NULL),
     MENU_END()
 };
 
