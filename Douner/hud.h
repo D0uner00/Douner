@@ -4,7 +4,7 @@
 #include "global.h"
 
 void hud_init();
-void hud_update(GameState* game);
+void hp_update(GameState* game);
 void hud_draw(GameState* game);
 void hud_deinit();
 

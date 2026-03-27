@@ -36,6 +36,13 @@ void init_player(Player* p) {
 
 }
 
+void hp_update(GameState* game) {
+    // 1. 초당 조금씩 줄어드는 HP (30fps 기준 프레임당 0.1씩 감소 시 초당 3 감소)
+    if (game->hp > 0) {
+        game->hp -= 0.05f;
+    }
+}
+
 void update_player(Player* p) { // 데이터 및 상태 관리
 
     if (p->hurtTimer > 0) p->hurtTimer--;
@@ -76,6 +83,7 @@ void update_player(Player* p) { // 데이터 및 상태 관리
         break;
     }
 }
+
 float get_player_draw_y(Player* p)
 {
     if (p->state == PLAYER_JUMP)

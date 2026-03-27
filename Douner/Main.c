@@ -37,7 +37,6 @@ MENU_ITEM main_menu[] = {
 };
 
 int main() {
-    processRank();
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -110,7 +109,7 @@ int main() {
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
                 obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
                 UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
-                hud_update(&game); // HP 서서히 감소 로직 
+                hp_update(&game); // HP 서서히 감소 로직 
 
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {
