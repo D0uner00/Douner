@@ -181,6 +181,8 @@ int main() {
                         // 아이템
                     item_draw();
 
+                    //점수
+                    hud_draw(&game);
                     //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
                 }
                 al_flip_display();
