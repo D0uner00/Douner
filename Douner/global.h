@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <allegro5/allegro.h>
 
@@ -30,7 +31,8 @@ typedef struct {
 typedef enum {
     SCREEN_MENU,
     SCREEN_PLAY,
-    SCREEN_NAME_INPUT
+    SCREEN_NAME_INPUT,
+	SCREEN_RANKING
 } GameScreen;
 
 typedef struct {

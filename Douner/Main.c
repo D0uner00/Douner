@@ -3,11 +3,13 @@
 #include "mouse.h"
 #include "menu.h"
 #include "item.h"
+#include "rank.h"
 #include "Player.h"
 #include "obstacle.h"
 #include "Background.h"
 
 ALLEGRO_FONT* menu_font;
+FILE* rank_file;
 long frames;
 long score = 0;
 bool done = false;
@@ -27,13 +29,15 @@ void on_enter_name() {
 }
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Enter Name", on_enter_name),
-    MENU_BUTTON("Start Game", on_start),
+    MENU_BUTTON("Enter Name",on_enter_name),
+    MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",NULL),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
 
 int main() {
+    processRank();
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -125,6 +129,7 @@ int main() {
             break;
 
         case ALLEGRO_EVENT_KEY_DOWN:
+
             switch (cur_screen) {
             case SCREEN_PLAY:
                 if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
@@ -147,6 +152,7 @@ int main() {
             default:
                 break;
             }
+
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
