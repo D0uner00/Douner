@@ -23,8 +23,8 @@
 
 typedef struct {
     int score;
-    float life;
-    int hp;
+    int life;
+    float hp;
     int difficulty;
 } GameState;
 

@@ -22,7 +22,7 @@ void hud_init()
 void hud_update(GameState* game) {
     // 1. 초당 조금씩 줄어드는 HP (30fps 기준 프레임당 0.1씩 감소 시 초당 3 감소)
     if (game->hp > 0) {
-        game->hp -= 0.05f;
+        game->hp -= 0.02f;
     }
 }
 
