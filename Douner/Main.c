@@ -1,5 +1,7 @@
 #include "global.h"
 #include "keyboard.h"
+#include "mouse.h"
+#include "menu.h"
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
@@ -7,10 +9,24 @@
 
 long frames;
 long score = 0;
-int player_x = 50;
-int player_y = 100;
-int player_w = 20;
-int player_h = 20;
+bool done = false;
+bool in_menu = true;
+
+void on_start() {
+    in_menu = false; // 게임 시작
+}
+
+void on_exit() {
+    done = true;    // 프로그램 종료
+}
+
+MENU_ITEM main_menu[] = {
+    MENU_BUTTON("TEMP",NULL),
+    MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Exit", on_exit),
+    MENU_BUTTON("TEMP",NULL),
+    MENU_END()
+};
 
 int main() {
 
@@ -22,15 +38,22 @@ int main() {
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    ALLEGRO_FONT* font = al_create_builtin_font();
+
+    menu_font = al_create_builtin_font();
+    //ALLEGRO_FONT* font = al_create_builtin_font();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
+    al_register_event_source(queue, al_get_mouse_event_source());
 
 
     keyboard_init();
     item_init();
+    menu_init(main_menu);
+
+    GameState game;
+    game_init(&game);
 
     GameState game;
     game_init(&game);
@@ -39,7 +62,6 @@ int main() {
     Player player;
     init_player(&player);
 
-    bool done = false;
     bool redraw = true;
     ALLEGRO_EVENT event;
     // 2. 변수 준비
@@ -55,7 +77,7 @@ int main() {
 
     //int redraw = 1;
     al_start_timer(timer);
-    while (1)
+    while (!done)
     {
         al_wait_for_event(queue, &event);
 
@@ -116,7 +138,7 @@ int main() {
         if (done)
             break;
 
-        keyboard_update(&event);
+            keyboard_update(&event);
 
         if (redraw && al_is_event_queue_empty(queue))
         {
@@ -138,14 +160,13 @@ int main() {
             al_flip_display();
             redraw = false;
         }
+
+        // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
+        destroy_player(&player);
+        al_destroy_timer(timer);
+        al_destroy_font(menu_font);
+        al_destroy_event_queue(queue);
+        al_destroy_display(display);
+
+        return 0;
     }
-
-    // 5. ����
-    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
-    destroy_player(&player);
-    al_destroy_timer(timer);
-    al_destroy_event_queue(queue);
-    al_destroy_display(display);
-
-    return 0;
-}

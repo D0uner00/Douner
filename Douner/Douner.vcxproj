@@ -139,11 +139,15 @@
     <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="menu.c" />
+    <ClCompile Include="mouse.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
