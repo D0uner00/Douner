@@ -1,62 +1,25 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
 #include "hud.h"
 
-ALLEGRO_FONT* font;
-long score_display;
-extern long frames;
-extern long score;
+// Main.c에 선언된 폰트 전역 변수를 공유해서 사용합니다.
+extern ALLEGRO_FONT* menu_font;
 
-void hud_init()
-{
-    font = al_create_builtin_font();
-    //must_init(font, "font");
+hud_init() {
 
-    score_display = 0;
 }
 
-void hud_deinit()
+void hud_draw(GameState* game)
 {
-    al_destroy_font(font);
-}
-
-void hud_update()
-{
-    if (frames % 2)
-        return;
-
-    for (long i = 5; i > 0; i--)
-    {
-        long diff = 1 << i;
-        if (score_display <= (score - diff))
-            score_display += diff;
-    }
-}
-
-void hud_draw()
-{
+    // 아이템을 먹어서 올라간 점수(game->score)를 화면 우측 상단에 출력합니다. 
     al_draw_textf(
-        font,
-        al_map_rgb_f(1, 1, 1),
-        1, 1,
-        0,
-        "%06ld",
-        score_display
+        menu_font,
+        al_map_rgb(255, 255, 255), // 하얀색
+        SCREEN_WIDTH - 20, 20,      // 우측 상단 좌표
+        ALLEGRO_ALIGN_RIGHT,       // 우측 정렬
+        "SCORE: %d",             // 000010 형식
+        game->score
     );
+}
 
-    /*
-    int spacing = LIFE_W + 1;
-    for (int i = 0; i < ship.lives; i++)
-        al_draw_bitmap(sprites.life, 1 + (i * spacing), 10, 0);
+hud_deinit() {
 
-    if (ship.lives < 0)
-        al_draw_text(
-            font,
-            al_map_rgb_f(1, 1, 1),
-            BUFFER_W / 2, BUFFER_H / 2,
-            ALLEGRO_ALIGN_CENTER,
-            "G A M E  O V E R"
-        );
-
-    */
 }

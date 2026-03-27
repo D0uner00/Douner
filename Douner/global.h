@@ -9,10 +9,9 @@
 
 #include <allegro5/allegro_primitives.h> // 도형 그리기를 위해 필요
 
-#include <allegro5/allegro_primitives.h> 
-
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 400

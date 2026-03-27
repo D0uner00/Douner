@@ -15,23 +15,22 @@ bool done = false;
 bool in_menu = true;
 
 void on_start() {
-    in_menu = false; // 게임 시작
+    in_menu = false;
 }
 
 void on_exit() {
-    done = true;    // 프로그램 종료
+    done = true;
 }
 
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("TEMP",NULL),
     MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",NULL),
     MENU_BUTTON("Exit", on_exit),
-    MENU_BUTTON("TEMP",NULL),
     MENU_END()
 };
 
 int main() {
-
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -44,19 +43,12 @@ int main() {
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
-    //ALLEGRO_FONT* font = al_create_builtin_font();
+    hud_init(); // [수정] HUD 전용 큰 폰트 초기화
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
-
-    /*
-    Obstacle obs_pool[MAX_OBS];
-    InitObstacles(obs_pool, MAX_OBS);
-    SpawnManager spawner;
-    InitSpawnManager(&spawner);
-    */
 
     keyboard_init();
     item_init();
@@ -73,7 +65,6 @@ int main() {
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
 
-    // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
     init_player(&player);
 
@@ -86,33 +77,21 @@ int main() {
 
     //int redraw = 1;
     al_start_timer(timer);
-    while (!done)
-    {
+
+    while (!done) {
         al_wait_for_event(queue, &event);
 
         keyboard_update(&event);
         mouse_update(&event);
 
-
-        // ... 게임 루프 내부 ...
         switch (event.type) {
-
         case ALLEGRO_EVENT_TIMER:
             if (in_menu) {
-                int result = menu_update(main_menu);
-                if (result == MENU_EXIT) {
-                    done = true;
-                }
+                if (menu_update(main_menu) == MENU_EXIT) done = true;
             }
             else {
-                // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
-                // 아이템의 위치도 변경시킨다
-                //UpdateSpawning(&spawner, obs_pool, MAX_OBS);
                 item_update();
-                item_draw();
-
                 update_player(&player);
-
                 item_collision_check(&game, &player);
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
                 obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
@@ -120,10 +99,6 @@ int main() {
                 if (key[ALLEGRO_KEY_ESCAPE])
                     in_menu = true;
             }
-
-            if (key[ALLEGRO_KEY_DOWN])
-                printf("Holding DOWN\n");
-
             redraw = true;
             frames++;
             mouse_tick();
@@ -131,41 +106,35 @@ int main() {
 
         case ALLEGRO_EVENT_KEY_DOWN:
             if (!in_menu) {
-                // 위로 가는 버튼이거나 스페이스를 누르면
-                // 플레이어가 공중에 있지않으면 점프할 준비를 한다.
-                if (event.keyboard.keycode == ALLEGRO_KEY_UP
-                    ) {
+                if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_JUMP;
                         player.jumpDirection = 1;
                         player.jumpFrame = 0;
                     }
-                    printf("UP\n");
                 }
                 else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_SLIDING;
-                        player.slideFrame = 0; // 프레임 초기화
-                        printf("DOWN\n");
+                        player.slideFrame = 0;
                     }
                 }
             }
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
-            if (event.keyboard.keycode == ALLEGRO_KEY_UP)
-                printf("Stand\n");
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
                 if (player.state == PLAYER_SLIDING) {
                     player.state = PLAYER_RUN;
-                    player.runFrame = 0; // 프레임 초기화
+                    player.runFrame = 0;
                 }
-            printf("Stand\n");
+            }
             break;
 
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
+        }
 
         }
 
