@@ -125,7 +125,7 @@ void draw_player(Player* p) { //그래픽 출력
         al_draw_tinted_scaled_bitmap(p->slideSheet, tint, // tint 적용
             frameStartX + SLIDE_CROP_X, SLIDE_CROP_Y, SLIDE_SRC_W, SLIDE_SRC_H,
             p->x, y, SLIDE_DEST_W, SLIDE_DEST_H, 0);
-        al_draw_rectangle(p->x, y, p->x + SLIDE_DEST_W, y + SLIDE_DEST_H, al_map_rgb(255, 0, 0), 2);
+        //al_draw_rectangle(p->x, y, p->x + SLIDE_DEST_W, y + SLIDE_DEST_H, al_map_rgb(255, 0, 0), 2);
         break;
     }
     }
