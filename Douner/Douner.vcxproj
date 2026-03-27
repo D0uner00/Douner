@@ -133,12 +133,12 @@
   <ItemGroup>
     <ClCompile Include="global.c" />
     <ClCompile Include="hitbox.c" />
-    <ClCompile Include="hud.c" />
     <ClCompile Include="item.c" />
     <ClCompile Include="keyboard.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="mouse.c" />
+    <ClCompile Include="name_input.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
     <ClCompile Include="rank.c" />
@@ -150,7 +150,7 @@
     <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="rank.h" />
+    <ClInclude Include="ranking.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
@@ -158,7 +158,6 @@
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\troll.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hud.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="keyboard.h" />
   </ItemGroup>
