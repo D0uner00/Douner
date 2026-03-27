@@ -27,11 +27,13 @@ void init_player(Player* p) {
 
     p->state = PLAYER_RUN;
 
-    //��Ʈ�ڽ� �߰�
-    p->hit_offset_x = 30;
-    p->hit_offset_y = 8;
-    p->hit_w = 70;
-    p->hit_h = 110;
+    p->run_hitbox = (Hitbox){ 30, 7, 70, 110 };
+    p->jump_hitbox = (Hitbox){ 30, 8, 70, 110 };
+    p->slide_hitbox = (Hitbox){ 20, 50, 110, 65 };
+
+    // 초기 상태
+    p->cur_hitbox = &p->run_hitbox;
+
 }
 
 void update_player(Player* p) { // 데이터 및 상태 관리
@@ -42,10 +44,13 @@ void update_player(Player* p) { // 데이터 및 상태 관리
 
     case PLAYER_RUN:
         p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+        p->cur_hitbox = &p->run_hitbox;
         break;
 
     case PLAYER_JUMP:
         p->jumpFrame++;
+        p->cur_hitbox = &p->jump_hitbox;
+
         if (p->jumpFrame >= MAX_JUMP_FRAMES - 2)
             p->jumpFrame = MAX_JUMP_FRAMES - 1;
 
@@ -67,10 +72,10 @@ void update_player(Player* p) { // 데이터 및 상태 관리
         break;
     case PLAYER_SLIDING:
         p->slideFrame = (p->slideFrame + 1) % MAX_SLIDE_FRAMES;
+        p->cur_hitbox = &p->slide_hitbox;
         break;
     }    
 }
-//�׷����� ��ǥ ����
 float get_player_draw_y(Player* p)
 {
     if (p->state == PLAYER_JUMP)
@@ -95,7 +100,6 @@ void draw_player(Player* p) { //그래픽 출력
     case PLAYER_RUN: {
         int frameStartX = p->runFrame * 128;
 
-        //float y = get_player_draw_y(p);
         al_draw_scaled_bitmap(p->runSheet,
             frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
             p->x, y, RUN_DEST_W, RUN_DEST_H, 0);
@@ -107,15 +111,12 @@ void draw_player(Player* p) { //그래픽 출력
 
 
         //보정값 = 점프그림높이 - 달리그림높이 = 260 - 130 = 130만큼 머리를 위로(-)
-        float yComp = JUMP_DEST_H - RUN_DEST_H;
-        float y = p->y - yComp;
-
-
+        //float yComp = JUMP_DEST_H - RUN_DEST_H;
+        //float y = p->y - yComp;
+        
         al_draw_tinted_scaled_bitmap(p->jumpSheet, tint,
             frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
             p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
-
-       //al_draw_rectangle(p->x, y, p->x + JUMP_DEST_W, y + JUMP_DEST_H, al_map_rgb(0, 0, 255), 2);
         break;
     }
     case PLAYER_SLIDING: {
@@ -125,7 +126,6 @@ void draw_player(Player* p) { //그래픽 출력
         al_draw_tinted_scaled_bitmap(p->slideSheet, tint, // tint 적용
             frameStartX + SLIDE_CROP_X, SLIDE_CROP_Y, SLIDE_SRC_W, SLIDE_SRC_H,
             p->x, y, SLIDE_DEST_W, SLIDE_DEST_H, 0);
-        al_draw_rectangle(p->x, y, p->x + SLIDE_DEST_W, y + SLIDE_DEST_H, al_map_rgb(255, 0, 0), 2);
         break;
     }
     }
@@ -133,31 +133,19 @@ void draw_player(Player* p) { //그래픽 출력
 
 
 //hit box
-    Rect get_player_hitbox(Player * p){
+Rect get_player_hitbox(Player * p){
     Rect r;
 
     float drawY = get_player_draw_y(p);
 
-    /*
-    // ���� �� ���� (draw �������� ���߱�)
-    if (p->state == PLAYER_JUMP)
-    {
-        drawY -= (JUMP_DEST_H - RUN_DEST_H);
-    }*/
-
-    // offset ���� (���� �������� �̵�)
-    r.x = (int)p->x + p->hit_offset_x;
-    r.y = (int)drawY + p->hit_offset_y;
-
-    // ũ�� ����
-    r.w = p->hit_w;
-    r.h = p->hit_h;
+    r.x = p->x + p->cur_hitbox->offset_x;
+    r.y = drawY + p->cur_hitbox->offset_y;
+    r.w = p->cur_hitbox->w;
+    r.h = p->cur_hitbox->h;
 
     return r;
 }
 
-
-//hit box ������
 void draw_player_hitbox(Player* p)
 {
     Rect r = get_player_hitbox(p);
