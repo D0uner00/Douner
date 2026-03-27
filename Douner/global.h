@@ -34,6 +34,10 @@ typedef enum {
     SCREEN_NAME_INPUT
 } GameScreen;
 
+typedef struct {
+    int x, y, w, h;
+} Rect;
+
 void must_init(bool test, const char* description);
 void game_init(GameState* game);
 
