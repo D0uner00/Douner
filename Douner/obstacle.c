@@ -18,7 +18,12 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size) {
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
                 // 랜덤하게 3가지 타입 중 하나 소환
-                SpawnObstacle(&obs[i], (ObstacleType)(rand() % 3));
+                ObstacleType spawn_pool[] = { OBS_GROUND, OBS_GROUND, OBS_FLYING, OBS_JUMPING };
+
+                // 배열 크기가 4이므로 % 4를 사용
+                ObstacleType selected = spawn_pool[rand() % 4];
+
+                SpawnObstacle(&obs[i], selected);
                 break;
             }
         }
@@ -78,30 +83,30 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type) {
     obs->is_active = 1;
     obs->type = type;
     obs->x = SCREEN_WIDTH;
-    obs->speed = 10.0f;
+    obs->speed = 8.0f;
 
     // 규격 설정 (쓰레기통은 90, 나머지는 40)
     if (type == OBS_GROUND) {         // 쓰레기통
         obs->width = 40;
         obs->height = 50;
     }
-    else if (type == OBS_FLYING) {    // 접시 (비행)
+    else if (type == OBS_FLYING) {    // 도라에몽 (비행)
         obs->width = 60;
-        obs->height = 40;
-    }
-    else if (type == OBS_JUMPING) {   // 트롤 (점프)
-        obs->width = 40;
         obs->height = 100;
     }
+    else if (type == OBS_JUMPING) {   // 피카츄 (점프)
+        obs->width = 100;
+        obs->height = 60;
+    }
     // Y 좌표 설정
-    if (type == OBS_FLYING) obs->y = GROUND_Y - 120;
-    else if (type == OBS_GROUND) obs->y = GROUND_Y - obs->height - 20;
+    if (type == OBS_FLYING) obs->y = GROUND_Y - 190;
+    else if (type == OBS_GROUND) obs->y = GROUND_Y - obs->height;
     else obs->y = GROUND_Y - obs->height;
 
     obs->initial_y = obs->y;
     obs->vy = 0;
     obs->is_jumping = 0;
-    obs->jump_power = -12.0f;
+    obs->jump_power = -13.5f;
 
     // 애니메이션 초기화
     obs->cur_frame = 0;
@@ -114,27 +119,50 @@ void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALL
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
 
-        if (obs[i].type == OBS_JUMPING && img_j_sheet) {
-            int sw = al_get_bitmap_width(img_j_sheet) / 4;
-            int sh = al_get_bitmap_height(img_j_sheet);
-            al_draw_scaled_bitmap(img_j_sheet, obs[i].cur_frame * sw, 0, sw, sh,
-                obs[i].x, obs[i].y, obs[i].width, obs[i].height, 0);
+        ALLEGRO_BITMAP* target_img = NULL;
+        bool is_animated = false;
+
+        // 1. 타입에 따른 이미지 결정
+        if (obs[i].type == OBS_JUMPING) {
+            target_img = img_j_sheet;
+            is_animated = true;
+        }
+        else if (obs[i].type == OBS_FLYING) {
+            target_img = img_f;
+            is_animated = true; // 만약 비행 장애물도 4프레임이라면 true
         }
         else {
-            ALLEGRO_BITMAP* cur = (obs[i].type == OBS_GROUND) ? img_g : img_f;
-            if (cur) {
-                al_draw_scaled_bitmap(cur, 0, 0, al_get_bitmap_width(cur), al_get_bitmap_height(cur),
-                    obs[i].x, obs[i].y, obs[i].width, obs[i].height, 0);
-            }
+            target_img = img_g;
+            is_animated = false;
+        }
+
+        if (!target_img) continue;
+
+        // 2. 그리기 로직
+        if (is_animated) {
+            int sw = al_get_bitmap_width(target_img) / 4;
+            int sh = al_get_bitmap_height(target_img);
+            al_draw_scaled_bitmap(target_img,
+                obs[i].cur_frame * sw, 0, sw, sh,      // 소스(이미지) 영역
+                obs[i].x, obs[i].y, obs[i].width, obs[i].height, // 대상(화면) 영역
+                0);
+        }
+        else {
+            // 정적 이미지 (지면 장애물 등)
+            al_draw_scaled_bitmap(target_img,
+                0, 0, al_get_bitmap_width(target_img), al_get_bitmap_height(target_img),
+                obs[i].x, obs[i].y, obs[i].width, obs[i].height,
+                0);
         }
     }
 }
 
 void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game)
 {
-    Rect pBox = get_player_hitbox(player);
-    // 이미 아픈 상태이거나 죽은 상태라면 중복 충돌 방지 (선택 사항)
     if (player->hurtTimer > 0 || player->state == PLAYER_DEATH) return;
+
+    Rect pBox = get_player_hitbox(player);
+
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
 
@@ -142,9 +170,10 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameStat
         Rect iBox = {
            obs[i].x,
            obs[i].y,
-           20,
-           20
+           15,  // 장애물 생성 시 
+           obs[i].height  // 장애물 생성 시 
         };
+
 
         // AABB 충돌 계산
         if (collide_rect(pBox, iBox))
