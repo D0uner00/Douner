@@ -8,7 +8,7 @@ void init_player(Player* p) {
 
     if (!p->runSheet || !p->jumpSheet || !p->slideSheet) { // 둘 중 하나라도 로드 실패 시 종료
         fprintf(stderr, "이미지 로드 실패!\n");
-        return ;
+        return;
     }
 
     p->runFrame = 0;
@@ -21,7 +21,7 @@ void init_player(Player* p) {
 
     p->jumpDirection = 0;
     p->jumpSpeed = 10.0f;
-    p->maxJumpHeight = 120; 
+    p->maxJumpHeight = 120;
 
     p->hurtTimer = 0;
 
@@ -39,7 +39,7 @@ void init_player(Player* p) {
 void update_player(Player* p) { // 데이터 및 상태 관리
 
     if (p->hurtTimer > 0) p->hurtTimer--;
-    
+
     switch (p->state) {
 
     case PLAYER_RUN:
@@ -74,7 +74,7 @@ void update_player(Player* p) { // 데이터 및 상태 관리
         p->slideFrame = (p->slideFrame + 1) % MAX_SLIDE_FRAMES;
         p->cur_hitbox = &p->slide_hitbox;
         break;
-    }    
+    }
 }
 float get_player_draw_y(Player* p)
 {
@@ -100,7 +100,7 @@ void draw_player(Player* p) { //그래픽 출력
     case PLAYER_RUN: {
         int frameStartX = p->runFrame * 128;
 
-        al_draw_scaled_bitmap(p->runSheet,
+        al_draw_tinted_scaled_bitmap(p->runSheet, tint,
             frameStartX + RUN_CROP_X, RUN_CROP_Y, RUN_SRC_W, RUN_SRC_H,
             p->x, y, RUN_DEST_W, RUN_DEST_H, 0);
         break;
@@ -113,7 +113,7 @@ void draw_player(Player* p) { //그래픽 출력
         //보정값 = 점프그림높이 - 달리그림높이 = 260 - 130 = 130만큼 머리를 위로(-)
         //float yComp = JUMP_DEST_H - RUN_DEST_H;
         //float y = p->y - yComp;
-        
+
         al_draw_tinted_scaled_bitmap(p->jumpSheet, tint,
             frameStartX + JUMP_CROP_X, JUMP_CROP_Y, JUMP_SRC_W, JUMP_SRC_H,
             p->x, y, JUMP_DEST_W, JUMP_DEST_H, 0);
@@ -126,6 +126,7 @@ void draw_player(Player* p) { //그래픽 출력
         al_draw_tinted_scaled_bitmap(p->slideSheet, tint, // tint 적용
             frameStartX + SLIDE_CROP_X, SLIDE_CROP_Y, SLIDE_SRC_W, SLIDE_SRC_H,
             p->x, y, SLIDE_DEST_W, SLIDE_DEST_H, 0);
+        //al_draw_rectangle(p->x, y, p->x + SLIDE_DEST_W, y + SLIDE_DEST_H, al_map_rgb(255, 0, 0), 2);
         break;
     }
     }
@@ -133,7 +134,7 @@ void draw_player(Player* p) { //그래픽 출력
 
 
 //hit box
-Rect get_player_hitbox(Player * p){
+Rect get_player_hitbox(Player* p) {
     Rect r;
 
     float drawY = get_player_draw_y(p);
@@ -164,6 +165,3 @@ void destroy_player(Player* p) {
     al_destroy_bitmap(p->jumpSheet);
     al_destroy_bitmap(p->slideSheet);
 }
-
-
-

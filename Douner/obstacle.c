@@ -130,7 +130,7 @@ void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALL
     }
 }
 
-void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* Game)
+void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game)
 {
     Rect pBox = get_player_hitbox(player);
     // 이미 아픈 상태이거나 죽은 상태라면 중복 충돌 방지 (선택 사항)
@@ -149,7 +149,7 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameStat
         // AABB 충돌 계산
         if (collide_rect(pBox, iBox))
         {
-            printf("Dameged! loif = %d\n", Game->life);
+            printf("Dameged! life = %d\n", --game->life);
             // 라이프 감소
             obs[i].is_active = 0;       // 장애물 제거
 

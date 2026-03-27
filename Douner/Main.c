@@ -5,7 +5,9 @@
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
-#include "Obstacle.h"
+#include "obstacle.h"
+
+ALLEGRO_FONT* menu_font;
 
 long frames;
 long score = 0;
@@ -62,14 +64,7 @@ int main() {
 
     GameState game;
     game_init(&game);
-
-    // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
-    Player player;
-    init_player(&player);
-
-    bool redraw = true;
-    ALLEGRO_EVENT event;
-    // 2. 변수 준비
+    // 장애물 준비 코드
     Obstacle obs_pool[MAX_OBS];
     InitObstacles(obs_pool, MAX_OBS);
     SpawnManager spawner;
@@ -77,7 +72,16 @@ int main() {
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
-    //float player_x = 100; 
+
+    // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
+    Player player;
+    init_player(&player);
+
+    //jgjgjgj
+    bool redraw = true;
+    ALLEGRO_EVENT event;
+
+    //float player_x = 100;
     srand(time(NULL));
 
     //int redraw = 1;
@@ -110,6 +114,9 @@ int main() {
                 update_player(&player);
 
                 item_collision_check(&game, &player);
+                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
+                UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
                 if (key[ALLEGRO_KEY_ESCAPE])
                     in_menu = true;
             }
@@ -143,7 +150,7 @@ int main() {
                     }
                 }
             }
-                break;
+            break;
 
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_UP)
@@ -160,46 +167,47 @@ int main() {
             done = true;
             break;
 
-            UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
         }
 
 
         if (done)
             break;
 
-            keyboard_update(&event);
+        keyboard_update(&event);
 
-            if (redraw && al_is_event_queue_empty(queue))
-            {
-                if (in_menu) {
-                    menu_draw(main_menu);
-                }
-                else {
-                    // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
-                        // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
-                        //al_clear_to_color(al_map_rgb(0, 0, 0));
-                    draw_map();
-                    draw_player(&player);
-                    
-                    //디버깅용
-                    draw_player_hitbox(&player);
-
-                        // 아이템
-                    item_draw();
-
-                    //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
-                }
-                al_flip_display();
-                redraw = false;
+        if (redraw && al_is_event_queue_empty(queue))
+        {
+            if (in_menu) {
+                menu_draw(main_menu);
             }
+            else {
+                // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
+                    // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
+                    //al_clear_to_color(al_map_rgb(0, 0, 0));
+                draw_map();
+                draw_player(&player);
+
+                //디버깅용
+                draw_player_hitbox(&player);
+
+                // 아이템
+                item_draw();
+
+                //장애물
+                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
+                //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+            }
+            al_flip_display();
+            redraw = false;
         }
-
-        // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
-        destroy_player(&player);
-        al_destroy_timer(timer);
-        al_destroy_font(menu_font);
-        al_destroy_event_queue(queue);
-        al_destroy_display(display);
-
-        return 0;
     }
+
+    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
+    destroy_player(&player);
+    al_destroy_timer(timer);
+    al_destroy_font(menu_font);
+    al_destroy_event_queue(queue);
+    al_destroy_display(display);
+
+    return 0;
+}
