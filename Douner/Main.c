@@ -163,25 +163,30 @@ int main() {
 
         keyboard_update(&event);
 
-        if (redraw && al_is_event_queue_empty(queue))
-        {
-            if (in_menu) {
-                menu_draw(main_menu);
-            }
-            else {
-                // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
-                    // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
-                    //al_clear_to_color(al_map_rgb(0, 0, 0));
-                draw_map();
-                draw_player(&player);
+            if (redraw && al_is_event_queue_empty(queue))
+            {
+                if (in_menu) {
+                    menu_draw(main_menu);
+                }
+                else {
+                    // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
+                        // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
+                        //al_clear_to_color(al_map_rgb(0, 0, 0));
+                    draw_map();
+                    draw_player(&player);
+                    
+                    //디버깅용
+                    draw_player_hitbox(&player);
 
-                //디버깅용
-                draw_player_hitbox(&player);
+                        // 아이템
+                    item_draw();
 
-                // 아이템
-                item_draw();
-
-                //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+                    //점수
+                    hud_draw(&game);
+                    //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+                }
+                al_flip_display();
+                redraw = false;
             }
             al_flip_display();
             redraw = false;

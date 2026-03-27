@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
+
 #include "item.h"
 #include "global.h"
 #include "Player.h"
