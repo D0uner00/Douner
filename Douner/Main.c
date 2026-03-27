@@ -135,12 +135,10 @@ int main() {
             done = true;
             break;
         }
-
-        }
-
-
-        if (done)
+    
+        if (done) {
             break;
+        }
 
         keyboard_update(&event);
 

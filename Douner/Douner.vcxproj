@@ -141,6 +141,7 @@
     <ClCompile Include="mouse.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
+    <ClCompile Include="rank.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="rank.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
