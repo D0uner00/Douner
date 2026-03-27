@@ -5,7 +5,7 @@
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
-//#include "obstacle.h"
+#include "obstacle.h"
 
 ALLEGRO_FONT* menu_font;
 
@@ -56,14 +56,26 @@ int main() {
 
     GameState game;
     game_init(&game);
+    // 장애물 준비 코드
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
+    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
+    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
+    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
 
     Player player;
     init_player(&player);
 
-    srand(time(NULL));
+    //jgjgjgj
     bool redraw = true;
     ALLEGRO_EVENT event;
 
+    //float player_x = 100;
+    srand(time(NULL));
+
+    //int redraw = 1;
     al_start_timer(timer);
 
     while (!done) {
@@ -81,7 +93,11 @@ int main() {
                 item_update();
                 update_player(&player);
                 item_collision_check(&game, &player);
-                if (key[ALLEGRO_KEY_ESCAPE]) in_menu = true;
+                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
+                UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+                if (key[ALLEGRO_KEY_ESCAPE])
+                    in_menu = true;
             }
             redraw = true;
             frames++;
@@ -120,31 +136,43 @@ int main() {
             break;
         }
 
-        if (done) break;
+        }
 
-        // [수정] 그리기 로직 통합 및 중괄호 정리
-        if (redraw && al_is_event_queue_empty(queue)) {
-            al_clear_to_color(al_map_rgb(0, 0, 0)); // 배경 초기화
 
+        if (done)
+            break;
+
+        keyboard_update(&event);
+
+        if (redraw && al_is_event_queue_empty(queue))
+        {
             if (in_menu) {
                 menu_draw(main_menu);
             }
             else {
+                // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
+                    // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
+                    //al_clear_to_color(al_map_rgb(0, 0, 0));
                 draw_map();
                 draw_player(&player);
-                draw_player_hitbox(&player);
-                item_draw();
-                hud_draw(&game); // [수정] 점수 출력
-            }
 
+                //디버깅용
+                draw_player_hitbox(&player);
+
+                // 아이템
+                item_draw();
+
+                //장애물
+                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
+                //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+            }
             al_flip_display();
             redraw = false;
         }
     }
 
-    // [수정] 해제 코드 위치 및 HUD 해제 추가
+    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
     destroy_player(&player);
-    hud_deinit();
     al_destroy_timer(timer);
     al_destroy_font(menu_font);
     al_destroy_event_queue(queue);
