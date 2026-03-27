@@ -69,8 +69,8 @@ int main() {
     InitSpawnManager(&spawner);
 
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
-    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
-    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
+    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
+    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
 
     Player player;
     init_player(&player);
@@ -185,7 +185,7 @@ int main() {
                 draw_player(&player);
                 //draw_player_hitbox(&player);
                 item_draw();
-                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
+                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu);
                 hud_draw(&game); // HP바와 점수 출력 
                 break;
 
@@ -207,8 +207,8 @@ int main() {
     al_destroy_event_queue(queue);
     al_destroy_display(display);
     al_destroy_bitmap(img_trash);
-    al_destroy_bitmap(img_dish);
-    al_destroy_bitmap(img_troll);
+    al_destroy_bitmap(img_doraemon);
+    al_destroy_bitmap(img_pikachu);
 
     return 0;
 }
