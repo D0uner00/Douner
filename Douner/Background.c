@@ -1,7 +1,7 @@
 #include "Background.h"
 
 void init_background(Background* bg) {
-    bg->image = al_load_bitmap("background._1png");
+    bg->image = al_load_bitmap("background_1.png");
     if (!bg->image) {
         fprintf(stderr, "배경 이미지 로드 실패!\n");
         return;
