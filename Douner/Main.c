@@ -5,6 +5,7 @@
 #include "item.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "Background.h"
 
 ALLEGRO_FONT* menu_font;
 long frames;
@@ -73,6 +74,9 @@ int main() {
     Player player;
     init_player(&player);
 
+    Background bg;
+    init_background(&bg);
+
     srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
@@ -89,6 +93,11 @@ int main() {
 
         switch (event.type) {
         case ALLEGRO_EVENT_TIMER:
+            if (in_menu) {
+                if (menu_update(main_menu) == MENU_EXIT) done = true;
+            }
+            else {
+                update_background(&bg);
 
             switch (cur_screen) {
             case SCREEN_MENU:
@@ -167,6 +176,16 @@ int main() {
         if (redraw && al_is_event_queue_empty(queue)) {
             al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
 
+            if (in_menu) {
+                menu_draw(main_menu);
+            }
+            else {
+                draw_background(&bg);
+                draw_player(&player);
+                draw_player_hitbox(&player);
+                item_draw();
+                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
+                hud_draw(&game); // HP바와 점수 출력 
             if (redraw && al_is_event_queue_empty(queue))
             {
                 switch (cur_screen) {

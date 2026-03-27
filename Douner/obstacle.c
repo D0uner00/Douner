@@ -148,8 +148,9 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameStat
 
         // AABB 충돌 계산
         if (collide_rect(pBox, iBox))
-        {
-            printf("Dameged! life = %d\n", --game->life);
+        {   
+            game->hp -= 10;
+            printf("Dameged! life = %f\n", game->hp);
             // 라이프 감소
             obs[i].is_active = 0;       // 장애물 제거
 

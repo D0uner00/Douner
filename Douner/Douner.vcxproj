@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Background.c" />
     <ClCompile Include="global.c" />
     <ClCompile Include="hitbox.c" />
     <ClCompile Include="hud.c" />
@@ -146,6 +147,7 @@
     <ClCompile Include="ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
     <ClInclude Include="enter_name.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="hitbox.h" />
