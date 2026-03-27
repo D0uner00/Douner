@@ -8,24 +8,18 @@
 #include "obstacle.h"
 
 ALLEGRO_FONT* menu_font;
-
 long frames;
 long score = 0;
 bool done = false;
 bool in_menu = true;
 
-void on_start() {
-    in_menu = false;
-}
-
-void on_exit() {
-    done = true;
-}
+void on_start() { in_menu = false; }
+void on_exit() { done = true; }
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("TEMP",NULL),
-    MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",NULL),
+    MENU_BUTTON("TEMP", NULL),
+    MENU_BUTTON("Start Game", on_start),
+    MENU_BUTTON("Ranking", NULL),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
@@ -40,10 +34,10 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT); 
 
     menu_font = al_create_builtin_font();
-    hud_init(); // [수정] HUD 전용 큰 폰트 초기화
+    hud_init();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -55,12 +49,13 @@ int main() {
     menu_init(main_menu);
 
     GameState game;
-    game_init(&game);
-    // 장애물 준비 코드
+    game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
+
     Obstacle obs_pool[MAX_OBS];
     InitObstacles(obs_pool, MAX_OBS);
     SpawnManager spawner;
     InitSpawnManager(&spawner);
+
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
@@ -68,14 +63,10 @@ int main() {
     Player player;
     init_player(&player);
 
-    //jgjgjgj
+    srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
 
-    //float player_x = 100;
-    srand(time(NULL));
-
-    //int redraw = 1;
     al_start_timer(timer);
 
     while (!done) {
@@ -96,8 +87,10 @@ int main() {
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
                 obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
                 UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
-                if (key[ALLEGRO_KEY_ESCAPE])
-                    in_menu = true;
+                hud_update(&game); // HP 서서히 감소 로직 
+
+                if (key[ALLEGRO_KEY_ESCAPE]) in_menu = true;
+                if (game.hp <= 0) done = true; // 사망 시 종료 (또는 게임오버 처리) 
             }
             redraw = true;
             frames++;
@@ -136,47 +129,38 @@ int main() {
             break;
         }
 
-        }
+        if (done) break;
 
+        // --- 그리기 로직 (루프 내부로 위치 수정) ---
+        if (redraw && al_is_event_queue_empty(queue)) {
+            al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
 
-        if (done)
-            break;
-
-        keyboard_update(&event);
-
-        if (redraw && al_is_event_queue_empty(queue))
-        {
             if (in_menu) {
                 menu_draw(main_menu);
             }
             else {
-                // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
-                    // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
-                    //al_clear_to_color(al_map_rgb(0, 0, 0));
                 draw_map();
                 draw_player(&player);
-
-                //디버깅용
                 draw_player_hitbox(&player);
-
-                // 아이템
                 item_draw();
-
-                //장애물
                 DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
-                //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+                hud_draw(&game); // HP바와 점수 출력 
             }
             al_flip_display();
             redraw = false;
         }
     }
 
-    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
+    // --- 정리 및 자원 해제 ---
     destroy_player(&player);
+    hud_deinit();
     al_destroy_timer(timer);
     al_destroy_font(menu_font);
     al_destroy_event_queue(queue);
     al_destroy_display(display);
+    al_destroy_bitmap(img_trash);
+    al_destroy_bitmap(img_dish);
+    al_destroy_bitmap(img_troll);
 
     return 0;
 }

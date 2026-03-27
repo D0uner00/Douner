@@ -78,7 +78,7 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type) {
     obs->is_active = 1;
     obs->type = type;
     obs->x = SCREEN_WIDTH;
-    obs->speed = 5.0f;
+    obs->speed = 10.0f;
 
     // 규격 설정 (쓰레기통은 90, 나머지는 40)
     if (type == OBS_GROUND) {         // 쓰레기통
