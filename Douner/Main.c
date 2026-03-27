@@ -42,7 +42,7 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT); 
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
     hud_init();
@@ -68,6 +68,7 @@ int main() {
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
+
 
     Player player;
     init_player(&player);
@@ -112,15 +113,15 @@ int main() {
             case SCREEN_NAME_INPUT:
                 break;
             }
-            
+
             redraw = true;
             frames++;
             mouse_tick();
             break;
-
+        
         case ALLEGRO_EVENT_KEY_DOWN:
 
-            switch(cur_screen){
+            switch (cur_screen) {
             case SCREEN_PLAY:
                 if (event.keyboard.keycode == ALLEGRO_KEY_UP
                     ) {
@@ -141,8 +142,8 @@ int main() {
             case SCREEN_NAME_INPUT:
                 break;
             }
-        
-        break;
+
+            break;
 
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
@@ -159,6 +160,8 @@ int main() {
         }
 
         if (done) break;
+
+
 
         // --- 그리기 로직 (루프 내부로 위치 수정) ---
         if (redraw && al_is_event_queue_empty(queue)) {
@@ -182,22 +185,23 @@ int main() {
                 case SCREEN_NAME_INPUT:
                     break;
                 }
-                
+
                 al_flip_display();
                 redraw = false;
             }
         }
+    }
 
-    // --- 정리 및 자원 해제 ---
-    destroy_player(&player);
-    hud_deinit();
-    al_destroy_timer(timer);
-    al_destroy_font(menu_font);
-    al_destroy_event_queue(queue);
-    al_destroy_display(display);
-    al_destroy_bitmap(img_trash);
-    al_destroy_bitmap(img_dish);
-    al_destroy_bitmap(img_troll);
+        // --- 정리 및 자원 해제 ---
+        destroy_player(&player);
+        hud_deinit();
+        al_destroy_timer(timer);
+        al_destroy_font(menu_font);
+        al_destroy_event_queue(queue);
+        al_destroy_display(display);
+        al_destroy_bitmap(img_trash);
+        al_destroy_bitmap(img_dish);
+        al_destroy_bitmap(img_troll);
 
-    return 0;
+        return 0;
 }
