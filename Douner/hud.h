@@ -9,3 +9,4 @@ void hud_draw(GameState* game);
 void hud_deinit();
 
 #endif // !_HUD_H
+
