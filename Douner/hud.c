@@ -29,7 +29,7 @@ void hud_update(GameState* game) {
 void hud_draw(GameState* game)
 {
     // 상단바 배경 (640x50)
-    al_draw_filled_rectangle(0, 0, 640, 50, al_map_rgba(0, 0, 0, 150));
+    al_draw_filled_rectangle(0, 0, 640, 50, al_map_rgba(0, 0, 0, 100));
     al_draw_line(0, 50, 640, 50, al_map_rgb(255, 255, 255), 2);
 
     // --- HP 섹션 ---

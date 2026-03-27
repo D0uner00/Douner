@@ -6,6 +6,7 @@
 #include "item.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "Background.h"
 
 ALLEGRO_FONT* menu_font;
 long frames;
@@ -63,6 +64,9 @@ int main() {
     Player player;
     init_player(&player);
 
+    Background bg;
+    init_background(&bg);
+
     srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
@@ -81,6 +85,7 @@ int main() {
                 if (menu_update(main_menu) == MENU_EXIT) done = true;
             }
             else {
+                update_background(&bg);
                 item_update();
                 update_player(&player);
                 item_collision_check(&game, &player);
@@ -139,7 +144,7 @@ int main() {
                 menu_draw(main_menu);
             }
             else {
-                draw_map();
+                draw_background(&bg);
                 draw_player(&player);
                 draw_player_hitbox(&player);
                 item_draw();
