@@ -2,7 +2,6 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "menu.h"
-#include "hud.h"
 #include "item.h"
 #include "Player.h"
 #include "obstacle.h"
@@ -12,15 +11,24 @@ ALLEGRO_FONT* menu_font;
 long frames;
 long score = 0;
 bool done = false;
-bool in_menu = true;
 
-void on_start() { in_menu = false; }
-void on_exit() { done = true; }
+GameScreen cur_screen = SCREEN_MENU;
+
+void on_start() {
+    cur_screen = SCREEN_PLAY; // 게임 시작
+}
+
+void on_exit() {
+    done = true;    // 프로그램 종료
+}
+
+void on_enter_name() {
+    cur_screen = SCREEN_NAME_INPUT;
+}
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("TEMP", NULL),
-    MENU_BUTTON("Start Game", on_start),
-    MENU_BUTTON("Ranking", NULL),
+    MENU_BUTTON("Enter Name",on_enter_name),
+    MENU_BUTTON("Start Game",on_start),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
@@ -35,7 +43,7 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT); 
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
     hud_init();
@@ -47,6 +55,7 @@ int main() {
 
     keyboard_init();
     item_init();
+
     menu_init(main_menu);
 
     GameState game;
@@ -61,6 +70,7 @@ int main() {
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
 
+
     Player player;
     init_player(&player);
 
@@ -70,6 +80,8 @@ int main() {
     srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
+
+    srand(time(NULL));
 
     al_start_timer(timer);
 
@@ -86,7 +98,15 @@ int main() {
             }
             else {
                 update_background(&bg);
+
+            switch (cur_screen) {
+            case SCREEN_MENU:
+                menu_update(main_menu);
+                break;
+
+            case SCREEN_PLAY:
                 item_update();
+
                 update_player(&player);
                 item_collision_check(&game, &player);
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
@@ -94,17 +114,26 @@ int main() {
                 UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
                 hud_update(&game); // HP 서서히 감소 로직 
 
-                if (key[ALLEGRO_KEY_ESCAPE]) in_menu = true;
-                if (game.hp <= 0) done = true; // 사망 시 종료 (또는 게임오버 처리) 
+                item_collision_check(&game, &player);
+
+                if (key[ALLEGRO_KEY_ESCAPE])
+                    cur_screen = SCREEN_MENU;
+
+            case SCREEN_NAME_INPUT:
+                break;
             }
+
             redraw = true;
             frames++;
             mouse_tick();
             break;
-
+        
         case ALLEGRO_EVENT_KEY_DOWN:
-            if (!in_menu) {
-                if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+
+            switch (cur_screen) {
+            case SCREEN_PLAY:
+                if (event.keyboard.keycode == ALLEGRO_KEY_UP
+                    ) {
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_JUMP;
                         player.jumpDirection = 1;
@@ -117,7 +146,12 @@ int main() {
                         player.slideFrame = 0;
                     }
                 }
+                break;
+
+            case SCREEN_NAME_INPUT:
+                break;
             }
+
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -136,6 +170,8 @@ int main() {
 
         if (done) break;
 
+
+
         // --- 그리기 로직 (루프 내부로 위치 수정) ---
         if (redraw && al_is_event_queue_empty(queue)) {
             al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
@@ -150,22 +186,41 @@ int main() {
                 item_draw();
                 DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
                 hud_draw(&game); // HP바와 점수 출력 
+            if (redraw && al_is_event_queue_empty(queue))
+            {
+                switch (cur_screen) {
+                case SCREEN_MENU:
+                    menu_draw(main_menu);
+                    break;
+
+                case SCREEN_PLAY:
+                    draw_map();
+                    draw_player(&player);
+                    //debug
+                    draw_player_hitbox(&player);
+                    item_draw();
+                    break;
+
+                case SCREEN_NAME_INPUT:
+                    break;
+                }
+
+                al_flip_display();
+                redraw = false;
             }
-            al_flip_display();
-            redraw = false;
         }
     }
 
-    // --- 정리 및 자원 해제 ---
-    destroy_player(&player);
-    hud_deinit();
-    al_destroy_timer(timer);
-    al_destroy_font(menu_font);
-    al_destroy_event_queue(queue);
-    al_destroy_display(display);
-    al_destroy_bitmap(img_trash);
-    al_destroy_bitmap(img_dish);
-    al_destroy_bitmap(img_troll);
+        // --- 정리 및 자원 해제 ---
+        destroy_player(&player);
+        hud_deinit();
+        al_destroy_timer(timer);
+        al_destroy_font(menu_font);
+        al_destroy_event_queue(queue);
+        al_destroy_display(display);
+        al_destroy_bitmap(img_trash);
+        al_destroy_bitmap(img_dish);
+        al_destroy_bitmap(img_troll);
 
-    return 0;
+        return 0;
 }

@@ -27,6 +27,16 @@ typedef struct {
     int difficulty;
 } GameState;
 
+typedef enum {
+    SCREEN_MENU,
+    SCREEN_PLAY,
+    SCREEN_NAME_INPUT
+} GameScreen;
+
+typedef struct {
+    int x, y, w, h;
+} Rect;
+
 void must_init(bool test, const char* description);
 void game_init(GameState* game);
 
