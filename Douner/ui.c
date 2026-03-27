@@ -21,6 +21,7 @@ void draw_box(Rect r)
     al_draw_rectangle(r.x, r.y, r.x + r.w, r.y + r.h, al_map_rgb(255, 255, 255), 2);
 }
 
+
 void draw_center_text(const char* text, int y, ALLEGRO_COLOR color)
 {
     int center_x = SCREEN_WIDTH / 2;

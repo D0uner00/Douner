@@ -154,7 +154,7 @@
     <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="ranking.h" />
+    <ClInclude Include="rank.h" />
     <ClInclude Include="ui.h" />
   </ItemGroup>
   <ItemGroup>

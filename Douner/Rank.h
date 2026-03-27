@@ -8,5 +8,6 @@ typedef struct rank{
 	int difficulty;
 }Rank;
 
+//int exists_in_ranking(const char* name);
 
-#endif // !_RANK_H_
+#endif

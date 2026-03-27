@@ -5,16 +5,26 @@
 #include "item.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "enter_name.h"
+#include "rank.h"
 
 ALLEGRO_FONT* menu_font;
+//ALLEGRO_FONT* input_font;
+
 long frames;
 long score = 0;
 bool done = false;
 
 GameScreen cur_screen = SCREEN_MENU;
+static GameState game;
 
 void on_start() {
-    cur_screen = SCREEN_PLAY; // 게임 시작
+    if (strlen(game.player_name) == 0) {
+        cur_screen = SCREEN_NAME_INPUT;
+    }
+    else {
+        cur_screen = SCREEN_PLAY; // 게임 시작
+    }
 }
 
 void on_exit() {
@@ -23,6 +33,20 @@ void on_exit() {
 
 void on_enter_name() {
     cur_screen = SCREEN_NAME_INPUT;
+}
+
+void on_name_confirm(GameState* game, NameInput* input)
+{
+    strcpy(game->player_name, input->buffer);
+
+    /*
+    if (exists_in_ranking(game->player_name)) {
+        printf("Welcome back!\n");
+    }
+    else {
+        printf("New player!\n");
+    }
+    */
 }
 
 MENU_ITEM main_menu[] = {
@@ -45,6 +69,7 @@ int main() {
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
+
     hud_init();
 
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -57,7 +82,7 @@ int main() {
 
     menu_init(main_menu);
 
-    GameState game;
+    //GameState game;
     game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
 
     Obstacle obs_pool[MAX_OBS];
@@ -69,6 +94,8 @@ int main() {
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
 
+    NameInput name_input;
+    name_input_init(&name_input);
 
     Player player;
     init_player(&player);
@@ -109,14 +136,27 @@ int main() {
 
                 if (key[ALLEGRO_KEY_ESCAPE])
                     cur_screen = SCREEN_MENU;
-
-            case SCREEN_NAME_INPUT:
                 break;
             }
 
             redraw = true;
             frames++;
             mouse_tick();
+            break;
+
+        case ALLEGRO_EVENT_KEY_CHAR:
+
+            if (cur_screen == SCREEN_NAME_INPUT) {
+                name_input_update(&name_input, &event);
+
+                if (name_input.done) {
+                    strcpy(game.player_name, name_input.buffer);
+
+                    //on_name_confirm(&game, &name_input);
+
+                    cur_screen = SCREEN_MENU;
+                }
+            }
             break;
         
         case ALLEGRO_EVENT_KEY_DOWN:
@@ -183,6 +223,7 @@ int main() {
                     break;
 
                 case SCREEN_NAME_INPUT:
+                    name_input_draw(&name_input);
                     break;
                 }
 
