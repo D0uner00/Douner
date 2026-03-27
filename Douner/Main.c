@@ -138,7 +138,7 @@ int main() {
                     }
                 }
             }
-                break;
+            break;
 
         case ALLEGRO_EVENT_KEY_UP:
             if (event.keyboard.keycode == ALLEGRO_KEY_UP)
@@ -155,13 +155,13 @@ int main() {
             done = true;
             break;
 
-            }
+        }
 
 
-            if (done)
-                break;
+        if (done)
+            break;
 
-            keyboard_update(&event);
+        keyboard_update(&event);
 
             if (redraw && al_is_event_queue_empty(queue))
             {
@@ -188,14 +188,17 @@ int main() {
                 al_flip_display();
                 redraw = false;
             }
+            al_flip_display();
+            redraw = false;
         }
-
-        // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
-        destroy_player(&player);
-        al_destroy_timer(timer);
-        al_destroy_font(menu_font);
-        al_destroy_event_queue(queue);
-        al_destroy_display(display);
-
-        return 0;
     }
+
+    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
+    destroy_player(&player);
+    al_destroy_timer(timer);
+    al_destroy_font(menu_font);
+    al_destroy_event_queue(queue);
+    al_destroy_display(display);
+
+    return 0;
+}
