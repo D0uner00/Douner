@@ -5,9 +5,7 @@
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
-//#include "obstacle.h"
-
-ALLEGRO_FONT* menu_font;
+#include "Obstacle.h"
 
 long frames;
 long score = 0;
@@ -71,7 +69,14 @@ int main() {
 
     bool redraw = true;
     ALLEGRO_EVENT event;
-
+    // 2. 변수 준비
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
+    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
+    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
+    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
     //float player_x = 100; 
     srand(time(NULL));
 
@@ -155,11 +160,12 @@ int main() {
             done = true;
             break;
 
-            }
+            UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+        }
 
 
-            if (done)
-                break;
+        if (done)
+            break;
 
             keyboard_update(&event);
 
