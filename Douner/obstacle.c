@@ -130,32 +130,27 @@ void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALL
     }
 }
 
-void obstacle_collision_check(Player* player, Obstacle obs[], int size)
+void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* Game)
 {
+    Rect pBox = get_player_hitbox(player);
     // 이미 아픈 상태이거나 죽은 상태라면 중복 충돌 방지 (선택 사항)
     if (player->hurtTimer > 0 || player->state == PLAYER_DEATH) return;
-
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
 
         // 히트박스 설정 (상태에 따른 플레이어 크기)
-        float pw = (player->state == PLAYER_JUMP) ? JUMP_DEST_W : RUN_DEST_W;
-        float ph = (player->state == PLAYER_JUMP) ? JUMP_DEST_H : RUN_DEST_H;
-
-        // 판정을 넉넉하게 하기 위해 60% 크기만 사용
-        float p_hit_w = pw * 0.4f;
-        float p_hit_h = ph * 0.4f;
-        float p_hit_x = player->x + (pw - p_hit_w) / 2;
-        float p_hit_y = player->y + (ph - p_hit_h) / 2;
+        Rect iBox = {
+           obs[i].x,
+           obs[i].y,
+           20,
+           20
+        };
 
         // AABB 충돌 계산
-        if (obs[i].x < p_hit_x + p_hit_w &&
-            obs[i].x + obs[i].width > p_hit_x &&
-            obs[i].y < p_hit_y + p_hit_h &&
-            obs[i].y + obs[i].height > p_hit_y)
+        if (collide_rect(pBox, iBox))
         {
-            // 충돌 발생!
-            //game->life--;               // 라이프 감소
+            printf("Dameged! loif = %d\n", Game->life);
+            // 라이프 감소
             obs[i].is_active = 0;       // 장애물 제거
 
             player->hurtTimer = 30; // 피격 상태로 전환
