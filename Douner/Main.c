@@ -3,7 +3,7 @@
 #include "hud.h"
 #include "item.h"
 #include "Player.h"
-#include "obstacle.h"
+#include "Obstacle.h"
 
 long frames;
 long score = 0;
@@ -13,6 +13,7 @@ int player_w = 20;
 int player_h = 20;
 
 int main() {
+
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -31,14 +32,8 @@ int main() {
     keyboard_init();
     item_init();
 
-    // 2. 변수 준비
-    Obstacle obs_pool[MAX_OBS];
-    InitObstacles(obs_pool, MAX_OBS);
-    SpawnManager spawner;
-    InitSpawnManager(&spawner);
-    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
-    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
-    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
+    GameState game;
+    game_init(&game);
 
     // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
     Player player;
@@ -47,7 +42,14 @@ int main() {
     bool done = false;
     bool redraw = true;
     ALLEGRO_EVENT event;
-
+    // 2. 변수 준비
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
+    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
+    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
+    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
     //float player_x = 100; 
     srand(time(NULL));
 
@@ -73,7 +75,6 @@ int main() {
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
                 printf("DOWN\n");
-
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -87,11 +88,12 @@ int main() {
             // 틱마다 이벤트가 생기면 플레이어의 위치를 변경하고
             // 아이템의 위치도 변경시킨다
             item_update();
-            item_collision_check();
+            item_collision_check(&game, &player);
             update_player(&player);
             if (key[ALLEGRO_KEY_ESCAPE])
                 done = true;
-
+            UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+            obstacle_collision_check(&player, obs_pool, MAX_OBS);
             if (key[ALLEGRO_KEY_DOWN])
                 printf("Holding DOWN\n");
 
@@ -104,24 +106,24 @@ int main() {
 
         }
 
+        if (event.type == ALLEGRO_EVENT_TIMER) {
+            // 2. 관리자에게 "시간 흘렀으니까 알아서 소환해"라고 시킴
+
+            UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+        }
+
 
         if (done)
             break;
 
         keyboard_update(&event);
-        if (event.type == ALLEGRO_EVENT_TIMER) {
-            // 2. 관리자에게 "시간 흘렀으니까 알아서 소환해"라고 시킴
-            UpdateSpawning(&spawner, obs_pool, MAX_OBS);
-        }
-        UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
-        obstacle_collision_check(&player, obs_pool, MAX_OBS);
+
         if (redraw && al_is_event_queue_empty(queue))
         {
             // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
             // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
             //al_clear_to_color(al_map_rgb(0, 0, 0));
             draw_map();
-            draw_player(&player);
             // 플레이어 대신 테스트 박스
             /*al_draw_filled_rectangle(player_x, player_y,
                 player_x + player_w,
@@ -130,8 +132,9 @@ int main() {
 
                 // 아이템
             item_draw();
-            DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
+            draw_player(&player);
             //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+            DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
             al_flip_display();
             redraw = false;
         }
