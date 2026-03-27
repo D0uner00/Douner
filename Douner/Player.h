@@ -1,48 +1,40 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 #include "global.h"
+#include "hitbox.h"
 
-/*
-// ´Ş¸®±â ÀÚ¸£±â Á¤º¸
+// ë‹¬ë¦¬ê¸° ìë¥´ê¸° ì •ë³´
 #define RUN_CROP_X 43 
-#define RUN_CROP_Y 33
+#define RUN_CROP_Y 43
 #define RUN_SRC_W 45
-#define RUN_SRC_H 45
+#define RUN_SRC_H 38
 #define RUN_DEST_W 120
 #define RUN_DEST_H 120
 
-//Á¡ÇÁ ÀÚ¸£±â Á¤º¸ 
-#define JUMP_CROP_X 30
-#define JUMP_CROP_Y 10
-#define JUMP_SRC_W 60
-#define JUMP_SRC_H 70
-#define JUMP_DEST_W 150
-#define JUMP_DEST_H 230
-*/
+//ì í”„ ìë¥´ê¸° ì •ë³´ 
+#define JUMP_CROP_X 43
+#define JUMP_CROP_Y 38
+#define JUMP_SRC_W 33
+#define JUMP_SRC_H 40
+#define JUMP_DEST_W 110
+#define JUMP_DEST_H 120
 
-// ´Ş¸®±â ÀÚ¸£±â Á¤º¸
-#define RUN_CROP_X 43 
-#define RUN_CROP_Y 13
-#define RUN_SRC_W 128
-#define RUN_SRC_H 128
-#define RUN_DEST_W 150
-#define RUN_DEST_H 150
+//ìŠ¬ë¼ì´ë”© ìë¥´ê¸° ì •ë³´
+#define SLIDE_CROP_X 35
+#define SLIDE_CROP_Y 57
+#define SLIDE_SRC_W 55
+#define SLIDE_SRC_H 23
+#define SLIDE_DEST_W 130
+#define SLIDE_DEST_H 80
 
-//Á¡ÇÁ ÀÚ¸£±â Á¤º¸ 
-#define JUMP_CROP_X 30
-#define JUMP_CROP_Y 10
-#define JUMP_SRC_W 128
-#define JUMP_SRC_H 128
-#define JUMP_DEST_W 150
-#define JUMP_DEST_H 150
-
-//ÇÁ·¹ÀÓ ¼ö
+//í”„ë ˆì„ ìˆ˜
 #define MAX_RUN_FRAMES 9
 #define MAX_JUMP_FRAMES 6
+#define MAX_SLIDE_FRAMES 4
 
-//ÇÃ·¹ÀÌ¾î ½ÃÀÛ À§Ä¡
+//í”Œë ˆì´ì–´ ì‹œì‘ ìœ„ì¹˜
 #define StartX 100
-#define StartY 210 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+#define StartY 215 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
 
 typedef enum {
 	PLAYER_RUN,
@@ -60,6 +52,7 @@ typedef struct player {
 
 	int runFrame;
 	int jumpFrame;
+	int slideFrame;
 
 	int jumpDirection;
 	float jumpSpeed;
@@ -67,8 +60,16 @@ typedef struct player {
 
 	int hurtTimer;
 
+	//ì¶”ê°€
+	Hitbox run_hitbox;
+	Hitbox jump_hitbox;
+	Hitbox slide_hitbox;
+
+	Hitbox* cur_hitbox;
+
 	ALLEGRO_BITMAP* runSheet;
 	ALLEGRO_BITMAP* jumpSheet;
+	ALLEGRO_BITMAP* slideSheet;
 
 }Player;
 
@@ -76,6 +77,9 @@ void init_player(Player* p);
 void update_player(Player* p);
 void draw_player(Player* p);
 void destroy_player(Player* p);
+//ê·¸ë ¤ì§€ëŠ” ì¢Œí‘œ í†µì¼
+float get_player_draw_y(Player* p);
+Rect get_player_hitbox(Player* p);
+void draw_player_hitbox(Player* p);
 
-
-#endif // !_PLAYER_H_
+#endif

@@ -6,14 +6,12 @@
 #include <allegro5/allegro_image.h>
 #include "item.h"
 #include "global.h"
+#include "Player.h"
+#include "hitbox.h"
 
 Item items[ITEM_MAX];
 extern long frames;
 
-extern int player_x;
-extern int player_y;
-extern int player_w;
-extern int player_h;
 
 void item_init()
 {
@@ -30,8 +28,8 @@ void item_update()
         {
             if (!items[i].active)
             {
-                items[i].x = 320;
-                items[i].y = 100;
+                items[i].x = SCREEN_WIDTH + 200;
+                items[i].y = 100 + rand() % 150;
                 items[i].active = 1;
                 break;
             }
@@ -69,18 +67,28 @@ void item_draw()
 }
 
 
-void item_collision_check()
+void item_collision_check(GameState* game, Player* player)
 {
+    Rect pBox = get_player_hitbox(player);
+
     for (int i = 0; i < ITEM_MAX; i++)
     {
-        if (items[i].active)
+        if (!items[i].active) continue;
+        
+        Rect iBox = {
+            items[i].x,
+            items[i].y,
+            20,
+            20
+        };
+
+        if (collide_rect(pBox, iBox))
         {
-            if (collide(player_x, player_y, player_w, player_h,
-                items[i].x, items[i].y, 10, 10))
-            {
-                printf("ITEM GET!\n");
-                items[i].active = 0;
-            }
+            items[i].active = 0;
+            game->score += 10;
+
+            printf("ITEM GET! score = %d\n", game->score);
         }
+        
     }
 }
