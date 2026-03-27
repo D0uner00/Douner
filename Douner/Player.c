@@ -131,10 +131,9 @@ void draw_player(Player* p) { //그래픽 출력
     }
 }
 
-void destroy_player(Player* p) {  // 메모리 해제 추가
-//hit box �߰�
-Rect get_player_hitbox(Player* p)
-{
+
+//hit box
+    Rect get_player_hitbox(Player * p){
     Rect r;
 
     float drawY = get_player_draw_y(p);
