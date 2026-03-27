@@ -4,10 +4,9 @@
 #include "menu.h"
 #include "item.h"
 #include "Player.h"
-//#include "obstacle.h"
+#include "obstacle.h"
 
 ALLEGRO_FONT* menu_font;
-
 long frames;
 long score = 0;
 bool done = false;
@@ -30,12 +29,10 @@ MENU_ITEM main_menu[] = {
     MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
     MENU_BUTTON("Exit", on_exit),
-    MENU_BUTTON("TEMP",NULL),
     MENU_END()
 };
 
 int main() {
-
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
     must_init(al_install_keyboard(), "keyboard");
@@ -45,22 +42,15 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT); 
 
     menu_font = al_create_builtin_font();
-    //ALLEGRO_FONT* font = al_create_builtin_font();
+    hud_init();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
-
-    /*
-    Obstacle obs_pool[MAX_OBS];
-    InitObstacles(obs_pool, MAX_OBS);
-    SpawnManager spawner;
-    InitSpawnManager(&spawner);
-    */
 
     keyboard_init();
     item_init();
@@ -68,27 +58,35 @@ int main() {
     menu_init(main_menu);
 
     GameState game;
-    game_init(&game);
+    game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
 
-    // 플레이어의 위치를 설정하고 구조체를 생성하는 코드
+    Obstacle obs_pool[MAX_OBS];
+    InitObstacles(obs_pool, MAX_OBS);
+    SpawnManager spawner;
+    InitSpawnManager(&spawner);
+
+    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
+    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
+    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
+
     Player player;
     init_player(&player);
 
+    srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
 
     srand(time(NULL));
 
     al_start_timer(timer);
-    while (!done)
-    {
+
+    while (!done) {
         al_wait_for_event(queue, &event);
 
         keyboard_update(&event);
         mouse_update(&event);
 
         switch (event.type) {
-
         case ALLEGRO_EVENT_TIMER:
 
             switch (cur_screen) {
@@ -100,6 +98,11 @@ int main() {
                 item_update();
 
                 update_player(&player);
+                item_collision_check(&game, &player);
+                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
+                UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+                hud_update(&game); // HP 서서히 감소 로직 
 
                 item_collision_check(&game, &player);
 
@@ -126,13 +129,11 @@ int main() {
                         player.jumpDirection = 1;
                         player.jumpFrame = 0;
                     }
-                    printf("UP\n");
                 }
                 else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_SLIDING;
-                        player.slideFrame = 0; // 프레임 초기화
-                        printf("DOWN\n");
+                        player.slideFrame = 0;
                     }
                 }
                 break;
@@ -144,27 +145,24 @@ int main() {
         break;
 
         case ALLEGRO_EVENT_KEY_UP:
-            if (event.keyboard.keycode == ALLEGRO_KEY_UP)
-                printf("Stand\n");
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
                 if (player.state == PLAYER_SLIDING) {
                     player.state = PLAYER_RUN;
-                    player.runFrame = 0; // 프레임 초기화
+                    player.runFrame = 0;
                 }
-            printf("Stand\n");
+            }
             break;
 
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
+        }
 
-            }
+        if (done) break;
 
-
-            if (done)
-                break;
-
-            keyboard_update(&event);
+        // --- 그리기 로직 (루프 내부로 위치 수정) ---
+        if (redraw && al_is_event_queue_empty(queue)) {
+            al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
 
             if (redraw && al_is_event_queue_empty(queue))
             {
@@ -190,12 +188,16 @@ int main() {
             }
         }
 
-        // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
-        destroy_player(&player);
-        al_destroy_timer(timer);
-        al_destroy_font(menu_font);
-        al_destroy_event_queue(queue);
-        al_destroy_display(display);
+    // --- 정리 및 자원 해제 ---
+    destroy_player(&player);
+    hud_deinit();
+    al_destroy_timer(timer);
+    al_destroy_font(menu_font);
+    al_destroy_event_queue(queue);
+    al_destroy_display(display);
+    al_destroy_bitmap(img_trash);
+    al_destroy_bitmap(img_dish);
+    al_destroy_bitmap(img_troll);
 
-        return 0;
-    }
+    return 0;
+}

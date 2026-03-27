@@ -131,9 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="global.c" />
     <ClCompile Include="hitbox.c" />
     <ClCompile Include="hud.c" />
@@ -144,6 +141,7 @@
     <ClCompile Include="mouse.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
+    <ClCompile Include="rank.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
@@ -152,6 +150,7 @@
     <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="rank.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
@@ -162,6 +161,9 @@
     <ClInclude Include="hud.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="keyboard.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
