@@ -10,6 +10,7 @@
 #include "rank.h"
 
 ALLEGRO_FONT* menu_font;
+//rank_file = NULL;
 //ALLEGRO_FONT* input_font;
 
 #include "Background.h"
@@ -39,6 +40,11 @@ void on_enter_name() {
     cur_screen = SCREEN_NAME_INPUT;
 }
 
+void on_ranking() {
+    rank_init();
+    cur_screen = SCREEN_RANKING;
+}   
+
 void on_name_confirm(GameState* game, NameInput* input)
 {
     strcpy(game->player_name, input->buffer);
@@ -56,7 +62,7 @@ void on_name_confirm(GameState* game, NameInput* input)
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",NULL),
+    MENU_BUTTON("Ranking",on_ranking),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
@@ -148,7 +154,18 @@ int main() {
                     cur_screen = SCREEN_MENU;
                     break;
                 }
+                
+            case SCREEN_NAME_INPUT:
+                // 이름 입력 로직 처리
+                break;
+
+            case SCREEN_RANKING:
+                rank_update();
+                // 랭킹 화면 업데이트 로직 처리
+                break;
+
             }
+            
             redraw = true;
             frames++;
             mouse_tick();
@@ -229,6 +246,10 @@ int main() {
 
             case SCREEN_NAME_INPUT:
                 name_input_draw(&name_input);
+                break;
+
+            case SCREEN_RANKING:
+                rank_draw();
                 break;
             }
             /*case SCREEN_NAME_INPUT:

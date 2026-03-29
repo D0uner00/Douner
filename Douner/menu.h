@@ -36,8 +36,8 @@ struct MENU_ITEM {
 	int x, y, w, h;
 };
 
-/*#define MENU_TEXT(text) \
-	{ menu_text_handler, text , FLAG_NONE, 0, NULL, NULL, 0, 0 ,0 ,0 }*/
+#define MENU_TEXT(text) \
+	{ menu_text_handler, text , FLAG_NONE, 0, NULL, NULL, 0, 0 ,0 ,0 }
 
 #define MENU_BUTTON(text, callback) \
 	{ menu_button_handler, text , FLAG_SELECTABLE, 0, NULL, callback, 0, 0 ,0 ,0 }
@@ -52,7 +52,7 @@ void menu_init(MENU_ITEM *menu);
 int menu_update(MENU_ITEM* menu);
 void menu_draw(MENU_ITEM* menu);
 
-//int menu_text_handler(MENU_ITEM* item, int msg, int param);
+int menu_text_handler(MENU_ITEM* item, int msg, int param);
 int menu_space_handler(MENU_ITEM* item, int msg, int param);
 int menu_button_handler(MENU_ITEM* item, int msg, int param);
 

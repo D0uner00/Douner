@@ -4,7 +4,7 @@
 static int item_count = 0;
 static int selected_item = 0;
 //static int box_x, box_y, box_w, box_h;
-static Rect box;
+extern Rect box;
 
 extern ALLEGRO_FONT* menu_font;
 
@@ -157,6 +157,21 @@ void menu_draw(MENU_ITEM* menu)
 			menu[i].handler(&menu[i], MSG_DRAW, 0);
 		}
 	}	
+}
+
+int menu_text_handler(MENU_ITEM* item, int msg, int param) {
+	switch (msg) {
+
+	case MSG_INIT:
+		item->w = al_get_text_width(menu_font, item->text);
+		item->h = al_get_font_line_height(menu_font);
+		break;
+
+	case MSG_DRAW:
+		al_draw_text(menu_font, al_map_rgb(255, 255, 255), item->x, item->y, ALLEGRO_ALIGN_CENTER, item->text);
+		break;
+	}
+
 }
 
 int menu_space_handler(MENU_ITEM* item, int msg, int param) {
