@@ -1,11 +1,11 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include "rank.h"
 
-FILE* rank_file;
 
 int current_record_size = 0;
 MENU_ITEM* rank_menu = NULL;
 
+FILE* rank_file;
 Rect box;
 ALLEGRO_FONT* menu_font;
 

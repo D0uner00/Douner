@@ -1,15 +1,9 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h> // 도형 그리기를 위해 필요
-#include <allegro5/allegro_image.h>
-#define SCREEN_W SCREEN_WIDTH
-#define SCREEN_H SCREEN_HEIGHT
-#define FPS 60.0f
-#define GROUND_Y 350.0f
-#define GRAVITY 0.5f
-#define MAX_OBS 99
+
+#include "global.h"
 #include "player.h"
+
 typedef struct {
     int timer;
     int interval;
@@ -45,8 +39,7 @@ typedef struct {
 // 함수 선언 (다른 파일에서 이 함수들을 호출함)
 void InitObstacles(Obstacle obs[], int size);
 void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x);
-void DrawObstacles(Obstacle obs[], int size);
-void SpawnObstacle(Obstacle obs[], ObstacleType type);
+void SpawnObstacle(Obstacle* obs, ObstacleType type);
 void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALLEGRO_BITMAP* img_f, ALLEGRO_BITMAP* img_t);
 void InitSpawnManager(SpawnManager* sm);
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game);

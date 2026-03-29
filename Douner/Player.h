@@ -34,7 +34,7 @@
 
 //플레이어 시작 위치
 #define StartX 100
-#define StartY 215 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
+#define StartY 230 //SCREEN_HEIGHT - GROUND_HEIGHT - RUN_DEST_H
 
 typedef enum {
 	PLAYER_RUN,
@@ -75,8 +75,10 @@ typedef struct player {
 
 void init_player(Player* p);
 void update_player(Player* p);
+void hp_update(GameState* game);
 void draw_player(Player* p);
 void destroy_player(Player* p);
+
 //그려지는 좌표 통일
 float get_player_draw_y(Player* p);
 Rect get_player_hitbox(Player* p);

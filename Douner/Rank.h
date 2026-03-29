@@ -14,13 +14,14 @@ typedef struct record{
 	int difficulty;
 }Record;
 
-
 Record* file_read();
 void file_write(Record record);
 
 void rank_init();
 int rank_update();
 void rank_draw();
+
+//int exists_in_ranking(const char* name);
 
 void processRank();
 #endif // !_RANK_H_
