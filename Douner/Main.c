@@ -9,7 +9,7 @@
 #include "Background.h"
 
 ALLEGRO_FONT* menu_font;
-FILE* rank_file;
+//rank_file = NULL;
 long frames;
 long score = 0;
 bool done = false;
@@ -28,10 +28,15 @@ void on_enter_name() {
     cur_screen = SCREEN_NAME_INPUT;
 }
 
+void on_ranking() {
+    rank_init();
+    cur_screen = SCREEN_RANKING;
+}
+
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",NULL),
+    MENU_BUTTON("Ranking",on_ranking),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
@@ -121,8 +126,13 @@ int main() {
             case SCREEN_NAME_INPUT:
                 // 이름 입력 로직 처리
                 break;
-            }
 
+            case SCREEN_RANKING:
+                rank_update();
+                // 랭킹 화면 업데이트 로직 처리
+                break;
+
+            }
             redraw = true;
             frames++;
             mouse_tick();
@@ -192,6 +202,10 @@ int main() {
 
             case SCREEN_NAME_INPUT:
                 // 화면에 이름 입력 UI 그리기
+                break;
+
+            case SCREEN_RANKING:
+                rank_draw();
                 break;
             }
 

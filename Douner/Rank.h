@@ -1,6 +1,12 @@
 #ifndef _RANK_H_
 #define _RANK_H_
 #include "global.h"
+#include "menu.h"
+
+#define MAX_RECORD_SIZE 10
+
+extern int current_record_size;
+extern MENU_ITEM* rank_menu;
 
 typedef struct record{
 	char name[20];
@@ -9,7 +15,12 @@ typedef struct record{
 }Record;
 
 
-void file_read(Record* records, int count);
-void file_write(Record* records, int count);
+Record* file_read();
+void file_write(Record record);
 
+void rank_init();
+int rank_update();
+void rank_draw();
+
+void processRank();
 #endif // !_RANK_H_
