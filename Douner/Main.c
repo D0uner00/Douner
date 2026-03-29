@@ -125,6 +125,7 @@ int main() {
         case ALLEGRO_EVENT_TIMER:
             // --- 게임 로직 업데이트 ---
             switch (cur_screen) {
+
             case SCREEN_MENU:
                 if (menu_update(main_menu) == MENU_EXIT) {
                     done = true;
@@ -147,12 +148,11 @@ int main() {
                     cur_screen = SCREEN_MENU;
                     break;
                 }
-
+            }
             redraw = true;
             frames++;
             mouse_tick();
             break;
-
         case ALLEGRO_EVENT_KEY_CHAR:
 
             if (cur_screen == SCREEN_NAME_INPUT) {
@@ -167,7 +167,7 @@ int main() {
                 }
             }
             break;
-        
+
         case ALLEGRO_EVENT_KEY_DOWN:
 
             switch (cur_screen) {
@@ -211,46 +211,34 @@ int main() {
 
         if (done) break;
 
-        // --- 그리기 로직 ---
+        // --- 그리기 로직 (루프 내부로 위치 수정) ---
         if (redraw && al_is_event_queue_empty(queue)) {
-            al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화
-
+            al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
             switch (cur_screen) {
             case SCREEN_MENU:
                 menu_draw(main_menu);
                 break;
 
-        // --- 그리기 로직 (루프 내부로 위치 수정) ---
-        if (redraw && al_is_event_queue_empty(queue)) {
-            al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
-                switch (cur_screen) {
-                case SCREEN_MENU:
-                    menu_draw(main_menu);
-                    break;
-
-                case SCREEN_PLAY:
-                    draw_map();
-                    draw_player(&player);
-                    //debug
-                    draw_player_hitbox(&player);
-                    item_draw();
-                    break;
-
-                case SCREEN_NAME_INPUT:
-                    name_input_draw(&name_input);
-                    break;
-                }
+            case SCREEN_PLAY:
+                draw_map();
+                draw_player(&player);
+                //debug
+                draw_player_hitbox(&player);
+                item_draw();
+                break;
 
             case SCREEN_NAME_INPUT:
-                // 화면에 이름 입력 UI 그리기
+                name_input_draw(&name_input);
                 break;
             }
+            /*case SCREEN_NAME_INPUT:
+            // 화면에 이름 입력 UI 그리기
+            break;*/
 
             al_flip_display();
             redraw = false;
-        
+        }
     } // while(!done) 루프 종료
-
     // --- 정리 및 자원 해제 (반드시 while 루프 밖에 위치해야 함) ---
     destroy_player(&player);
     hud_deinit();
