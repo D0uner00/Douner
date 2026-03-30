@@ -49,11 +49,18 @@ void update_player(Player* p) { // 데이터 및 상태 관리
 
     switch (p->state) {
 
-    case PLAYER_RUN:
-        p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+    case PLAYER_RUN: {
+        static int run_anim_timer = 0;
+        run_anim_timer++;
+
+        if (run_anim_timer >= 2) {
+            p->runFrame = (p->runFrame + 1) % MAX_RUN_FRAMES;
+            run_anim_timer = 0; // 타이머 초기화
+        }
+
         p->cur_hitbox = &p->run_hitbox;
         break;
-
+    }
     case PLAYER_JUMP:
         p->jumpFrame++;
         p->cur_hitbox = &p->jump_hitbox;

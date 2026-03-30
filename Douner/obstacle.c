@@ -100,11 +100,27 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game) {
     obs->speed = 8.0f;
 
     // 규격 설정 
+        // 규격 설정
     if (game->difficulty == 3)
     {
         if (type == OBS_GROUND) {
-            obs->width = 70;
-            obs->height = 70;
+            obs->width = 50;
+            obs->height = 50;
+        }
+        else if (type == OBS_FLYING) {
+            obs->width = 90;
+            obs->height = 100;
+        }
+        else if (type == OBS_JUMPING) {
+            obs->width = 100;
+            obs->height = 60;
+        }
+    }
+    else if (game->difficulty == 2)
+    {
+        if (type == OBS_GROUND) {
+            obs->width = 60;
+            obs->height = 60;
         }
         else if (type == OBS_FLYING) {
             obs->width = 90;

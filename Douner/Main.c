@@ -151,7 +151,6 @@ int main() {
                 if (update_stage_transition(&game)) { //화면 정리
                     InitObstacles(obs_pool, MAX_OBS); 
                     InitSpawnManager(&spawner);       
-                    init_player(&player);
                 }
                 else {
                     item_update();
