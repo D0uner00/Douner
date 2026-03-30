@@ -171,13 +171,20 @@ int main() {
                     obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
                     hp_update(&game);
                 }
-
+                    
                 if(game.hp <= 0) {
                     // 게임 오버 처리
+                    
+                    Record new_record;
+                    strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
+					new_record.name[sizeof(game.player_name) - 1] = '\0';
+					new_record.score = game.score;
+					new_record.difficulty = game.difficulty;
+
+					file_write(new_record);
 					game_over_init(game.score);
 					cur_screen = SCREEN_GAME_OVER;
 				}
-                break;
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {
                     cur_screen = SCREEN_MENU;
