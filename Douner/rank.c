@@ -48,11 +48,16 @@ void file_write(Record record) {
 
     if(records == NULL){
         records = (Record*)malloc(sizeof(Record) * MAX_RECORD_SIZE);
-		records[current_record_size++] = record;
+        if (records == NULL) {
+            return;
+        }
+		current_record_size = 0;
 	}
+
     if (current_record_size < MAX_RECORD_SIZE) {
         records[current_record_size++] = record;
     }
+
     else {
         if (record.score >= records[current_record_size - 1].score) {
             records[current_record_size - 1] = record;
@@ -73,26 +78,36 @@ void file_write(Record record) {
 }
 
 void rank_init() {
-    if (rank_menu == NULL) {
-        int idx = 0;
-        Record* records = file_read();
 
-        rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
-		rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
+    box.w = 400; // 박스 가로 길이
+    box.h = 400; // 박스 세로 길이
+    box.x = (SCREEN_WIDTH - box.w) / 2;
+    box.y = (SCREEN_HEIGHT - box.h) / 2;
 
-        for (int i = 0;i < current_record_size;++i) {
-			char* buf = (char*)malloc(64);
-            sprintf(buf, " %2d     %-15s %-7d", i + 1, records[i].name, records[i].score);
-			rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
-        }
-
-        rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
-		rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
-        rank_menu[idx] = (MENU_ITEM)MENU_END();
-
-		menu_init(rank_menu);
+    if (rank_menu != NULL) {
+        free(rank_menu);
+        rank_menu = NULL;
     }
+
+    int idx = 0;
+    Record* records = file_read();
+
+    rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
+    rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
+
+    for (int i = 0; i < current_record_size; ++i) {
+        char* buf = (char*)malloc(64);
+        sprintf(buf, " %2d     %-10s %-5d", i + 1, records[i].name, records[i].score);
+        rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
+    }
+
+    rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
+    rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
+    rank_menu[idx] = (MENU_ITEM)MENU_END();
+
+    menu_init(rank_menu);
 }
+
 
 int rank_update() {
     return menu_update(rank_menu);

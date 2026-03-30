@@ -14,6 +14,19 @@
 
 ALLEGRO_FONT* menu_font;
 
+void on_start();
+void on_exit();
+void on_enter_name();
+void on_ranking();
+void on_back_to_menu();
+
+MENU_ITEM main_menu[] = {
+    MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",on_ranking),
+    MENU_BUTTON("Exit", on_exit),
+    MENU_END()
+};
+
 FILE* rank_file;
 long frames;
 bool done = false;
@@ -48,15 +61,10 @@ void on_ranking() {
 }
 
 void on_back_to_menu() {
+    menu_init(main_menu);
 	cur_screen = SCREEN_MENU;
 }
 
-MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",on_ranking),
-    MENU_BUTTON("Exit", on_exit),
-    MENU_END()
-};
 
 int main() {
     if (!al_init()) return -1;
@@ -198,6 +206,14 @@ int main() {
                
                 if(game.hp <= 0) {
                     // 게임 오버 처리
+                    
+                    Record new_record;
+                    strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
+					new_record.name[sizeof(game.player_name) - 1] = '\0';
+					new_record.score = game.score;
+					new_record.difficulty = game.difficulty;
+
+					file_write(new_record);
 					game_over_init(game.score);
 					cur_screen = SCREEN_GAME_OVER;
 				}
