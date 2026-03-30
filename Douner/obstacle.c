@@ -12,16 +12,16 @@ void InitSpawnManager(SpawnManager* sm) {
 // 2. 실시간 소환 로직 (타이머 이벤트마다 호출)
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game) {
     sm->timer++;
-    int dif = 0;
-    if (Game->difficulty == 0) dif = 120;
-    if (Game->difficulty == 1) dif = 90;
+    int dif = 120;
+    if (Game->difficulty == 1) dif = 120;
     if (Game->difficulty == 2) dif = 60;
+    if (Game->difficulty == 3) dif = 30;
     if (sm->timer >= sm->interval) {
         // 비어있는(비활성화된) 장애물 칸 찾기
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
                 ObstacleType selected;
-                if (Game->difficulty == 0) { // 이지모드일경우 플라잉 안나옴
+                if (Game->difficulty == 1) { // 이지모드일경우 플라잉 안나옴
                     // 랜덤하게 2가지 타입 중 하나 소환
                     ObstacleType spawn_pool[] = { OBS_GROUND, OBS_JUMPING };
 
@@ -37,7 +37,7 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game)
                 }
 
 
-                SpawnObstacle(&obs[i], selected, &Game);
+                SpawnObstacle(&obs[i], selected, Game);
                 break;
             }
         }
@@ -99,19 +99,38 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game) {
     obs->x = SCREEN_WIDTH;
     obs->speed = 8.0f;
 
-    // 규격 설정 (쓰레기통은 90, 나머지는 40)
-    if (type == OBS_GROUND) {         // 쓰레기통
-        obs->width = 40;
-        obs->height = 50;
+    // 규격 설정 
+    if (game->difficulty == 3)
+    {
+        if (type == OBS_GROUND) {
+            obs->width = 70;
+            obs->height = 70;
+        }
+        else if (type == OBS_FLYING) {
+            obs->width = 90;
+            obs->height = 100;
+        }
+        else if (type == OBS_JUMPING) {
+            obs->width = 100;
+            obs->height = 60;
+        }
     }
-    else if (type == OBS_FLYING) {    // 도라에몽 (비행)
-        obs->width = 60;
-        obs->height = 100;
+    else {
+        if (type == OBS_GROUND) {
+            obs->width = 40;
+            obs->height = 50;
+        }
+        else if (type == OBS_FLYING) {
+            obs->width = 60;
+            obs->height = 100;
+        }
+        else if (type == OBS_JUMPING) {
+            obs->width = 100;
+            obs->height = 60;
+        }
     }
-    else if (type == OBS_JUMPING) {   // 피카츄 (점프)
-        obs->width = 100;
-        obs->height = 60;
-    }
+
+
     // Y 좌표 설정
     if (type == OBS_FLYING) obs->y = GROUND_Y - 180;
     else if (type == OBS_GROUND) obs->y = GROUND_Y - obs->height;
@@ -131,7 +150,8 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game) {
 // 6. 그리기 (이미지 포인터 사용)
 void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
     ALLEGRO_BITMAP* trash, ALLEGRO_BITMAP* doraemon, ALLEGRO_BITMAP* pikachu,
-    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump) {
+    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump,
+    ALLEGRO_BITMAP* img_meteor, ALLEGRO_BITMAP* img_amongus, ALLEGRO_BITMAP* img_amongus_jump, ALLEGRO_BITMAP* img_keroro) {
 
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
@@ -141,7 +161,29 @@ void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
         int draw_frame = obs[i].cur_frame;
 
         // --- 1. 난이도별 이미지 할당 로직 ---
-        if (game->difficulty == 1) { // [노말 모드]
+        if (game->difficulty == 3) { //하드모드
+            if (obs[i].type == OBS_JUMPING) {
+                // 커비 특수 로직: 공중에 떠 있거나 점프 중일 때
+                if (obs[i].is_jumping || obs[i].y < obs[i].initial_y - 5) {
+                    target_img = img_amongus_jump; // 점프 전용 이미지 사용
+                    is_animated = false;     // 점프 이미지가 단일 컷이면 false
+                    draw_frame = 0;
+                }
+                else {
+                    target_img = img_amongus;
+                    is_animated = true;
+                }
+            }
+            else if (obs[i].type == OBS_FLYING) {
+                target_img = img_keroro;
+                is_animated = true;
+            }
+            else {
+                target_img = img_meteor;
+                is_animated = false;
+            }
+        }
+        else if (game->difficulty == 2) { // [노말 모드]
             if (obs[i].type == OBS_JUMPING) {
                 // 커비 특수 로직: 공중에 떠 있거나 점프 중일 때
                 if (obs[i].is_jumping || obs[i].y < obs[i].initial_y - 5) {
