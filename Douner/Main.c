@@ -39,6 +39,9 @@ void on_ranking() {
     cur_screen = SCREEN_RANKING;
 }
 
+void on_back_to_menu() {
+	cur_screen = SCREEN_MENU;
+}
 
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("Start Game",on_start),
