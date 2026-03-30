@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Background.c" />
     <ClCompile Include="global.c" />
     <ClCompile Include="hitbox.c" />
     <ClCompile Include="hud.c" />
@@ -139,16 +140,24 @@
     <ClCompile Include="Main.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="mouse.c" />
+    <ClCompile Include="enter_name.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
+    <ClCompile Include="rank.c" />
+    <ClCompile Include="ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
+    <ClInclude Include="enter_name.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="hitbox.h" />
+    <ClInclude Include="hud.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="rank.h" />
+    <ClInclude Include="ui.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />
@@ -156,7 +165,6 @@
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\troll.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hud.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="keyboard.h" />
   </ItemGroup>

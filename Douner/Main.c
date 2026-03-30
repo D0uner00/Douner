@@ -2,30 +2,67 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "menu.h"
-#include "hud.h"
 #include "item.h"
+#include "rank.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "enter_name.h"
+#include "rank.h"
 
 ALLEGRO_FONT* menu_font;
+//rank_file = NULL;
+//ALLEGRO_FONT* input_font;
 
+#include "Background.h"
+
+FILE* rank_file;
 long frames;
 long score = 0;
 bool done = false;
-bool in_menu = true;
+
+GameScreen cur_screen = SCREEN_MENU;
+static GameState game;
 
 void on_start() {
-    in_menu = false;
+    if (strlen(game.player_name) == 0) {
+        cur_screen = SCREEN_NAME_INPUT;
+    }
+    else {
+        cur_screen = SCREEN_PLAY; // 게임 시작
+    }
 }
 
 void on_exit() {
-    done = true;
+    done = true;    // 프로그램 종료
+}
+
+void on_enter_name() {
+    cur_screen = SCREEN_NAME_INPUT;
+}
+
+void on_ranking() {
+    rank_init();
+    cur_screen = SCREEN_RANKING;
+}   
+
+void on_name_confirm(GameState* game, NameInput* input)
+{
+    strcpy(game->player_name, input->buffer);
+
+    /*
+    if (exists_in_ranking(game->player_name)) {
+        printf("Welcome back!\n");
+    }
+    else {
+        printf("New player!\n");
+    }
+    */
 }
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("TEMP",NULL),
+    MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",NULL),
+    MENU_BUTTON("Ranking",on_ranking),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
@@ -43,7 +80,8 @@ int main() {
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     menu_font = al_create_builtin_font();
-    hud_init(); // [수정] HUD 전용 큰 폰트 초기화
+
+    hud_init();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -54,28 +92,33 @@ int main() {
     item_init();
     menu_init(main_menu);
 
-    GameState game;
-    game_init(&game);
-    // 장애물 준비 코드
+    //GameState game;
+    game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
+
     Obstacle obs_pool[MAX_OBS];
     InitObstacles(obs_pool, MAX_OBS);
     SpawnManager spawner;
     InitSpawnManager(&spawner);
+
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
     ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
     ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
 
+    NameInput name_input;
+    name_input_init(&name_input);
+    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
+    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
+
     Player player;
     init_player(&player);
 
-    //jgjgjgj
+    Background bg;
+    init_background(&bg);
+
+    srand(time(NULL));
     bool redraw = true;
     ALLEGRO_EVENT event;
 
-    //float player_x = 100;
-    srand(time(NULL));
-
-    //int redraw = 1;
     al_start_timer(timer);
 
     while (!done) {
@@ -86,26 +129,66 @@ int main() {
 
         switch (event.type) {
         case ALLEGRO_EVENT_TIMER:
-            if (in_menu) {
-                if (menu_update(main_menu) == MENU_EXIT) done = true;
-            }
-            else {
+            // --- 게임 로직 업데이트 ---
+            switch (cur_screen) {
+
+            case SCREEN_MENU:
+                if (menu_update(main_menu) == MENU_EXIT) {
+                    done = true;
+                }
+                break;
+
+            case SCREEN_PLAY:
+                update_background(&bg);
                 item_update();
                 update_player(&player);
+
                 item_collision_check(&game, &player);
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
                 obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
                 UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
-                if (key[ALLEGRO_KEY_ESCAPE])
-                    in_menu = true;
+                hp_update(&game); // HP 서서히 감소 로직 
+
+                // 전역 키보드 배열(key)이 업데이트된다고 가정
+                if (key[ALLEGRO_KEY_ESCAPE]) {
+                    cur_screen = SCREEN_MENU;
+                    break;
+                }
+                
+            case SCREEN_NAME_INPUT:
+                // 이름 입력 로직 처리
+                break;
+
+            case SCREEN_RANKING:
+                rank_update();
+                // 랭킹 화면 업데이트 로직 처리
+                break;
+
             }
+            
             redraw = true;
             frames++;
             mouse_tick();
             break;
+        case ALLEGRO_EVENT_KEY_CHAR:
+
+            if (cur_screen == SCREEN_NAME_INPUT) {
+                name_input_update(&name_input, &event);
+
+                if (name_input.done) {
+                    strcpy(game.player_name, name_input.buffer);
+
+                    //on_name_confirm(&game, &name_input);
+
+                    cur_screen = SCREEN_MENU;
+                }
+            }
+            break;
 
         case ALLEGRO_EVENT_KEY_DOWN:
-            if (!in_menu) {
+
+            switch (cur_screen) {
+            case SCREEN_PLAY:
                 if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_JUMP;
@@ -119,7 +202,14 @@ int main() {
                         player.slideFrame = 0;
                     }
                 }
+                break;
+            case SCREEN_NAME_INPUT:
+                // 이름 입력 키 처리
+                break;
+            default:
+                break;
             }
+
             break;
 
         case ALLEGRO_EVENT_KEY_UP:
@@ -139,41 +229,40 @@ int main() {
         if (done)
             break;
 
-        keyboard_update(&event);
-
-        if (redraw && al_is_event_queue_empty(queue))
-        {
-            if (in_menu) {
-                menu_draw(main_menu);
-            }
-            else {
-                // 이벤트 발생이후 bitmap에 플레이어의 x,y 좌표
-                    // 아이템의 x,y 좌표를 그린 후 버퍼에 있는 bitmap을 출력한다
-                    //al_clear_to_color(al_map_rgb(0, 0, 0));
+            case SCREEN_PLAY:
                 draw_map();
                 draw_player(&player);
-
-                //디버깅용
+                //debug
                 draw_player_hitbox(&player);
-
-                // 아이템
                 item_draw();
+                break;
 
-                //장애물
-                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_dish, img_troll);
-                //al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+            case SCREEN_NAME_INPUT:
+                name_input_draw(&name_input);
+                break;
+
+            case SCREEN_RANKING:
+                rank_draw();
+                break;
             }
+            /*case SCREEN_NAME_INPUT:
+            // 화면에 이름 입력 UI 그리기
+            break;*/
+
             al_flip_display();
             redraw = false;
         }
-    }
-
-    // 루프가 끝나면 player 구조체와 나머지 구조체들을 할당해제한다
+    } // while(!done) 루프 종료
+    // --- 정리 및 자원 해제 (반드시 while 루프 밖에 위치해야 함) ---
     destroy_player(&player);
+    hud_deinit();
     al_destroy_timer(timer);
     al_destroy_font(menu_font);
     al_destroy_event_queue(queue);
     al_destroy_display(display);
+    al_destroy_bitmap(img_trash);
+    al_destroy_bitmap(img_doraemon);
+    al_destroy_bitmap(img_pikachu);
 
     return 0;
 }

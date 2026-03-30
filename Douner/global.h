@@ -1,10 +1,13 @@
 
 #ifndef _GLOBAL_H_ 
 #define _GLOBAL_H_
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 #include <allegro5/allegro.h>
 
 #include <allegro5/allegro_primitives.h> // 도형 그리기를 위해 필요
@@ -21,12 +24,25 @@
 #define GRAVITY 0.5f
 #define MAX_OBS 99
 
+#define NAME_MAX 16
+
 typedef struct {
     int score;
-    float life;
-    int hp;
+    float hp;
     int difficulty;
+    char player_name[NAME_MAX]; // 이 플레이어의 주인 이름
 } GameState;
+
+typedef enum {
+    SCREEN_MENU,
+    SCREEN_PLAY,
+    SCREEN_NAME_INPUT,
+	SCREEN_RANKING
+} GameScreen;
+
+typedef struct {
+    int x, y, w, h;
+} Rect;
 
 void must_init(bool test, const char* description);
 void game_init(GameState* game);

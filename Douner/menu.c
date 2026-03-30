@@ -1,8 +1,10 @@
 #include "menu.h"
+#include "ui.h"
 
 static int item_count = 0;
 static int selected_item = 0;
-static int box_x, box_y, box_w, box_h;
+//static int box_x, box_y, box_w, box_h;
+extern Rect box;
 
 extern ALLEGRO_FONT* menu_font;
 
@@ -46,15 +48,15 @@ void menu_init(MENU_ITEM* menu)
 
 	total_height -= line_spacing;
 
-	box_w = max_text_width + (padding * 2);
-	box_h = total_height + (padding * 2);
-	box_x = (SCREEN_WIDTH / 2) - (box_w / 2);
-	box_y = (SCREEN_HEIGHT / 2) - (box_h / 2);
+	box = make_center_rect(
+		max_text_width + (padding * 2),
+		total_height + (padding * 2)
+	);
 
-	int current_y = box_y + padding;
+	int current_y = box.y + padding;
 
 	for (i = 0; i < item_count; i++) {
-		menu[i].x = SCREEN_WIDTH / 2;
+		menu[i].x = box.x + box.w / 2;
 		menu[i].y = current_y;
 		current_y += menu[i].h + line_spacing;
 	}
@@ -148,16 +150,28 @@ int menu_update(MENU_ITEM* menu)
 
 void menu_draw(MENU_ITEM* menu)
 {
-	al_draw_filled_rectangle(box_x, box_y, box_x + box_w, box_y + box_h, al_map_rgb(0, 0, 0));
-
-	al_draw_rectangle(box_x, box_y, box_x + box_w, box_y + box_h, al_map_rgb(255, 255, 255), 2.0f);
-
+	draw_box(box);
 
 	for (int i = 0; i < item_count; ++i) {
 		if (menu[i].handler) {
 			menu[i].handler(&menu[i], MSG_DRAW, 0);
 		}
 	}	
+}
+
+int menu_text_handler(MENU_ITEM* item, int msg, int param) {
+	switch (msg) {
+
+	case MSG_INIT:
+		item->w = al_get_text_width(menu_font, item->text);
+		item->h = al_get_font_line_height(menu_font);
+		break;
+
+	case MSG_DRAW:
+		al_draw_text(menu_font, al_map_rgb(255, 255, 255), item->x, item->y, ALLEGRO_ALIGN_CENTER, item->text);
+		break;
+	}
+
 }
 
 int menu_space_handler(MENU_ITEM* item, int msg, int param) {
