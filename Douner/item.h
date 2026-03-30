@@ -1,7 +1,13 @@
 #ifndef ITEM_H
 #define ITEM_H
+
 #include "global.h"
 #include "Player.h"
+
+typedef enum {
+    ITEM_STAR,
+    ITEM_HP
+} ItemType;
 
 typedef struct {
     int x, y;
@@ -14,6 +20,9 @@ typedef struct {
 
     int width;
     int height;
+
+    ItemType type;
+    int hpAmount;
 } Item;
 
 #define ITEM_MAX 10

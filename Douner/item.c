@@ -3,49 +3,73 @@
 #include "Player.h"
 #include "hitbox.h"
 
-static ALLEGRO_BITMAP* sheet = NULL;
+static ALLEGRO_BITMAP* sheet_star = NULL;
+static ALLEGRO_BITMAP* sheet_hp = NULL;
+
 Item items[ITEM_MAX];
 extern long frames;
 
-
 void item_init()
 {
-    ALLEGRO_BITMAP* sheet = al_load_bitmap("star.png");
-
-    if (!sheet) {
-        printf("아이템 이미지 로드 실패!\n");
+    sheet_star = al_load_bitmap("star.png");
+    if (!sheet_star) {
+        printf("star.png 로드 실패!\n");
         return;
     }
 
-
-    int maxFrame = 4;
-    int frameW = al_get_bitmap_width(sheet) / maxFrame;
-    int frameH = al_get_bitmap_height(sheet);
-
-    printf("star frame size: %d x %d\n", frameW, frameH);
+    sheet_hp = al_load_bitmap("hp(1).png");
+    if (!sheet_hp) {
+        printf("hp.png 로드 실패!\n");
+        return;
+    }
 
     for (int i = 0; i < ITEM_MAX; i++)
     {
-        items[i].sheet = sheet;   // all share one bitmap
-        items[i].x = 0;
-        items[i].y = 0;
         items[i].active = 0;
         items[i].frame = 0;
-        items[i].maxFrame = maxFrame;
-        items[i].width = frameW;
-        items[i].height = frameH;
+        items[i].sheet = NULL;
+        items[i].x = 0;
+        items[i].y = 0;
+        items[i].hpAmount = 0;
     }
+
+    printf("star frame size: %d x %d\n",
+        al_get_bitmap_width(sheet_star) / 4,
+        al_get_bitmap_height(sheet_star));
+    printf("hp frame size: %d x %d\n",
+        al_get_bitmap_width(sheet_hp) / 4,
+        al_get_bitmap_height(sheet_hp));
 }
 
 void item_update()
 {
-    // 생성 (2초마다)
-    if (frames % 60 == 0)
+    // 스타: 2초마다 (120프레임), HP: 가끔 (300프레임마다)
+    int spawn_star = (frames % 120 == 0);
+    int spawn_hp = (frames % 300 == 0 && frames > 0);
+
+    if (spawn_star || spawn_hp)
     {
         for (int i = 0; i < ITEM_MAX; i++)
         {
             if (!items[i].active)
             {
+                if (spawn_hp) {
+                    items[i].type = ITEM_HP;
+                    items[i].sheet = sheet_hp;
+                    items[i].maxFrame = 4;
+                    items[i].width = al_get_bitmap_width(sheet_hp)/4;
+                    items[i].height = al_get_bitmap_height(sheet_hp);
+                    items[i].hpAmount = 20;
+                }
+                else {
+                    items[i].type = ITEM_STAR;
+                    items[i].sheet = sheet_star;
+                    items[i].maxFrame = 4;
+                    items[i].width = al_get_bitmap_width(sheet_star) / 4;
+                    items[i].height = al_get_bitmap_height(sheet_star);
+                    items[i].hpAmount = 0;
+                }
+
                 items[i].x = SCREEN_WIDTH + 200;
                 items[i].y = 100 + rand() % 150;
                 items[i].active = 1;
@@ -55,33 +79,30 @@ void item_update()
         }
     }
 
-    // 이동
+    // 이동 & 애니메이션
     for (int i = 0; i < ITEM_MAX; i++)
     {
-        if (items[i].active)
-        {
-            items[i].x -= 3;
+        if (!items[i].active) continue;
 
-            if (frames % 10 == 0)
-            {
-                items[i].frame = (items[i].frame + 1) % items[i].maxFrame;
-            }
+        items[i].x -= 3;
 
-            if (items[i].x < 0)
-                items[i].active = 0;
-        }
+        if (frames % 10 == 0)
+            items[i].frame = (items[i].frame + 1) % items[i].maxFrame;
+
+        if (items[i].x < -items[i].width)
+            items[i].active = 0;
     }
 }
 
 void item_draw()
 {
-    
     for (int i = 0; i < ITEM_MAX; i++)
     {
         if (!items[i].active) continue;
 
-        int frameX = items[i].frame * items[i].width;
-        float scale = 0.4f;
+        float scale = (items[i].type == ITEM_HP) ? 0.3f : 0.4f;
+        int   frameX = items[i].frame * items[i].width;
+
         al_draw_scaled_bitmap(
             items[i].sheet,
             frameX, 0,
@@ -98,37 +119,50 @@ void item_draw()
 
 void item_collision_check(GameState* game, Player* player)
 {
-    Rect pBox = get_player_hitbox(player);
-    float scale = 0.4f;
+    Rect  pBox = get_player_hitbox(player);
 
     for (int i = 0; i < ITEM_MAX; i++)
     {
         if (!items[i].active) continue;
-        
+
+        float scale = (items[i].type == ITEM_HP) ? 0.3f : 0.4f;
+
         Rect iBox = {
             items[i].x,
             items[i].y,
-            items[i].width*scale,
-            items[i].height*scale
+            items[i].width * scale,
+            items[i].height * scale
         };
 
         if (collide_rect(pBox, iBox))
         {
             items[i].active = 0;
-            game->score += 10;
 
-            printf("ITEM GET! score = %d\n", game->score);
+            if (items[i].type == ITEM_STAR)
+            {
+                game->score += 10;
+                printf("STAR GET! score = %d\n", game->score);
+            }
+            else if (items[i].type == ITEM_HP)
+            {
+                game->hp += items[i].hpAmount;
+                if (game->hp > 100.0f) game->hp = 100.0f;
+                printf("HP GET! hp = %.1f\n", game->hp);
+            }
         }
-        
     }
 }
 
 void item_deinit()
 {
-    if (items[0].sheet)
-    {
-        al_destroy_bitmap(items[0].sheet);
-        for (int i = 0; i < ITEM_MAX; i++)
-            items[i].sheet = NULL;
+    if (sheet_star) {
+        al_destroy_bitmap(sheet_star);
+        sheet_star = NULL;
     }
+    if (sheet_hp) {
+        al_destroy_bitmap(sheet_hp);
+        sheet_hp = NULL;
+    }
+    for (int i = 0; i < ITEM_MAX; i++)
+        items[i].sheet = NULL;
 }
