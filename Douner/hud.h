@@ -8,10 +8,18 @@ void hp_update(GameState* game);
 void hud_draw(GameState* game);
 void hud_deinit();
 
+typedef enum { 
+	POPUP_NONE, 
+	POPUP_START, 
+	POPUP_NEXT, 
+	POPUP_FINAL 
+} PopupType;
+
 //stage
-void reset_stage_transition();
-bool update_stage_transition(GameState* game);
-void draw_stage_transition();
+void hud_reset_popup();
+void hud_trigger_popup(PopupType type);
+bool hud_update_popup();
+void hud_draw_popup();
 
 #endif // !_HUD_H
 

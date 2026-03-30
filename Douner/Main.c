@@ -31,6 +31,7 @@ FILE* rank_file;
 long frames;
 bool done = false;
 char message[100] = "";
+bool is_restart = false;
 
 GameScreen cur_screen = SCREEN_START;
 
@@ -39,7 +40,9 @@ static GameState game;
 void on_start() {
     game_init(&game);
     game.difficulty = 1;
-    reset_stage_transition();
+    hud_reset_popup();
+    hud_trigger_popup(POPUP_START);
+    is_restart = true;
     cur_screen = SCREEN_PLAY; // 게임 시작
 
 }
@@ -154,11 +157,27 @@ int main() {
                 break;
 
             case SCREEN_PLAY:
+
+                if (is_restart) {
+                    InitObstacles(obs_pool, MAX_OBS); // 화면에 남은 장애물 싹 지우기
+                    InitSpawnManager(&spawner);       // 소환 타이머 리셋
+                    item_init();
+
+                    player.state = PLAYER_RUN;
+                    player.y = player.baseY;
+                    player.jumpDirection = 0;
+                    player.hurtTimer = 0;
+                    player.runFrame = 0;
+
+                    bg.x = 0;   // 배경 스크롤 위치도 처음으로 되돌림
+                    frames = 0; // 프레임(시간) 초기화
+
+                    is_restart = false; // 청소 끝! 스위치 끄기
+                }
+
                 update_background(&bg, game.difficulty);
 
-                if (update_stage_transition(&game)) { //화면 정리
-                    InitObstacles(obs_pool, MAX_OBS); 
-                    InitSpawnManager(&spawner);       
+                if (hud_update_popup()) {
                 }
                 else {
                     item_update();
@@ -170,8 +189,21 @@ int main() {
                     item_collision_check(&game, &player);
                     obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
                     hp_update(&game);
+
+                    if (game.score >= 100 && game.difficulty == 1) {
+                        game.difficulty = 2;
+                        hud_trigger_popup(POPUP_NEXT); 
+                        InitObstacles(obs_pool, MAX_OBS);
+                        InitSpawnManager(&spawner);
+                    }
+                    else if (game.score >= 200 && game.difficulty == 2) {
+                        game.difficulty = 3;
+                        hud_trigger_popup(POPUP_FINAL); 
+                        InitObstacles(obs_pool, MAX_OBS);
+                        InitSpawnManager(&spawner);
+                    }
                 }
-                    
+               
                 if(game.hp <= 0) {
                     // 게임 오버 처리
                     
@@ -289,8 +321,8 @@ int main() {
                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                     ALLEGRO_ALIGN_CENTER,
                     "Press Enter Key to Start");
-
                 break;
+
 
             case SCREEN_MENU:
                 draw_background(&bg);
@@ -310,10 +342,11 @@ int main() {
                 //draw_player_hitbox(&player);
                 item_draw();
                 hud_draw(&game);
-                draw_stage_transition();
+                hud_draw_popup();
                 break;
 
             case SCREEN_NAME_INPUT:
+                draw_background(&bg);
                 text_input_draw(&text_input);
                 break;
 
