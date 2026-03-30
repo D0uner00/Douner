@@ -6,14 +6,13 @@
 #include "rank.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "Background.h"
 #include "enter_name.h"
 #include "rank.h"
 
 ALLEGRO_FONT* menu_font;
 //rank_file = NULL;
 //ALLEGRO_FONT* input_font;
-
-#include "Background.h"
 
 FILE* rank_file;
 long frames;
@@ -101,13 +100,12 @@ int main() {
     InitSpawnManager(&spawner);
 
     ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
-    ALLEGRO_BITMAP* img_dish = al_load_bitmap("dish.png");
-    ALLEGRO_BITMAP* img_troll = al_load_bitmap("troll.png");
+    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
+    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
 
     NameInput name_input;
     name_input_init(&name_input);
-    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
-    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
+
 
     Player player;
     init_player(&player);
@@ -154,7 +152,7 @@ int main() {
                     cur_screen = SCREEN_MENU;
                     break;
                 }
-                
+                break;
             case SCREEN_NAME_INPUT:
                 // 이름 입력 로직 처리
                 break;
@@ -230,11 +228,15 @@ int main() {
             break;
 
             case SCREEN_PLAY:
-                draw_map();
+
+                //draw_map();
+                draw_background(&bg);
+                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu);
                 draw_player(&player);
                 //debug
                 draw_player_hitbox(&player);
                 item_draw();
+                hud_draw(&game);
                 break;
 
             case SCREEN_NAME_INPUT:
