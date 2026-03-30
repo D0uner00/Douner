@@ -16,7 +16,7 @@ extern unsigned char key[ALLEGRO_KEY_MAX];
 void keyboard_init();
 void keyboard_update(ALLEGRO_EVENT* event);
 
-bool key_down(int keycode);
+bool key_hold(int keycode);
 bool key_pressed(int keycode);
 
 #endif
