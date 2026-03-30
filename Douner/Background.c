@@ -1,37 +1,65 @@
 #include "Background.h"
 
 void init_background(Background* bg) {
-    bg->image = al_load_bitmap("background\\background_1.png");
-    if (!bg->image) {
-        fprintf(stderr, "배경 이미지 로드 실패!\n");
-        return;
+    bg->images[0] = al_load_bitmap("background\\background_0.png"); // ���� ȭ��
+    bg->images[1] = al_load_bitmap("background\\background_1.png"); // ���̵� 1
+    bg->images[2] = al_load_bitmap("background\\background_2.png"); // ���̵� 2
+    bg->images[3] = al_load_bitmap("background\\background_3.png"); // ���̵� 3
+
+    for (int i = 0; i < 4; i++) {
+        if (!bg->images[i]) {
+            fprintf(stderr, "%d�ܰ� ��� �̹��� �ε� ����!\n", i + 1);
+        }
     }
+    bg->current_image = bg->images[0];
     bg->x = 0;
     bg->speed = 3.0f;
-    bg->width = al_get_bitmap_width(bg->image); // 1024
+
+    if (bg->current_image) {
+        bg->width = al_get_bitmap_width(bg->current_image);
+    }
+    else {
+        bg->width = 1024; // �ε� ���� �� �ӽ� �⺻��
+    }
 }
 
-void update_background(Background* bg) {
-    // 배경을 왼쪽으로 이동
-    bg->x -= bg->speed;
+void update_background(Background* bg, int difficulty) {
+    int index = difficulty;
 
-    // 이미지가 화면을 완전히 빠져나가면(width만큼 이동하면) 다시 0으로 리셋
-    if (bg->x <= -bg->width) {
+    if (bg->current_image != bg->images[index]) {
+        bg->current_image = bg->images[index];
         bg->x = 0;
+        if (bg->current_image) {
+            bg->width = al_get_bitmap_width(bg->current_image);
+        }
+    }
+
+    if (index == 0) {
+        bg->x = 0; // ���� ��� ����
+    }
+    else {
+        bg->x -= bg->speed; // 1, 2, 3�� ��� �������� �̵�
+
+        if (bg->x <= -bg->width) {
+            bg->x = 0;
+        }
     }
 }
 
 void draw_background(Background* bg) {
-    if (!bg->image) return;
+    if (!bg->current_image) return;
 
-    // 첫 번째 배경 그리기
-    al_draw_bitmap(bg->image, bg->x, 0, 0);
-    // 빈 공간을 채울 두 번째 배경 그리기 (첫 번째 배경 바로 뒤에 붙임)
-    al_draw_bitmap(bg->image, bg->x + bg->width, 0, 0);
+    al_draw_bitmap(bg->current_image, bg->x, 0, 0);
+
+    if (bg->x < 0) {
+        al_draw_bitmap(bg->current_image, bg->x + bg->width, 0, 0);
+    }
 }
 
 void destroy_background(Background* bg) {
-    if (bg->image) {
-        al_destroy_bitmap(bg->image);
+    for (int i = 0; i < 4; i++) {
+        if (bg->images[i]) {
+            al_destroy_bitmap(bg->images[i]);
+        }
     }
 }

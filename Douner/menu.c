@@ -139,7 +139,7 @@ int menu_update(MENU_ITEM* menu)
 	}
 
 	if (key_pressed(ALLEGRO_KEY_ENTER) || key_pressed(ALLEGRO_KEY_SPACE)) {
-		if (selected_item != -1) {
+		if (selected_item != -1 && menu[selected_item].handler != NULL) {
 			return menu[selected_item].handler(&menu[selected_item], MSG_INPUT, 0);
 		}
 	}
