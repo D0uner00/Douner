@@ -6,6 +6,7 @@
 #include "rank.h"
 #include "Player.h"
 #include "obstacle.h"
+#include "game_over.h"
 #include "Background.h"
 #include "hud.h"
 #include "user.h"
@@ -162,18 +163,26 @@ int main() {
                     hp_update(&game);
                 }
 
+                if(game.hp <= 0) {
+                    // 게임 오버 처리
+					game_over_init(game.score);
+					cur_screen = SCREEN_GAME_OVER;
+				}
+                break;
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {
                     cur_screen = SCREEN_MENU;
-                    break;
                 }
                 break;
-            
             case SCREEN_RANKING:
                 rank_update();
                 // 랭킹 화면 업데이트 로직 처리
                 break;
 
+            case SCREEN_GAME_OVER:
+                game_over_update();
+                // 게임 오버 화면 업데이트 로직 처리
+                break;
             }
 
             redraw = true;
@@ -295,6 +304,11 @@ int main() {
             case SCREEN_RANKING:
                 rank_draw();
                 break;
+
+            case SCREEN_GAME_OVER:
+                game_over_draw();
+                break;
+
             }
 
             al_flip_display();

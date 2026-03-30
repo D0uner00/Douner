@@ -1,14 +1,14 @@
 #include "Background.h"
 
 void init_background(Background* bg) {
-    bg->images[0] = al_load_bitmap("background\\background_0.png"); // ½ÃÀÛ È­¸é
-    bg->images[1] = al_load_bitmap("background\\background_1.png"); // ³­ÀÌµµ 1
-    bg->images[2] = al_load_bitmap("background\\background_2.png"); // ³­ÀÌµµ 2
-    bg->images[3] = al_load_bitmap("background\\background_3.png"); // ³­ÀÌµµ 3
+    bg->images[0] = al_load_bitmap("background\\background_0.png"); // ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½
+    bg->images[1] = al_load_bitmap("background\\background_1.png"); // ï¿½ï¿½ï¿½Ìµï¿½ 1
+    bg->images[2] = al_load_bitmap("background\\background_2.png"); // ï¿½ï¿½ï¿½Ìµï¿½ 2
+    bg->images[3] = al_load_bitmap("background\\background_3.png"); // ï¿½ï¿½ï¿½Ìµï¿½ 3
 
     for (int i = 0; i < 4; i++) {
         if (!bg->images[i]) {
-            fprintf(stderr, "%d´Ü°è ¹è°æ ÀÌ¹ÌÁö ·Îµå ½ÇÆÐ!\n", i + 1);
+            fprintf(stderr, "%dï¿½Ü°ï¿½ ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½!\n", i + 1);
         }
     }
     bg->current_image = bg->images[0];
@@ -19,7 +19,7 @@ void init_background(Background* bg) {
         bg->width = al_get_bitmap_width(bg->current_image);
     }
     else {
-        bg->width = 1024; // ·Îµå ½ÇÆÐ ½Ã ÀÓ½Ã ±âº»°ª
+        bg->width = 1024; // ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ó½ï¿½ ï¿½âº»ï¿½ï¿½
     }
 }
 
@@ -35,10 +35,10 @@ void update_background(Background* bg, int difficulty) {
     }
 
     if (index == 0) {
-        bg->x = 0; // ½ÃÀÛ ¹è°æ °íÁ¤
+        bg->x = 0; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
     else {
-        bg->x -= bg->speed; // 1, 2, 3¹ø ¹è°æ ¿ÞÂÊÀ¸·Î ÀÌµ¿
+        bg->x -= bg->speed; // 1, 2, 3ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
 
         if (bg->x <= -bg->width) {
             bg->x = 0;
