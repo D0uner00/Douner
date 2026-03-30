@@ -2,9 +2,9 @@
 #include "Player.h"
 
 void init_player(Player* p) {
-    p->runSheet = al_load_bitmap("male_hero-run.png");
-    p->jumpSheet = al_load_bitmap("male_hero-jump.png");
-    p->slideSheet = al_load_bitmap("male_hero-slide.png");
+    p->runSheet = al_load_bitmap("player\\male_hero-run.png");
+    p->jumpSheet = al_load_bitmap("player\\male_hero-jump.png");
+    p->slideSheet = al_load_bitmap("player\\male_hero-slide.png");
 
     if (!p->runSheet || !p->jumpSheet || !p->slideSheet) { // 둘 중 하나라도 로드 실패 시 종료
         fprintf(stderr, "이미지 로드 실패!\n");
