@@ -41,7 +41,7 @@ void InitObstacles(Obstacle obs[], int size);
 void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x);
 void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game);
 void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALLEGRO_BITMAP* img_f, ALLEGRO_BITMAP* img_t,
-    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump);
+    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump, ALLEGRO_BITMAP* img_meteor, ALLEGRO_BITMAP* img_amongus, ALLEGRO_BITMAP* img_amongus_jump, ALLEGRO_BITMAP* img_keroro);
 void InitSpawnManager(SpawnManager* sm);
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game);
 void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game, ALLEGRO_SAMPLE* sfx_hit);

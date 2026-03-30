@@ -4,14 +4,15 @@
 #include "global.h"
 
 typedef struct {
-    ALLEGRO_BITMAP* image;
+    ALLEGRO_BITMAP* images[4]; 
+    ALLEGRO_BITMAP* current_image;
     float x;
     float speed;
     int width;
 } Background;
 
 void init_background(Background* bg);
-void update_background(Background* bg);
+void update_background(Background* bg, int difficulty);
 void draw_background(Background* bg);
 void destroy_background(Background* bg);
 

@@ -24,7 +24,11 @@ GameScreen cur_screen = SCREEN_START;
 static GameState game;
 
 void on_start() {
+    game_init(&game);
+    game.difficulty = 1;
+    reset_stage_transition();
     cur_screen = SCREEN_PLAY; // 게임 시작
+
 }
 
 void on_exit() {
@@ -89,6 +93,10 @@ int main() {
     ALLEGRO_BITMAP* img_tornado = al_load_bitmap("obstacle\\tornado.png");
     ALLEGRO_BITMAP* img_kirby = al_load_bitmap("obstacle\\kirby.png");
     ALLEGRO_BITMAP* img_kirby_jump = al_load_bitmap("obstacle\\kirby_jump.png");
+    ALLEGRO_BITMAP* img_meteor = al_load_bitmap("obstacle\\meteor.png");
+    ALLEGRO_BITMAP* img_amongus = al_load_bitmap("obstacle\\amongus.png");
+    ALLEGRO_BITMAP* img_amongus_jump = al_load_bitmap("obstacle\\amongus_jump.png");
+    ALLEGRO_BITMAP* img_keroro = al_load_bitmap("obstacle\\keroro.png");
     
     //효과음
     //al_install_audio();
@@ -127,23 +135,33 @@ int main() {
             // --- 게임 로직 업데이트 ---
             switch (cur_screen) {
 
+            case SCREEN_START:
             case SCREEN_MENU:
+                update_background(&bg, 0);
                 if (menu_update(main_menu) == MENU_EXIT) {
                     done = true;
                 }
                 break;
 
             case SCREEN_PLAY:
-                update_background(&bg);
-                item_update();
-                update_player(&player);
+                update_background(&bg, game.difficulty);
 
-                UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
-                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+                if (update_stage_transition(&game)) { //화면 정리
+                    InitObstacles(obs_pool, MAX_OBS); 
+                    InitSpawnManager(&spawner);       
+                    init_player(&player);
+                }
+                else {
+                    item_update();
+                    update_player(&player);
 
-                item_collision_check(&game, &player);
-                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
-                hp_update(&game); // HP 서서히 감소 로직 
+                    UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+                    UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+
+                    item_collision_check(&game, &player);
+                    obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
+                    hp_update(&game);
+                }
 
                 if(game.hp <= 0) {
                     // 게임 오버 처리
@@ -250,6 +268,7 @@ int main() {
             switch (cur_screen) {
 
             case SCREEN_START:
+                draw_background(&bg);
                 al_draw_text(menu_font, al_map_rgb(255, 255, 255),
                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                     ALLEGRO_ALIGN_CENTER,
@@ -258,6 +277,7 @@ int main() {
                 break;
 
             case SCREEN_MENU:
+                draw_background(&bg);
                 menu_draw(main_menu);
                 al_draw_text(menu_font, al_map_rgb(255, 255, 0), SCREEN_WIDTH / 2, 50, ALLEGRO_ALIGN_CENTER, message);
 
@@ -267,12 +287,14 @@ int main() {
 
                 //draw_map();
                 draw_background(&bg);
-                DrawObstaclesWithImage(&game, obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu, img_tornado, img_kirby, img_kirby_jump);
+                DrawObstaclesWithImage(&game, obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu, img_tornado, img_kirby, img_kirby_jump,
+                    img_meteor, img_amongus, img_amongus_jump, img_keroro);
                 draw_player(&player);
                 //debug
-                draw_player_hitbox(&player);
+                //draw_player_hitbox(&player);
                 item_draw();
                 hud_draw(&game);
+                draw_stage_transition();
                 break;
 
             case SCREEN_NAME_INPUT:
@@ -303,6 +325,7 @@ int main() {
     al_destroy_bitmap(img_trash);
     al_destroy_bitmap(img_doraemon);
     al_destroy_bitmap(img_pikachu);
+    destroy_background(&bg);
 
     return 0;
 }
