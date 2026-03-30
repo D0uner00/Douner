@@ -17,7 +17,7 @@ void item_init()
         return;
     }
 
-    sheet_hp = al_load_bitmap("hp(1).png");
+    sheet_hp = al_load_bitmap("hp.png");
     if (!sheet_hp) {
         printf("hp.png 로드 실패!\n");
         return;
