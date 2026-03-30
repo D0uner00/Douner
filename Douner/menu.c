@@ -21,7 +21,7 @@ void menu_init(MENU_ITEM* menu)
 	item_count = i;
 
 	// 첫번째 선택 가능한 항목을 선택 상태로 설정
-	for (i = 0; i < item_count;++i) {
+	for (i = 0; i < item_count; ++i) {
 
 		if (menu[i].flags & FLAG_SELECTABLE) {
 			selected_item = i;

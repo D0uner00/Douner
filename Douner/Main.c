@@ -18,15 +18,25 @@ void on_start();
 void on_exit();
 void on_enter_name();
 void on_ranking();
+void on_continue();
 void on_back_to_menu();
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",on_ranking),
+    MENU_BUTTON("Start Game", on_start),
+    MENU_BUTTON("Ranking", on_ranking),
     MENU_BUTTON("Exit", on_exit),
     MENU_END()
 };
 
+MENU_ITEM menu_paused[] = {
+    MENU_BUTTON("Continue", on_continue),
+    MENU_BUTTON("New Game", on_start), // Start Game 대신 New Game으로 이름 변경 가능
+    MENU_BUTTON("Ranking", on_ranking),
+    MENU_BUTTON("Exit", on_exit),
+    MENU_END()
+};
+
+MENU_ITEM* current_menu = main_menu;
 FILE* rank_file;
 long frames;
 bool done = false;
@@ -43,6 +53,7 @@ void on_start() {
     hud_reset_popup();
     hud_trigger_popup(POPUP_START);
     is_restart = true;
+    current_menu = menu_paused;
     cur_screen = SCREEN_PLAY; // 게임 시작
 
 }
@@ -60,11 +71,14 @@ void on_ranking() {
     cur_screen = SCREEN_RANKING;
 }
 
-void on_back_to_menu() {
-    menu_init(main_menu);
-	cur_screen = SCREEN_MENU;
+void on_continue() {
+    cur_screen = SCREEN_PLAY;
 }
 
+void on_back_to_menu() {
+    menu_init(current_menu);
+	cur_screen = SCREEN_MENU;
+}
 
 int main() {
     if (!al_init()) return -1;
@@ -91,7 +105,7 @@ int main() {
 
     item_init();
 
-    menu_init(main_menu);
+    menu_init(current_menu);
 
     game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
 
@@ -151,7 +165,7 @@ int main() {
             case SCREEN_START:
             case SCREEN_MENU:
                 update_background(&bg, 0);
-                if (menu_update(main_menu) == MENU_EXIT) {
+                if (menu_update(current_menu) == MENU_EXIT) {
                     done = true;
                 }
                 break;
@@ -206,6 +220,7 @@ int main() {
                
                 if(game.hp <= 0) {
                     // 게임 오버 처리
+
                     
                     Record new_record;
                     strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
@@ -215,11 +230,12 @@ int main() {
 
 					file_write(new_record);
 					game_over_init(game.score);
+                    current_menu = main_menu;
 					cur_screen = SCREEN_GAME_OVER;
 				}
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {
-                    cur_screen = SCREEN_MENU;
+					on_back_to_menu();
                 }
                 break;
             case SCREEN_RANKING:
@@ -326,7 +342,7 @@ int main() {
 
             case SCREEN_MENU:
                 draw_background(&bg);
-                menu_draw(main_menu);
+                menu_draw(current_menu);
                 al_draw_text(menu_font, al_map_rgb(255, 255, 0), SCREEN_WIDTH / 2, 50, ALLEGRO_ALIGN_CENTER, message);
 
                 break;
