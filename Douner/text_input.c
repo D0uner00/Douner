@@ -1,13 +1,11 @@
-#include "enter_name.h"
+#include "text_input.h"
 #include "ui.h"
 #include "keyboard.h"
 #include <string.h>
 
-//extern ALLEGRO_FONT* input_font;
-
 extern  ALLEGRO_FONT* menu_font;
-// 초기화
-void name_input_init(NameInput* name)
+
+void text_input_init(TextInput* name)
 {
     name->length = 0;
     name->buffer[0] = '\0';
@@ -18,7 +16,7 @@ void name_input_init(NameInput* name)
     name->box = make_center_rect(400, 200);
 }
 
-void name_input_update(NameInput* name, ALLEGRO_EVENT* event)
+void text_input_update(TextInput* name, ALLEGRO_EVENT* event)
 {
     // 문자 입력 처리
     if (event->type == ALLEGRO_EVENT_KEY_CHAR) {
@@ -49,7 +47,7 @@ void name_input_update(NameInput* name, ALLEGRO_EVENT* event)
     }
 }
 
-void name_input_draw(NameInput* name)
+void text_input_draw(TextInput* name)
 {
     // 박스
     draw_box(name->box);
@@ -57,13 +55,14 @@ void name_input_draw(NameInput* name)
     // 제목
     draw_center_text("Enter Name", name->box.y + 30, al_map_rgb(255, 255, 255));
 
-    // 입력된 텍스트
-    draw_center_text(name->buffer, name->box.y + 100, al_map_rgb(255, 255, 0));
+    char tmp[NAME_MAX + 2];
 
-    // 커서 (깜빡임 효과 간단 버전)
     if (name->cursor_visible) {
-        char temp[NAME_MAX + 2];
-        snprintf(temp, sizeof(temp), "%s_", name->buffer);
-        draw_center_text(temp, name->box.y + 100, al_map_rgb(255, 255, 0));
+        snprintf(tmp, sizeof(tmp), "%s_", name->buffer);
     }
+    else {
+        snprintf(tmp, sizeof(tmp), "%s", name->buffer);
+    }
+
+    draw_center_text(tmp, name->box.y + 100, al_map_rgb(255, 255, 0));
 }

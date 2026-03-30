@@ -34,6 +34,7 @@ typedef struct {
 } GameState;
 
 typedef enum {
+    SCREEN_START,
     SCREEN_MENU,
     SCREEN_PLAY,
     SCREEN_NAME_INPUT,
@@ -46,9 +47,5 @@ typedef struct {
 
 void must_init(bool test, const char* description);
 void game_init(GameState* game);
-
-
-//		юс╫ц			//
-void draw_map();
 
 #endif

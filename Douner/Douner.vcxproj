@@ -140,15 +140,15 @@
     <ClCompile Include="Main.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="mouse.c" />
-    <ClCompile Include="enter_name.c" />
     <ClCompile Include="obstacle.c" />
     <ClCompile Include="Player.c" />
     <ClCompile Include="rank.c" />
+    <ClCompile Include="text_input.c" />
     <ClCompile Include="ui.c" />
+    <ClCompile Include="user.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
-    <ClInclude Include="enter_name.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="hitbox.h" />
     <ClInclude Include="hud.h" />
@@ -157,7 +157,9 @@
     <ClInclude Include="obstacle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="rank.h" />
+    <ClInclude Include="text_input.h" />
     <ClInclude Include="ui.h" />
+    <ClInclude Include="user.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\..\..\Telechips4\game_tutorial\game_tutorial\dish.png" />

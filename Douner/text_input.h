@@ -8,10 +8,10 @@ typedef struct {
     int cursor_visible;
     Rect box;
     int done;
-} NameInput;
+} TextInput;
 
-void name_input_init(NameInput* name);
-void name_input_update(NameInput* name, ALLEGRO_EVENT* event);
-void name_input_draw(NameInput* name);
+void text_input_init(TextInput* name);
+void text_input_update(TextInput* name, ALLEGRO_EVENT* event);
+void text_input_draw(TextInput* name);
 
 #endif

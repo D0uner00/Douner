@@ -12,11 +12,6 @@ void keyboard_update(ALLEGRO_EVENT* event)
 {
     switch (event->type)
     {
-    case ALLEGRO_EVENT_TIMER:
-        for (int i = 0; i < ALLEGRO_KEY_MAX; i++)
-            key[i] &= ~KEY_SEEN;
-        break;
-
     case ALLEGRO_EVENT_KEY_DOWN:
         key[event->keyboard.keycode] = KEY_SEEN | KEY_DOWN;
         break;
@@ -26,7 +21,7 @@ void keyboard_update(ALLEGRO_EVENT* event)
     }
 }
 
-bool key_down(int keycode) {
+bool key_hold(int keycode) {
     if (key[keycode] & KEY_DOWN) {
 		key[keycode] &= ~KEY_SEEN;
 
@@ -36,6 +31,10 @@ bool key_down(int keycode) {
 }
 
 bool key_pressed(int keycode) {
-	return key[keycode] & KEY_SEEN;
+    if ((key[keycode] & KEY_DOWN) && (key[keycode] & KEY_SEEN)) {
+        key[keycode] &= ~KEY_SEEN;  // ?? ?? ?????? ????
+        return true;
+    }
+    return false;
 }
 
