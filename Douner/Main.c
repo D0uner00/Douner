@@ -43,20 +43,6 @@ void on_back_to_menu() {
 	cur_screen = SCREEN_MENU;
 }
 
-void on_name_confirm(GameState* game, NameInput* input)
-{
-    strcpy(game->player_name, input->buffer);
-
-    /*
-    if (exists_in_ranking(game->player_name)) {
-        printf("Welcome back!\n");
-    }
-    else {
-        printf("New player!\n");
-    }
-    */
-}
-
 MENU_ITEM main_menu[] = {
     MENU_BUTTON("Start Game",on_start),
     MENU_BUTTON("Ranking",on_ranking),
