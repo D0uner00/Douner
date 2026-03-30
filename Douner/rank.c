@@ -9,6 +9,15 @@ FILE* rank_file;
 Rect box;
 ALLEGRO_FONT* menu_font;
 
+extern void on_back_to_menu();
+
+int compare(const void* a, const void* b){
+	Record* recordA = (Record*)a;
+	Record* recordB = (Record*)b;
+
+    return recordB->score - recordA->score;
+}
+
 Record* file_read() {
     rank_file = fopen("rank.dat", "rb");
 
@@ -27,46 +36,59 @@ Record* file_read() {
     fclose(rank_file);
     rank_file = NULL;
     current_record_size = record_count;
+
+    if (record_count > 0) {
+		qsort(records, record_count, sizeof(Record), compare);
+    }
+
     return records;
 }
 
 void file_write(Record record) {
-	// 임시용 제일 점수가 낮은걸 찾아서 교체하게 구현 예정 //
-	if (current_record_size >= MAX_RECORD_SIZE) {
+    Record* records = file_read();
 
-		return;
+    if(records == NULL){
+        records = (Record*)malloc(sizeof(Record) * MAX_RECORD_SIZE);
+		records[current_record_size++] = record;
 	}
-	/////////////////////////////////////////////////////////
-	// 정렬도 구현해야함 //
-	rank_file = fopen("rank.dat", "ab");
-
-	if (rank_file == NULL) {
-		return;
+    if (current_record_size < MAX_RECORD_SIZE) {
+        records[current_record_size++] = record;
+    }
+    else {
+        if (record.score >= records[current_record_size - 1].score) {
+            records[current_record_size - 1] = record;
+        }
 	}
 
-	fwrite(&record, sizeof(Record), 1, rank_file);
-	current_record_size++;
+	qsort(records, current_record_size, sizeof(Record), compare);
+    rank_file = fopen("rank.dat", "wb");
+
+    if (rank_file == NULL) {
+        free(records);
+        return;
+    }
+
+    fwrite(records, sizeof(Record), current_record_size, rank_file);
+	free(records);
 	fclose(rank_file);
-	rank_file = NULL;
 }
 
 void rank_init() {
     if (rank_menu == NULL) {
         int idx = 0;
-        Record* records = file_read(MAX_RECORD_SIZE);
+        Record* records = file_read();
 
         rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
 		rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
 
         for (int i = 0;i < current_record_size;++i) {
 			char* buf = (char*)malloc(64);
-            sprintf(buf, "%d   %s   %d   %d", i + 1, records[i].name, records[i].score, records[i].difficulty);
+            sprintf(buf, " %2d     %-15s %-7d", i + 1, records[i].name, records[i].score);
 			rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
         }
 
-		// 버튼으로 바꿔야됨 //
-		rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("Back to Menu");
-        ///////////////////////
+        rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
+		rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
         rank_menu[idx] = (MENU_ITEM)MENU_END();
 
 		menu_init(rank_menu);
@@ -79,7 +101,6 @@ int rank_update() {
 
 void rank_draw() {
     if (rank_menu == NULL) return;
-
     al_draw_rectangle(box.x, box.y, box.x + box.w, box.y + box.h, al_map_rgb(255, 255, 255), 2);
 
     for (int i = 0; rank_menu[i].handler != NULL; i++) {
@@ -89,8 +110,7 @@ void rank_draw() {
         }
 
         if (rank_menu[i + 1].handler == NULL) {
-            al_draw_rectangle(rank_menu[i].x - 40, rank_menu[i].y, rank_menu[i].x + 40, rank_menu[i].y + 25, al_map_rgb(255, 255, 255), 1);
-            al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, rank_menu[i].y + 5, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
+            al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, rank_menu[i].y, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
             continue;
         }
 
@@ -99,14 +119,10 @@ void rank_draw() {
         int rw = box.w - 20;    
         int rh = 30;            
 
-        al_draw_rectangle(rx, ry, rx + rw, ry + rh, al_map_rgb(255, 255, 255), 1);
 
-        al_draw_line(rx + 40, ry, rx + 40, ry + rh, al_map_rgb(255, 255, 255), 1);
-
-        al_draw_line(rx + rw - 80, ry, rx + rw - 80, ry + rh, al_map_rgb(255, 255, 255), 1);
-
-        al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, ry + 8, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
+        al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, ry + 10, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
     }
+
 }
 
 // 임시 //
@@ -121,6 +137,7 @@ void processRank() {
 
     rank_file = fopen("rank.dat", "wb");
     if (rank_file != NULL) {
+		qsort(initial_records, 5, sizeof(Record), compare);
         fwrite(initial_records, sizeof(Record), 5, rank_file);
         fclose(rank_file);
         rank_file = NULL;
