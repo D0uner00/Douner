@@ -18,7 +18,7 @@ int compare(const void* a, const void* b){
 }
 
 Record* file_read() {
-    rank_file = fopen("rank.dat", "rb");
+    rank_file = fopen("rank.txt","r");
 
     if (rank_file == NULL) {
         return NULL;
@@ -30,7 +30,16 @@ Record* file_read() {
         return NULL;
     }
 
-    int record_count = fread(records, sizeof(Record), MAX_RECORD_SIZE, rank_file);
+    int record_count = 0;
+    //int record_count = fread(records, sizeof(Record), MAX_RECORD_SIZE, rank_file);
+
+    while (record_count < MAX_RECORD_SIZE && 
+           fscanf(rank_file, "%s %d %d", 
+                  records[record_count].name, 
+                  &records[record_count].score, 
+                  &records[record_count].difficulty) == 3) {
+        record_count++;
+    }
 
     fclose(rank_file);
     rank_file = NULL;
@@ -65,14 +74,16 @@ void file_write(Record record) {
 	}
 
 	qsort(records, current_record_size, sizeof(Record), compare);
-    rank_file = fopen("rank.dat", "wb");
+    rank_file = fopen("rank.txt", "w");
 
     if (rank_file == NULL) {
         free(records);
         return;
     }
-
-    fwrite(records, sizeof(Record), current_record_size, rank_file);
+    for (int i = 0; i < current_record_size; i++) {
+        fprintf(rank_file, "%s %d %d\n", records[i].name, records[i].score, records[i].difficulty);
+    }
+   //fwrite(records, sizeof(Record), current_record_size, rank_file);
 	free(records);
 	fclose(rank_file);
 }
@@ -130,7 +141,7 @@ void rank_draw() {
         int rx = box.x + 10;
         int ry = rank_menu[i].y;
         int rw = box.w - 20;    
-        int rh = 30;            
+        int rh = 30;
 
 
         al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, ry + 10, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
