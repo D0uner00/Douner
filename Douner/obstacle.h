@@ -39,9 +39,10 @@ typedef struct {
 // 함수 선언 (다른 파일에서 이 함수들을 호출함)
 void InitObstacles(Obstacle obs[], int size);
 void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x);
-void SpawnObstacle(Obstacle* obs, ObstacleType type);
-void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALLEGRO_BITMAP* img_f, ALLEGRO_BITMAP* img_t);
+void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game);
+void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALLEGRO_BITMAP* img_f, ALLEGRO_BITMAP* img_t,
+    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump);
 void InitSpawnManager(SpawnManager* sm);
-void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game);
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game);
+void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game, ALLEGRO_SAMPLE* sfx_hit);
 #endif
