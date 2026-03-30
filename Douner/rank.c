@@ -24,7 +24,7 @@ Record* file_read() {
         return NULL;
     }
 
-    Record* records = (Record*)malloc(sizeof(Record) * MAX_RECORD_SIZE);
+    Record* records = (Record*)calloc(MAX_RECORD_SIZE, sizeof(Record));
     if (records == NULL) {
         fclose(rank_file);
         return NULL;
@@ -33,11 +33,8 @@ Record* file_read() {
     int record_count = 0;
     //int record_count = fread(records, sizeof(Record), MAX_RECORD_SIZE, rank_file);
 
-    while (record_count < MAX_RECORD_SIZE && 
-           fscanf(rank_file, "%s %d %d", 
-                  records[record_count].name, 
-                  &records[record_count].score, 
-                  &records[record_count].difficulty) == 3) {
+    while (record_count < MAX_RECORD_SIZE &&
+        fscanf(rank_file, "%19s %d", records[record_count].name, &records[record_count].score) == 2) {
         record_count++;
     }
 
@@ -56,7 +53,7 @@ void file_write(Record record) {
     Record* records = file_read();
 
     if(records == NULL){
-        records = (Record*)malloc(sizeof(Record) * MAX_RECORD_SIZE);
+        records = (Record*)calloc(MAX_RECORD_SIZE, sizeof(Record));
         if (records == NULL) {
             return;
         }
@@ -81,7 +78,7 @@ void file_write(Record record) {
         return;
     }
     for (int i = 0; i < current_record_size; i++) {
-        fprintf(rank_file, "%s %d %d\n", records[i].name, records[i].score, records[i].difficulty);
+        fprintf(rank_file, "%s %d\n", records[i].name, records[i].score);
     }
    //fwrite(records, sizeof(Record), current_record_size, rank_file);
 	free(records);
@@ -103,7 +100,7 @@ void rank_init() {
     int idx = 0;
     Record* records = file_read();
 
-    rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
+    rank_menu = (MENU_ITEM*)calloc(MAX_RECORD_SIZE + 5, sizeof(MENU_ITEM));
     rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
 
     for (int i = 0; i < current_record_size; ++i) {
