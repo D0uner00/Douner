@@ -7,28 +7,23 @@
 #include "Player.h"
 #include "obstacle.h"
 #include "Background.h"
-#include "enter_name.h"
-#include "rank.h"
+#include "hud.h"
+#include "user.h"
+#include "text_input.h"
 
 ALLEGRO_FONT* menu_font;
-//rank_file = NULL;
-//ALLEGRO_FONT* input_font;
 
 FILE* rank_file;
 long frames;
-long score = 0;
 bool done = false;
+char message[100] = "";
 
-GameScreen cur_screen = SCREEN_MENU;
+GameScreen cur_screen = SCREEN_START;
+
 static GameState game;
 
 void on_start() {
-    if (strlen(game.player_name) == 0) {
-        cur_screen = SCREEN_NAME_INPUT;
-    }
-    else {
-        cur_screen = SCREEN_PLAY; // 게임 시작
-    }
+    cur_screen = SCREEN_PLAY; // 게임 시작
 }
 
 void on_exit() {
@@ -63,7 +58,6 @@ void on_name_confirm(GameState* game, NameInput* input)
 }
 
 MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Enter Name",on_enter_name),
     MENU_BUTTON("Start Game",on_start),
     MENU_BUTTON("Ranking",on_ranking),
     MENU_BUTTON("Exit", on_exit),
@@ -95,7 +89,6 @@ int main() {
     item_init();
     menu_init(main_menu);
 
-    //GameState game;
     game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
 
     Obstacle obs_pool[MAX_OBS];
@@ -107,8 +100,8 @@ int main() {
     ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
     ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
 
-    NameInput name_input;
-    name_input_init(&name_input);
+    TextInput text_input;
+    text_input_init(&text_input);
 
 
     Player player;
@@ -145,10 +138,11 @@ int main() {
                 item_update();
                 update_player(&player);
 
-                item_collision_check(&game, &player);
-                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
-                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
                 UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
+                UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
+
+                item_collision_check(&game, &player);
+                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
                 hp_update(&game); // HP 서서히 감소 로직 
 
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
@@ -157,10 +151,7 @@ int main() {
                     break;
                 }
                 break;
-            case SCREEN_NAME_INPUT:
-                // 이름 입력 로직 처리
-                break;
-
+            
             case SCREEN_RANKING:
                 rank_update();
                 // 랭킹 화면 업데이트 로직 처리
@@ -171,18 +162,30 @@ int main() {
             redraw = true;
             frames++;
             mouse_tick();
-            break;
+
+            break; // closes case ALLEGRO_EVENT_TIMER
+
         case ALLEGRO_EVENT_KEY_CHAR:
 
             if (cur_screen == SCREEN_NAME_INPUT) {
-                name_input_update(&name_input, &event);
+                text_input_update(&text_input, &event);
 
-                if (name_input.done) {
-                    strcpy(game.player_name, name_input.buffer);
+                if (text_input.done) {
+                    char* name = text_input.buffer;
 
-                    //on_name_confirm(&game, &name_input);
+                    if (user_exists(name)) {
+                        snprintf(message, sizeof(message), "Welcome back, %s!", name);
+                    }
+                    else {
+                        // 신규 유저
+                        add_user(name);
+                        snprintf(message, sizeof(message), "New user: %s", name);
+                    }
+                    strcpy(game.player_name, name);
 
                     cur_screen = SCREEN_MENU;
+
+                    keyboard_init();
                 }
             }
             break;
@@ -190,24 +193,27 @@ int main() {
         case ALLEGRO_EVENT_KEY_DOWN:
 
             switch (cur_screen) {
+
+            case SCREEN_START:
+                cur_screen = SCREEN_NAME_INPUT;
+                break;
+
             case SCREEN_PLAY:
-                if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+                if (key_pressed(ALLEGRO_KEY_UP)) { //event.keyboard.keycode == ALLEGRO_KEY_UP
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_JUMP;
                         player.jumpDirection = 1;
                         player.jumpFrame = 0;
                     }
                 }
-                else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+                else if (key_pressed(ALLEGRO_KEY_DOWN)) { //event.keyboard.keycode == ALLEGRO_KEY_DOWN
                     if (player.state == PLAYER_RUN) {
                         player.state = PLAYER_SLIDING;
                         player.slideFrame = 0;
                     }
                 }
                 break;
-            case SCREEN_NAME_INPUT:
-                // 이름 입력 키 처리
-                break;
+            
             default:
                 break;
             }
@@ -234,8 +240,19 @@ int main() {
         if (redraw && al_is_event_queue_empty(queue)) {
             al_clear_to_color(al_map_rgb(0, 0, 0)); // 화면 초기화 필수 
             switch (cur_screen) {
+
+            case SCREEN_START:
+                al_draw_text(menu_font, al_map_rgb(255, 255, 255),
+                    SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Press Enter Key to Start");
+
+                break;
+
             case SCREEN_MENU:
                 menu_draw(main_menu);
+                al_draw_text(menu_font, al_map_rgb(255, 255, 0), SCREEN_WIDTH / 2, 50, ALLEGRO_ALIGN_CENTER, message);
+
                 break;
 
             case SCREEN_PLAY:
@@ -251,16 +268,13 @@ int main() {
                 break;
 
             case SCREEN_NAME_INPUT:
-                name_input_draw(&name_input);
+                text_input_draw(&text_input);
                 break;
 
             case SCREEN_RANKING:
                 rank_draw();
                 break;
             }
-            /*case SCREEN_NAME_INPUT:
-            // 화면에 이름 입력 UI 그리기
-            break;*/
 
             al_flip_display();
             redraw = false;

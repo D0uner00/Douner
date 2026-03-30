@@ -3,7 +3,6 @@
 
 static int item_count = 0;
 static int selected_item = 0;
-//static int box_x, box_y, box_w, box_h;
 extern Rect box;
 
 extern ALLEGRO_FONT* menu_font;
