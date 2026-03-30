@@ -73,26 +73,30 @@ void file_write(Record record) {
 }
 
 void rank_init() {
-    if (rank_menu == NULL) {
-        int idx = 0;
-        Record* records = file_read();
-
-        rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
-		rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
-
-        for (int i = 0;i < current_record_size;++i) {
-			char* buf = (char*)malloc(64);
-            sprintf(buf, " %2d     %-15s %-7d", i + 1, records[i].name, records[i].score);
-			rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
-        }
-
-        rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
-		rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
-        rank_menu[idx] = (MENU_ITEM)MENU_END();
-
+    if (rank_menu != NULL) {
 		menu_init(rank_menu);
+        return;
     }
+
+    int idx = 0;
+    Record* records = file_read();
+
+    rank_menu = (MENU_ITEM*)malloc(sizeof(MENU_ITEM) * (MAX_RECORD_SIZE + 3));
+    rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
+
+    for (int i = 0; i < current_record_size; ++i) {
+        char* buf = (char*)malloc(64);
+        sprintf(buf, " %2d     %-15s %-7d", i + 1, records[i].name, records[i].score);
+        rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
+    }
+
+    rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
+    rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
+    rank_menu[idx] = (MENU_ITEM)MENU_END();
+
+    menu_init(rank_menu);
 }
+
 
 int rank_update() {
     return menu_update(rank_menu);

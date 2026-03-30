@@ -14,6 +14,19 @@
 
 ALLEGRO_FONT* menu_font;
 
+void on_start();
+void on_exit();
+void on_enter_name();
+void on_ranking();
+void on_back_to_menu();
+
+MENU_ITEM main_menu[] = {
+    MENU_BUTTON("Start Game",on_start),
+    MENU_BUTTON("Ranking",on_ranking),
+    MENU_BUTTON("Exit", on_exit),
+    MENU_END()
+};
+
 FILE* rank_file;
 long frames;
 bool done = false;
@@ -41,15 +54,10 @@ void on_ranking() {
 }
 
 void on_back_to_menu() {
+    menu_init(main_menu);
 	cur_screen = SCREEN_MENU;
 }
 
-MENU_ITEM main_menu[] = {
-    MENU_BUTTON("Start Game",on_start),
-    MENU_BUTTON("Ranking",on_ranking),
-    MENU_BUTTON("Exit", on_exit),
-    MENU_END()
-};
 
 int main() {
     if (!al_init()) return -1;
