@@ -45,6 +45,27 @@
     <ClCompile Include="mouse.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Background.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="game_over.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="rank.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="text_input.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="user.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="heal.c">
+      <Filter>리소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="keyboard.h">
@@ -72,6 +93,27 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="mouse.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="game_over.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="rank.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="text_input.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="user.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="heal.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
