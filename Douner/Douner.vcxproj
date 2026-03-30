@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background.c" />
+    <ClCompile Include="game_over.c" />
     <ClCompile Include="global.c" />
     <ClCompile Include="hitbox.c" />
     <ClCompile Include="hud.c" />
@@ -149,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
+    <ClInclude Include="game_over.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="hitbox.h" />
     <ClInclude Include="hud.h" />

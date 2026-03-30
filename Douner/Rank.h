@@ -2,6 +2,7 @@
 #define _RANK_H_
 #include "global.h"
 #include "menu.h"
+#include "ui.h"
 
 #define MAX_RECORD_SIZE 10
 
