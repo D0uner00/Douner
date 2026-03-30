@@ -136,9 +136,6 @@ int main() {
             break;
         }
 
-        }
-
-
         if (done)
             break;
 
