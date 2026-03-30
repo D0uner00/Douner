@@ -12,24 +12,38 @@ void InitSpawnManager(SpawnManager* sm) {
 // 2. 실시간 소환 로직 (타이머 이벤트마다 호출)
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game) {
     sm->timer++;
-
+    int dif = 0;
+    if (Game->difficulty == 0) dif = 120;
+    if (Game->difficulty == 1) dif = 90;
+    if (Game->difficulty == 2) dif = 60;
     if (sm->timer >= sm->interval) {
         // 비어있는(비활성화된) 장애물 칸 찾기
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
-                // 랜덤하게 3가지 타입 중 하나 소환
-                ObstacleType spawn_pool[] = { OBS_GROUND, OBS_GROUND, OBS_FLYING, OBS_JUMPING };
+                ObstacleType selected;
+                if (Game->difficulty == 0) { // 이지모드일경우 플라잉 안나옴
+                    // 랜덤하게 2가지 타입 중 하나 소환
+                    ObstacleType spawn_pool[] = { OBS_GROUND, OBS_JUMPING };
 
-                // 배열 크기가 4이므로 % 4를 사용
-                ObstacleType selected = spawn_pool[rand() % 4];
 
-                SpawnObstacle(&obs[i], selected);
+                    selected = spawn_pool[rand() % 2];
+                }
+                else {
+                    // 랜덤하게 3가지 타입 중 하나 소환
+                    ObstacleType spawn_pool[] = { OBS_GROUND, OBS_GROUND, OBS_FLYING, OBS_JUMPING };
+
+                    // 배열 크기가 4이므로 % 4를 사용
+                    selected = spawn_pool[rand() % 4];
+                }
+
+
+                SpawnObstacle(&obs[i], selected, &Game);
                 break;
             }
         }
         // 타이머 리셋 및 다음 소환 간격 랜덤 설정 (1~3초 사이)
         sm->timer = 0;
-        sm->interval = 60 + (rand() % 120);
+        sm->interval = 60 + (rand() % dif);
     }
 }
 
@@ -66,7 +80,7 @@ void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x) {
 
         // 애니메이션 프레임 계산
         obs[i].frame_timer--;
-        if (obs[i].frame_timer <= 0) {
+        if (obs[i].frame_timer <= 0 && !obs[i].is_jumping) {
             obs[i].cur_frame = (obs[i].cur_frame + 1) % 4; // 0~3 무한반복
             obs[i].frame_timer = obs[i].frame_delay;
         }
@@ -79,7 +93,7 @@ void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x) {
 }
 
 // 5. 장애물 개별 소환 설정
-void SpawnObstacle(Obstacle* obs, ObstacleType type) {
+void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game) {
     obs->is_active = 1;
     obs->type = type;
     obs->x = SCREEN_WIDTH;
@@ -110,45 +124,75 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type) {
 
     // 애니메이션 초기화
     obs->cur_frame = 0;
-    obs->frame_delay = 8;
+    obs->frame_delay = 3;
     obs->frame_timer = obs->frame_delay;
 }
 
 // 6. 그리기 (이미지 포인터 사용)
-void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALLEGRO_BITMAP* img_f, ALLEGRO_BITMAP* img_j_sheet) {
+void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
+    ALLEGRO_BITMAP* trash, ALLEGRO_BITMAP* doraemon, ALLEGRO_BITMAP* pikachu,
+    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump) {
+
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
 
         ALLEGRO_BITMAP* target_img = NULL;
         bool is_animated = false;
+        int draw_frame = obs[i].cur_frame;
 
-        // 1. 타입에 따른 이미지 결정
-        if (obs[i].type == OBS_JUMPING) {
-            target_img = img_j_sheet;
-            is_animated = true;
+        // --- 1. 난이도별 이미지 할당 로직 ---
+        if (game->difficulty == 1) { // [노말 모드]
+            if (obs[i].type == OBS_JUMPING) {
+                // 커비 특수 로직: 공중에 떠 있거나 점프 중일 때
+                if (obs[i].is_jumping || obs[i].y < obs[i].initial_y - 5) {
+                    target_img = kirby_jump; // 점프 전용 이미지 사용
+                    is_animated = false;     // 점프 이미지가 단일 컷이면 false
+                    draw_frame = 0;
+                }
+                else {
+                    target_img = kirby;      // 지면에서는 걷는 커비
+                    is_animated = true;
+                }
+            }
+            else if (obs[i].type == OBS_FLYING) {
+                target_img = doraemon;   // 하늘은 도라에몽
+                is_animated = true;
+            }
+            else {
+                target_img = tornado;    // 땅은 회오리
+                is_animated = true;
+            }
         }
-        else if (obs[i].type == OBS_FLYING) {
-            target_img = img_f;
-            is_animated = true; // 만약 비행 장애물도 4프레임이라면 true
-        }
-        else {
-            target_img = img_g;
-            is_animated = false;
+        else { // [이지 모드]
+            if (obs[i].type == OBS_JUMPING) {
+                target_img = pikachu;
+                is_animated = true;
+            }
+            else if (obs[i].type == OBS_FLYING) {
+                target_img = doraemon;
+                is_animated = true;
+            }
+            else {
+                target_img = trash;
+                is_animated = false;
+            }
         }
 
         if (!target_img) continue;
 
-        // 2. 그리기 로직
+        // --- 2. 실제 그리기 ---
         if (is_animated) {
+            // 4프레임 가로 시트 기준 (시트 너비 / 4)
             int sw = al_get_bitmap_width(target_img) / 4;
             int sh = al_get_bitmap_height(target_img);
+
             al_draw_scaled_bitmap(target_img,
-                obs[i].cur_frame * sw, 0, sw, sh,      // 소스(이미지) 영역
-                obs[i].x, obs[i].y, obs[i].width, obs[i].height, // 대상(화면) 영역
+                draw_frame * sw, 0, sw, sh,                      // 소스 영역
+                obs[i].x, obs[i].y, obs[i].width, obs[i].height,  // 대상 영역
                 0);
         }
         else {
-            // 정적 이미지 (지면 장애물 등)
+            // 정적 이미지 (점프 컷, 쓰레기통 등)
             al_draw_scaled_bitmap(target_img,
                 0, 0, al_get_bitmap_width(target_img), al_get_bitmap_height(target_img),
                 obs[i].x, obs[i].y, obs[i].width, obs[i].height,
@@ -157,7 +201,7 @@ void DrawObstaclesWithImage(Obstacle obs[], int size, ALLEGRO_BITMAP* img_g, ALL
     }
 }
 
-void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game)
+void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game, ALLEGRO_SAMPLE* sfx_hit)
 {
     if (player->hurtTimer > 0 || player->state == PLAYER_DEATH) return;
 
@@ -177,12 +221,14 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameStat
 
         // AABB 충돌 계산
         if (collide_rect(pBox, iBox))
-        {   
+        {
             game->hp -= 10;
             printf("Dameged! life = %f\n", game->hp);
             // 라이프 감소
             obs[i].is_active = 0;       // 장애물 제거
-
+            if (sfx_hit) {
+                al_play_sample(sfx_hit, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
             player->hurtTimer = 30; // 피격 상태로 전환
 
         }

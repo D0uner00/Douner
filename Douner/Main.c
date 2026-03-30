@@ -79,9 +79,22 @@ int main() {
     SpawnManager spawner;
     InitSpawnManager(&spawner);
 
-    ALLEGRO_BITMAP* img_trash = al_load_bitmap("trash.png");
-    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("doraemon.png");
-    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("pikachu.png");
+    ALLEGRO_BITMAP* img_trash = al_load_bitmap("obstacle\\trash.png");
+    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("obstacle\\doraemon.png");
+    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("obstacle\\pikachu.png");
+    ALLEGRO_BITMAP* img_tornado = al_load_bitmap("obstacle\\tornado.png");
+    ALLEGRO_BITMAP* img_kirby = al_load_bitmap("obstacle\\kirby.png");
+    ALLEGRO_BITMAP* img_kirby_jump = al_load_bitmap("obstacle\\kirby_jump.png");
+    
+    //효과음
+    //al_install_audio();
+    //al_init_acodec_addon();
+    //al_reserve_samples(5);
+    ALLEGRO_SAMPLE* sfx_hit = 0;
+    //ALLEGRO_SAMPLE* sfx_hit = al_load_sample("hit_sound.wav"); // 파일명 확인!
+    //if (!sfx_hit) {
+    //    printf("효과음을 로드할 수 없습니다!\n");
+    //}
 
     TextInput text_input;
     text_input_init(&text_input);
@@ -125,7 +138,7 @@ int main() {
                 UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
 
                 item_collision_check(&game, &player);
-                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game);
+                obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
                 hp_update(&game); // HP 서서히 감소 로직 
 
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
@@ -242,7 +255,7 @@ int main() {
 
                 //draw_map();
                 draw_background(&bg);
-                DrawObstaclesWithImage(obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu);
+                DrawObstaclesWithImage(&game, obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu, img_tornado, img_kirby, img_kirby_jump);
                 draw_player(&player);
                 //debug
                 draw_player_hitbox(&player);
