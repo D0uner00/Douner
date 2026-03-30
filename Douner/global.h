@@ -38,7 +38,8 @@ typedef enum {
     SCREEN_MENU,
     SCREEN_PLAY,
     SCREEN_NAME_INPUT,
-	SCREEN_RANKING
+	SCREEN_RANKING,
+	SCREEN_GAME_OVER
 } GameScreen;
 
 typedef struct {

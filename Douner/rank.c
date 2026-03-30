@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "rank.h"
 
-
 int current_record_size = 0;
 MENU_ITEM* rank_menu = NULL;
 
@@ -101,8 +100,7 @@ int rank_update() {
 
 void rank_draw() {
     if (rank_menu == NULL) return;
-    al_draw_rectangle(box.x, box.y, box.x + box.w, box.y + box.h, al_map_rgb(255, 255, 255), 2);
-
+	draw_box(box);
     for (int i = 0; rank_menu[i].handler != NULL; i++) {
         if (i == 0) {
             al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, rank_menu[i].y, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
