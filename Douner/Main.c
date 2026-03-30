@@ -77,7 +77,9 @@ int main() {
     al_register_event_source(queue, al_get_mouse_event_source());
 
     keyboard_init();
+
     item_init();
+
     menu_init(main_menu);
 
     game_init(&game); // game.hp = 100, game.score = 0 초기화 포함 
@@ -318,6 +320,7 @@ int main() {
     // --- 정리 및 자원 해제 (반드시 while 루프 밖에 위치해야 함) ---
     destroy_player(&player);
     hud_deinit();
+    item_deinit();
     al_destroy_timer(timer);
     al_destroy_font(menu_font);
     al_destroy_event_queue(queue);
