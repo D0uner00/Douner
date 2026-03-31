@@ -134,6 +134,7 @@
     <ClCompile Include="Background.c" />
     <ClCompile Include="game_over.c" />
     <ClCompile Include="global.c" />
+    <ClCompile Include="heal.c" />
     <ClCompile Include="hitbox.c" />
     <ClCompile Include="hud.c" />
     <ClCompile Include="item.c" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="game_over.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="heal.h" />
     <ClInclude Include="hitbox.h" />
     <ClInclude Include="hud.h" />
     <ClInclude Include="menu.h" />

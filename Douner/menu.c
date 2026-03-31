@@ -15,13 +15,14 @@ void menu_init(MENU_ITEM* menu)
 	// 메뉴 항목 초기화
 	for (i = 0; menu[i].handler != NULL; i++)
 	{
+		menu[i].flags &= ~FLAG_SELECTED;
 		menu[i].handler(&menu[i], MSG_INIT, 0);
 	}
 
 	item_count = i;
 
 	// 첫번째 선택 가능한 항목을 선택 상태로 설정
-	for (i = 0; i < item_count;++i) {
+	for (i = 0; i < item_count; ++i) {
 
 		if (menu[i].flags & FLAG_SELECTABLE) {
 			selected_item = i;
