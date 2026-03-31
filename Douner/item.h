@@ -3,6 +3,12 @@
 
 #include "global.h"
 #include "Player.h"
+#define STAR_SPAWN_INTERVAL 120
+#define HP_SPAWN_INTERVAL   300
+#define ITEM_SPEED          3
+#define ANIM_INTERVAL       10
+#define STAR_SCALE 0.4f
+#define HP_SCALE   0.3f
 
 typedef enum {
     ITEM_STAR,

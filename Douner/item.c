@@ -17,7 +17,7 @@ void item_init()
         return;
     }
 
-    sheet_hp = al_load_bitmap("hp(1).png");
+    sheet_hp = al_load_bitmap("hp.png");
     if (!sheet_hp) {
         printf("hp.png 로드 실패!\n");
         return;
@@ -32,20 +32,13 @@ void item_init()
         items[i].y = 0;
         items[i].hpAmount = 0;
     }
-
-    printf("star frame size: %d x %d\n",
-        al_get_bitmap_width(sheet_star) / 4,
-        al_get_bitmap_height(sheet_star));
-    printf("hp frame size: %d x %d\n",
-        al_get_bitmap_width(sheet_hp) / 4,
-        al_get_bitmap_height(sheet_hp));
 }
 
 void item_update()
 {
     // 스타: 2초마다 (120프레임), HP: 가끔 (300프레임마다)
-    int spawn_star = (frames % 120 == 0);
-    int spawn_hp = (frames % 300 == 0 && frames > 0);
+    int spawn_star = (frames % STAR_SPAWN_INTERVAL == 0);
+    int spawn_hp = (frames % HP_SPAWN_INTERVAL == 0 && frames > 0);
 
     if (spawn_star || spawn_hp)
     {
@@ -84,9 +77,9 @@ void item_update()
     {
         if (!items[i].active) continue;
 
-        items[i].x -= 3;
+        items[i].x -= ITEM_SPEED;
 
-        if (frames % 10 == 0)
+        if (frames % ANIM_INTERVAL == 0)
             items[i].frame = (items[i].frame + 1) % items[i].maxFrame;
 
         if (items[i].x < -items[i].width)
@@ -100,7 +93,7 @@ void item_draw()
     {
         if (!items[i].active) continue;
 
-        float scale = (items[i].type == ITEM_HP) ? 0.3f : 0.4f;
+        float scale = (items[i].type == ITEM_HP) ? HP_SCALE : STAR_SCALE;
         int   frameX = items[i].frame * items[i].width;
 
         al_draw_scaled_bitmap(
@@ -125,7 +118,7 @@ void item_collision_check(GameState* game, Player* player)
     {
         if (!items[i].active) continue;
 
-        float scale = (items[i].type == ITEM_HP) ? 0.3f : 0.4f;
+        float scale = (items[i].type == ITEM_HP) ? HP_SCALE : STAR_SCALE;
 
         Rect iBox = {
             items[i].x,
