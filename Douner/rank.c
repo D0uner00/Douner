@@ -7,7 +7,8 @@ MENU_ITEM* rank_menu = NULL;
 FILE* rank_file;
 Rect box;
 ALLEGRO_FONT* menu_font;
-static ALLEGRO_BITMAP* img_rank_board = NULL;
+ALLEGRO_BITMAP* img_rank_board = NULL;
+ALLEGRO_BITMAP* background = NULL;
 
 extern void on_back_to_menu();
 
@@ -88,6 +89,7 @@ void file_write(Record record) {
 
 void rank_init() {
     if (!img_rank_board) img_rank_board = al_load_bitmap("rank_board.png");
+    if (!background) background = al_load_bitmap("background\\background_rank.png");
 
     if (img_rank_board) {
         box.w = al_get_bitmap_width(img_rank_board);
@@ -129,6 +131,9 @@ int rank_update() {
 
 void rank_draw() {
     if (rank_menu == NULL) return;
+    
+    al_draw_bitmap(background, 0, 0, 0);
+
     if (img_rank_board) {
         al_draw_bitmap(img_rank_board, box.x, box.y, 0);
     }

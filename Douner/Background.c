@@ -8,7 +8,7 @@ void init_background(Background* bg) {
 
     for (int i = 0; i < 4; i++) {
         if (!bg->images[i]) {
-            fprintf(stderr, "%d�ܰ� ��� �̹��� �ε� ����!\n", i + 1);
+            fprintf(stderr, "%d번 배경 없음!\n", i + 1);
         }
     }
     bg->current_image = bg->images[0];
@@ -19,7 +19,7 @@ void init_background(Background* bg) {
         bg->width = al_get_bitmap_width(bg->current_image);
     }
     else {
-        bg->width = 1024; // �ε� ���� �� �ӽ� �⺻��
+        bg->width = 1024; //임시 배경 크기
     }
 }
 
@@ -35,10 +35,10 @@ void update_background(Background* bg, int difficulty) {
     }
 
     if (index == 0) {
-        bg->x = 0; // ���� ��� ����
+        bg->x = 0; 
     }
     else {
-        bg->x -= bg->speed; // 1, 2, 3�� ��� �������� �̵�
+        bg->x -= bg->speed; 
 
         if (bg->x <= -bg->width) {
             bg->x = 0;
