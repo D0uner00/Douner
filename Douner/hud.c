@@ -41,15 +41,15 @@ void hud_draw(GameState* game)
         al_map_rgb(255, 255, 255),
         20, 12, 0, "HP");
 
-    // HP 바 테두리 확장: 가로 400px(60~460), 세로 30px(10~40)
-    al_draw_rectangle(60, 10, 460, 40, al_map_rgb(255, 255, 255), 2);
+    // HP 바 테두리 확장: 가로 300px(60~360), 세로 25px(12~37)
+    al_draw_rectangle(60, 12, 360, 37, al_map_rgb(255, 255, 255), 2);
 
     // 실제 HP 채우기 계산: 최대폭 400에서 테두리 두께(좌우 2px씩) 제외 약 396px
-    float hp_width = (game->hp / 100.0f) * 396.0f;
+    float hp_width = (game->hp / 100.0f) * 296.0f;
     if (hp_width < 0) hp_width = 0;
 
     // 내부 빨간색 바 (테두리 두께 2px 안쪽으로 배치)
-    al_draw_filled_rectangle(62, 12, 62 + hp_width, 38, al_map_rgb(255, 50, 50));
+    al_draw_filled_rectangle(62, 14, 62 + hp_width, 35, al_map_rgb(255, 50, 50));
 
     // SCORE 출력 (기존 유지)
     al_draw_textf(
