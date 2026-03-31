@@ -1,7 +1,7 @@
 nabi 870
 yy 250
 ww 225
-ww 190
+nabi 210
 qw 180
 ds 180
 sd 170

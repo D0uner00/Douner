@@ -37,13 +37,10 @@ void menu_init(MENU_ITEM* menu)
 	int padding = 30;     
 
 	for (i = 0; i < item_count; i++) {
-
-		int w = al_get_text_width(menu_font, menu[i].text);
-		int h = al_get_font_line_height(menu_font);
-
-		if (w > max_text_width) max_text_width = w;
-
-		total_height += h + line_spacing;
+		if(menu[i].w > max_text_width) {
+			max_text_width = menu[i].w;
+		}
+		total_height += menu[i].h + line_spacing;
 	}
 
 	total_height -= line_spacing;
@@ -88,8 +85,8 @@ int menu_update(MENU_ITEM* menu)
 
 			if (menu[i].flags & FLAG_SELECTABLE) {
 
-				if (mx >= menu[i].x - (menu[i].w / 2) && mx <= menu[i].x + menu[i].w &&
-					my >= menu[i].y  && my <= menu[i].y + menu[i].h) {
+				if (mx >= menu[i].x - (menu[i].w / 2) && mx <= menu[i].x + (menu[i].w / 2) &&
+					my >= menu[i].y && my <= menu[i].y + menu[i].h) {
 					if (selected_item != -1 && selected_item != i) {
 						menu[selected_item].flags &= ~FLAG_SELECTED;
 					}
@@ -171,7 +168,7 @@ int menu_text_handler(MENU_ITEM* item, int msg, int param) {
 		al_draw_text(menu_font, al_map_rgb(255, 255, 255), item->x, item->y, ALLEGRO_ALIGN_CENTER, item->text);
 		break;
 	}
-
+	return MENU_CONTINUE;
 }
 
 int menu_space_handler(MENU_ITEM* item, int msg, int param) {
