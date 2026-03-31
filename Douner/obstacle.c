@@ -260,6 +260,36 @@ void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
     }
 }
 
+
+// Internal helper for collision boxes
+Rect get_obstacle_hitbox(Obstacle* obs) {
+    Rect r;
+    r.x = obs->x;
+    r.y = obs->y;
+    r.w = obs->width;
+    r.h = obs->height;
+
+    // Optional: Shrink the hitbox slightly for "fairer" gameplay
+    // r.x += 5; r.w -= 10;
+    return r;
+}
+
+// 1. Debug Hitbox Drawing
+void draw_obstacle_hitboxes(Obstacle obs[], int size) {
+    for (int i = 0; i < size; i++) {
+        if (!obs[i].is_active) continue;
+
+        Rect r = get_obstacle_hitbox(&obs[i]);
+
+        al_draw_rectangle(
+            r.x, r.y,
+            r.x + r.w, r.y + r.h,
+            al_map_rgb(255, 0, 0), // Red
+            2
+        );
+    }
+}
+
 void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game, ALLEGRO_SAMPLE* sfx_hit)
 {
     if (player->hurtTimer > 0 || player->state == PLAYER_DEATH) return;
