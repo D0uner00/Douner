@@ -2,6 +2,8 @@
 #include "rank.h"
 
 int current_record_size = 0;
+static char rank_buffer[MAX_RECORD_SIZE][64];
+
 MENU_ITEM* rank_menu = NULL;
 
 FILE* rank_file;
@@ -68,21 +70,22 @@ void file_write(Record record) {
         if (record.score >= records[current_record_size - 1].score) {
             records[current_record_size - 1] = record;
         }
+        else {
+            free(records);
+            return;
+        }
 	}
 
 	qsort(records, current_record_size, sizeof(Record), compare);
     rank_file = fopen("rank.txt", "w");
 
-    if (rank_file == NULL) {
-        free(records);
-        return;
+    if (rank_file != NULL) {
+        for (int i = 0; i < current_record_size; i++) {
+            fprintf(rank_file, "%s %d\n", records[i].name, records[i].score);
+        }
+        fclose(rank_file);
     }
-    for (int i = 0; i < current_record_size; i++) {
-        fprintf(rank_file, "%s %d\n", records[i].name, records[i].score);
-    }
-   //fwrite(records, sizeof(Record), current_record_size, rank_file);
 	free(records);
-	fclose(rank_file);
 }
 
 void rank_init() {
@@ -104,9 +107,8 @@ void rank_init() {
     rank_menu[idx++] = (MENU_ITEM)MENU_TEXT("RANKING");
 
     for (int i = 0; i < current_record_size; ++i) {
-        char* buf = (char*)malloc(64);
-        sprintf(buf, " %2d     %-10s %-5d", i + 1, records[i].name, records[i].score);
-        rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(buf);
+        sprintf(rank_buffer[i], " %2d     %-10s %-5d", i + 1, records[i].name, records[i].score);
+        rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(rank_buffer[i]);
     }
 
     rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
@@ -144,39 +146,4 @@ void rank_draw() {
         al_draw_text(menu_font, al_map_rgb(255, 255, 255), rank_menu[i].x, ry + 10, ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
     }
 
-}
-
-// 임시 //
-void processRank() {
-    Record initial_records[5] = {
-        {"Hero_A", 5000, 3},
-        {"Player_B", 3500, 2},
-        {"Lucky_C", 2000, 1},
-        {"Beginner", 500, 1},
-        {"Pro_Gamer", 8000, 3}
-    };
-
-    rank_file = fopen("rank.dat", "wb");
-    if (rank_file != NULL) {
-		qsort(initial_records, 5, sizeof(Record), compare);
-        fwrite(initial_records, sizeof(Record), 5, rank_file);
-        fclose(rank_file);
-        rank_file = NULL;
-    }
-
-    Record* loaded_records = file_read(5);
-
-    if (loaded_records != NULL) {
-
-        for (int i = 0; i < current_record_size; i++) {
-            printf("%s\t%d\t%d\n",
-                loaded_records[i].name,
-                loaded_records[i].score,
-                loaded_records[i].difficulty);
-        }
-        free(loaded_records);
-    }
-    else {
-        exit(1);
-    }
 }
