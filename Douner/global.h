@@ -33,7 +33,9 @@ typedef struct {
     int score;
     float hp;
     int difficulty;
+    int lives;
     char player_name[NAME_MAX]; // 이 플레이어의 주인 이름
+    
 } GameState;
 
 typedef enum {
