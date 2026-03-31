@@ -236,7 +236,7 @@ int main() {
                     UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
                     UpdateObstacles(obs_pool, MAX_OBS, GRAVITY, player.x);
 
-                    item_collision_check(&game, &player);
+                    item_collision_check(&game, &player, sfx_coin, sfx_heart);
                     obstacle_collision_check(&player, obs_pool, MAX_OBS, &game, sfx_hit);
                     hp_update(&game);
 
