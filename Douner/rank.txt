@@ -1,10 +1,1 @@
 nabi 870
-yy 250
-ww 225
-nabi 210
-qw 180
-ds 180
-sd 170
-sd 160
-vv 160
-ss 155

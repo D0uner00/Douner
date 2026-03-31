@@ -90,12 +90,8 @@ void file_write(Record record) {
 }
 
 void rank_init() {
-    if (!background) background = al_load_bitmap("background\\background_rank.png");
+    if (!background) background = al_load_bitmap("background\\background_rank_.png");
 
-    box.w = 400; box.h = 500; // 이미지 없을 때 예비용
-
-    box.x = (SCREEN_WIDTH - box.w) / 2;
-    box.y = (SCREEN_HEIGHT - box.h) / 2;
 
     if (rank_menu != NULL) {
         free(rank_menu);
@@ -129,7 +125,7 @@ void rank_draw() {
     if (rank_menu == NULL) return;
 
     al_draw_bitmap(background, 0, 0, 0);
-    draw_box(box);
+    //draw_box(box);
 
     int text_center_x = box.x + (box.w / 2); // 글씨는 무조건 이미지 한가운데
 
