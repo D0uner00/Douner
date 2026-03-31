@@ -46,4 +46,6 @@ void item_draw();
 void item_deinit();
 void spawn_item(ItemTypes type);
 
+void draw_item_hitboxes();
+
 #endif

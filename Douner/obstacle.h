@@ -36,6 +36,10 @@ typedef struct {
     int frame_delay;    // 속도 기준
 } Obstacle;
 
+
+Rect get_obstacle_hitbox(Obstacle* obs);
+void draw_obstacle_hitboxes(Obstacle obs[], int size);
+
 // 함수 선언 (다른 파일에서 이 함수들을 호출함)
 void InitObstacles(Obstacle obs[], int size);
 void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x);
