@@ -1,4 +1,6 @@
 #include "item.h"
+#include "hitbox.h"
+#include <stdio.h>
 
 // 1. Data-Driven Configuration: Everything about an item is defined here.
 // To add a new item, just add an entry to this table and an enum value.
@@ -42,13 +44,19 @@ static int get_item_value(ItemTypes type, int difficulty) {
 
 // --- EFFECT FUNCTIONS ---
 
-static void effect_star(Item* item, GameState* game, Player* player) {
+static void effect_star(Item* item, GameState* game, Player* player, ALLEGRO_SAMPLE* sfx_coin, ALLEGRO_SAMPLE* sfx_heart) {
     game->score += get_item_value(ITEM_STAR, game->difficulty);
+    if (sfx_coin) {
+        al_play_sample(sfx_coin, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    }
 }
 
-static void effect_hp(Item* item, GameState* game, Player* player) {
+static void effect_hp(Item* item, GameState* game, Player* player, ALLEGRO_SAMPLE* sfx_coin, ALLEGRO_SAMPLE* sfx_heart) {
     game->hp += get_item_value(ITEM_HP, game->difficulty);
     if (game->hp > 100.0f) game->hp = 100.0f;
+    if (sfx_heart) {
+        al_play_sample(sfx_heart, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    }
 }
 
 void item_init() {
@@ -87,7 +95,7 @@ void spawn_item(ItemTypes type) {
     }
 }
 
-void item_collision_check(GameState* game, Player* player) {
+void item_collision_check(GameState* game, Player* player, ALLEGRO_SAMPLE* sfx_coin, ALLEGRO_SAMPLE* sfx_heart) {
     Rect pBox = get_player_hitbox(player);
 
     for (int i = 0; i < ITEM_MAX; i++) {
@@ -101,7 +109,7 @@ void item_collision_check(GameState* game, Player* player) {
 
         if (collide_rect(pBox, iBox)) {
             items[i].active = 0;
-            if (data->effect) data->effect(&items[i], game, player);
+            if (data->effect) data->effect(&items[i], game, player, sfx_coin, sfx_heart);
         }
     }
 }
@@ -126,10 +134,8 @@ void item_update(GameState* game, Player* player) {
 
         if (items[i].x < -100) items[i].active = 0;
     }
-
-    // 3. Collision logic (calls the effect functions that use get_item_value)
-    item_collision_check(game, player);
 }
+
 
 void item_draw() {
     for (int i = 0; i < ITEM_MAX; i++) {

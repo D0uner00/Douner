@@ -3,7 +3,6 @@
 
 #include "global.h"
 #include "Player.h"
-#include "hitbox.h"
 
 #define ITEM_MAX 10
 #define ITEM_SPEED 3
@@ -12,7 +11,7 @@
 // Forward declaration of Item for the function pointer
 typedef struct Item Item;
 
-typedef void (*ItemEffect)(Item* item, GameState* game, Player* player);
+typedef void (*ItemEffect)(Item* item, GameState* game, Player* player, ALLEGRO_SAMPLE* sfx_coin, ALLEGRO_SAMPLE* sfx_heart);
 
 typedef enum {
     ITEM_STAR,
