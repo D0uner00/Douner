@@ -1,10 +1,10 @@
 #include "Background.h"
 
 void init_background(Background* bg) {
-    bg->images[0] = al_load_bitmap("background\\background_0.png"); // ���� ȭ��
-    bg->images[1] = al_load_bitmap("background\\background_1.png"); // ���̵� 1
-    bg->images[2] = al_load_bitmap("background\\background_2.png"); // ���̵� 2
-    bg->images[3] = al_load_bitmap("background\\background_3.png"); // ���̵� 3
+    bg->images[0] = al_load_bitmap("background\\background_0.png");
+    bg->images[1] = al_load_bitmap("background\\background_1.png");
+    bg->images[2] = al_load_bitmap("background\\background_2.png");
+    bg->images[3] = al_load_bitmap("background\\background_3.png");
 
     for (int i = 0; i < 4; i++) {
         if (!bg->images[i]) {

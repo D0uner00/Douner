@@ -81,6 +81,8 @@ void on_back_to_menu() {
 	cur_screen = SCREEN_MENU;
 }
 
+
+
 int main() {
     if (!al_init()) return -1;
     must_init(al_init_primitives_addon(), "primitives_addon");
@@ -96,6 +98,7 @@ int main() {
     menu_font = al_create_builtin_font();
 
     hud_init();
+    obstacle_init();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -114,17 +117,6 @@ int main() {
     InitObstacles(obs_pool, MAX_OBS);
     SpawnManager spawner;
     InitSpawnManager(&spawner);
-
-    ALLEGRO_BITMAP* img_trash = al_load_bitmap("obstacle\\trash.png");
-    ALLEGRO_BITMAP* img_doraemon = al_load_bitmap("obstacle\\doraemon.png");
-    ALLEGRO_BITMAP* img_pikachu = al_load_bitmap("obstacle\\pikachu.png");
-    ALLEGRO_BITMAP* img_tornado = al_load_bitmap("obstacle\\tornado.png");
-    ALLEGRO_BITMAP* img_kirby = al_load_bitmap("obstacle\\kirby.png");
-    ALLEGRO_BITMAP* img_kirby_jump = al_load_bitmap("obstacle\\kirby_jump.png");
-    ALLEGRO_BITMAP* img_meteor = al_load_bitmap("obstacle\\meteor.png");
-    ALLEGRO_BITMAP* img_amongus = al_load_bitmap("obstacle\\amongus.png");
-    ALLEGRO_BITMAP* img_amongus_jump = al_load_bitmap("obstacle\\amongus_jump.png");
-    ALLEGRO_BITMAP* img_keroro = al_load_bitmap("obstacle\\keroro.png");
     
     //효과음
     //al_install_audio();
@@ -357,8 +349,7 @@ int main() {
 
                 //draw_map();
                 draw_background(&bg);
-                DrawObstaclesWithImage(&game, obs_pool, MAX_OBS, img_trash, img_doraemon, img_pikachu, img_tornado, img_kirby, img_kirby_jump,
-                    img_meteor, img_amongus, img_amongus_jump, img_keroro);
+                DrawObstaclesWithImage(&game, obs_pool, MAX_OBS);
                 draw_player(&player);
                 //debug
                 //draw_player_hitbox(&player);
@@ -390,13 +381,11 @@ int main() {
     destroy_player(&player);
     hud_deinit();
     item_deinit();
+    obstacle_deinit();
     al_destroy_timer(timer);
     al_destroy_font(menu_font);
     al_destroy_event_queue(queue);
     al_destroy_display(display);
-    al_destroy_bitmap(img_trash);
-    al_destroy_bitmap(img_doraemon);
-    al_destroy_bitmap(img_pikachu);
     destroy_background(&bg);
 
     return 0;
