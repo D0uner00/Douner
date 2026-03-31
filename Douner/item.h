@@ -3,41 +3,47 @@
 
 #include "global.h"
 #include "Player.h"
-#define STAR_SPAWN_INTERVAL 120
-#define HP_SPAWN_INTERVAL   300
-#define ITEM_SPEED          3
-#define ANIM_INTERVAL       10
-#define STAR_SCALE 0.4f
-#define HP_SCALE   0.3f
+
+#define ITEM_MAX 10
+#define ITEM_SPEED 3
+#define ANIM_INTERVAL 10
+
+// Forward declaration of Item for the function pointer
+typedef struct Item Item;
+
+typedef void (*ItemEffect)(Item* item, GameState* game, Player* player);
 
 typedef enum {
     ITEM_STAR,
-    ITEM_HP
-} ItemType;
+    ITEM_HP,
+    ITEM_MAX_TYPE
+} ItemTypes;
 
 typedef struct {
-    int x, y;
-    int active;
-
+    const char* filename;
     ALLEGRO_BITMAP* sheet;
-
-    int frame;
     int maxFrame;
+    float scale;
+    int hpAmount;
+    int scoreAmount;
+    int spawnInterval;
+    ItemEffect effect;
+} ItemTypeData;
 
+struct Item {
+    float x, y; // Use float for smoother movement
+    int active;
+    int frame;
     int width;
     int height;
+    ItemTypes type;
+};
 
-    ItemType type;
-    int hpAmount;
-} Item;
-
-#define ITEM_MAX 10
-extern Item items[ITEM_MAX];
-
+// Interface
 void item_init();
-void item_update();
+void item_update(GameState* game, Player* player);
 void item_draw();
-void item_collision_check(GameState* game, Player* player);
 void item_deinit();
+void spawn_item(ItemTypes type);
 
 #endif

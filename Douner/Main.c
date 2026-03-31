@@ -195,7 +195,7 @@ int main() {
                 if (hud_update_popup()) {
                 }
                 else {
-                    item_update();
+                    item_update(&game, &player);
                     update_player(&player);
 
                     UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
