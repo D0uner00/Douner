@@ -50,6 +50,7 @@ static GameState game;
 void on_start() {
     game_init(&game);
     game.difficulty = 1;
+    game.lives = 3;
     hud_reset_popup();
     hud_trigger_popup(POPUP_START);
     is_restart = true;
@@ -194,7 +195,7 @@ int main() {
                 if (hud_update_popup()) {
                 }
                 else {
-                    item_update();
+                    item_update(&game, &player);
                     update_player(&player);
 
                     UpdateSpawning(&spawner, obs_pool, MAX_OBS, &game);
@@ -219,9 +220,13 @@ int main() {
                 }
                
                 if(game.hp <= 0) {
-                    // 게임 오버 처리
-
-                    
+                    game.lives--;
+                    if (game.lives > 0) {
+                        game.hp = 100;
+                        InitObstacles(obs_pool, MAX_OBS);
+                        InitSpawnManager(&spawner);
+                    }
+                    else {
                     Record new_record;
                     strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
 					new_record.name[sizeof(game.player_name) - 1] = '\0';
@@ -232,6 +237,7 @@ int main() {
 					game_over_init(game.score);
                     current_menu = main_menu;
 					cur_screen = SCREEN_GAME_OVER;
+                    }
 				}
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {

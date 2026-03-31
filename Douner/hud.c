@@ -4,7 +4,7 @@
 extern ALLEGRO_FONT* menu_font;
 
 static ALLEGRO_FONT* hud_font = NULL;
-
+static ALLEGRO_BITMAP* lives = NULL;
 static ALLEGRO_BITMAP* img_start = NULL;
 static ALLEGRO_BITMAP* img_next = NULL;
 static ALLEGRO_BITMAP* img_final = NULL;
@@ -25,6 +25,8 @@ void hud_init()
         hud_font = al_create_builtin_font();
     }
 
+
+    lives = al_load_bitmap("hp.png");
     img_start = al_load_bitmap("START.png");
     img_next = al_load_bitmap("NEXT.png");
     img_final = al_load_bitmap("FINAL.png");
@@ -41,15 +43,27 @@ void hud_draw(GameState* game)
         al_map_rgb(255, 255, 255),
         20, 12, 0, "HP");
 
-    // HP 바 테두리 확장: 가로 400px(60~460), 세로 30px(10~40)
-    al_draw_rectangle(60, 10, 460, 40, al_map_rgb(255, 255, 255), 2);
+    // HP 바 테두리 확장: 가로 300px(60~360), 세로 25px(12~37)
+    al_draw_rectangle(60, 12, 360, 37, al_map_rgb(255, 255, 255), 2);
 
     // 실제 HP 채우기 계산: 최대폭 400에서 테두리 두께(좌우 2px씩) 제외 약 396px
-    float hp_width = (game->hp / 100.0f) * 396.0f;
+    float hp_width = (game->hp / 100.0f) * 296.0f;
     if (hp_width < 0) hp_width = 0;
 
     // 내부 빨간색 바 (테두리 두께 2px 안쪽으로 배치)
-    al_draw_filled_rectangle(62, 12, 62 + hp_width, 38, al_map_rgb(255, 50, 50));
+    al_draw_filled_rectangle(62, 14, 62 + hp_width, 35, al_map_rgb(255, 50, 50));
+
+
+    for (int i = 0; i < game->lives; i++) {
+        float dx = 380 + i * (30 + 10);
+        al_draw_scaled_bitmap(
+            lives,           // 원본 이미지 비트맵 (1000x250)
+            0, 0, 250, 250, // 원본 이미지 크기
+            dx, 7,         // 화면에 그릴 X, Y 좌표
+            40, 40,         // 화면에 그릴 가로, 세로 크기
+            0               // 플래그 (0)
+        );
+    }
 
     // SCORE 출력 (기존 유지)
     al_draw_textf(

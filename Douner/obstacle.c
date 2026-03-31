@@ -18,6 +18,7 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game)
     if (Game->difficulty == 3) dif = 30;
     if (sm->timer >= sm->interval) {
         // 비어있는(비활성화된) 장애물 칸 찾기
+        // 비어있는(비활성화된) 장애물 칸 찾기
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
                 ObstacleType selected;
@@ -43,7 +44,7 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game)
         }
         // 타이머 리셋 및 다음 소환 간격 랜덤 설정 (1~3초 사이)
         sm->timer = 0;
-        sm->interval = 60 + (rand() % dif);
+        sm->interval = 30 + (rand() % dif);
     }
 }
 
