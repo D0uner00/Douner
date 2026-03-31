@@ -47,6 +47,14 @@ GameScreen cur_screen = SCREEN_START;
 
 static GameState game;
 
+ALLEGRO_SAMPLE* bgm_title = NULL;
+ALLEGRO_SAMPLE* bgm_arcade = NULL;
+ALLEGRO_SAMPLE* sfx_start = NULL;
+ALLEGRO_SAMPLE* sfx_gameover = NULL;
+ALLEGRO_SAMPLE* sfx_click = NULL;
+ALLEGRO_SAMPLE* sfx_respawn = NULL;
+ALLEGRO_SAMPLE_ID bgm_id;
+
 void on_start() {
     game_init(&game);
     game.difficulty = 1;
@@ -56,7 +64,14 @@ void on_start() {
     is_restart = true;
     current_menu = menu_paused;
     cur_screen = SCREEN_PLAY; // 게임 시작
-
+    al_stop_sample(&bgm_id);
+    if (bgm_arcade) {
+        al_play_sample(bgm_arcade, 0.7, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &bgm_id);
+    }
+    if (sfx_start) {
+        // 루프하지 않고(ONCE) 한 번만 재생
+        al_play_sample(sfx_start, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    }
 }
 
 void on_exit() {
@@ -74,11 +89,24 @@ void on_ranking() {
 
 void on_continue() {
     cur_screen = SCREEN_PLAY;
+    al_stop_sample(&bgm_id);
+
+    // 2. 게임 음악(arcade) 다시 재생
+    if (bgm_arcade) {
+        al_play_sample(bgm_arcade, 0.7, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &bgm_id);
+    }
 }
 
 void on_back_to_menu() {
     menu_init(current_menu);
 	cur_screen = SCREEN_MENU;
+    // 1. 기존 음악(arcade) 정지
+    al_stop_sample(&bgm_id);
+
+    // 2. 메뉴용 음악(title) 다시 재생
+    if (bgm_title) {
+        al_play_sample(bgm_title, 0.7, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &bgm_id);
+    }
 }
 
 
@@ -91,9 +119,26 @@ int main() {
     must_init(al_init_image_addon(), "image_addon");
     must_init(al_init_font_addon(), "font");
 
+    must_init(al_install_audio(), "audio");
+    must_init(al_init_acodec_addon(), "audio codecs");
+    must_init(al_reserve_samples(10), "reserve samples"); // 동시에 재생될 소리 개수
+
+    bgm_title = al_load_sample("music\\title.mp3");
+    if (!bgm_title) {
+		printf("BGM 타이틀을 로드할 수 없습니다!\n");
+    }
+	bgm_arcade = al_load_sample("music\\arcade.mp3");
+	sfx_start = al_load_sample("music\\start.mp3");
+	sfx_gameover = al_load_sample("music\\gameover.mp3");
+
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+	ALLEGRO_SAMPLE* sfx_hit = al_load_sample("music\\hit_sound.wav");
+    ALLEGRO_SAMPLE* sfx_coin = al_load_sample("music\\coin.wav");
+    ALLEGRO_SAMPLE* sfx_heart = al_load_sample("music\\heart.wav");
+    ALLEGRO_SAMPLE* sfx_click = al_load_sample("music\\click.wav");
+    ALLEGRO_SAMPLE* sfx_respawn = al_load_sample("music\\respawn.wav");
 
     menu_font = al_create_builtin_font();
 
@@ -119,14 +164,9 @@ int main() {
     InitSpawnManager(&spawner);
     
     //효과음
-    //al_install_audio();
-    //al_init_acodec_addon();
-    //al_reserve_samples(5);
-    ALLEGRO_SAMPLE* sfx_hit = 0;
-    //ALLEGRO_SAMPLE* sfx_hit = al_load_sample("hit_sound.wav"); // 파일명 확인!
-    //if (!sfx_hit) {
-    //    printf("효과음을 로드할 수 없습니다!\n");
-    //}
+    al_install_audio();
+    al_init_acodec_addon();
+    al_reserve_samples(5);
 
     TextInput text_input;
     text_input_init(&text_input);
@@ -143,6 +183,9 @@ int main() {
     ALLEGRO_EVENT event;
 
     al_start_timer(timer);
+    if (bgm_title) {
+		al_play_sample(bgm_title, 0.7, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &bgm_id);
+    }
 
     while (!done) {
         al_wait_for_event(queue, &event);
@@ -202,35 +245,49 @@ int main() {
                         hud_trigger_popup(POPUP_NEXT); 
                         InitObstacles(obs_pool, MAX_OBS);
                         InitSpawnManager(&spawner);
+                        if (sfx_start) {
+							al_play_sample(sfx_start, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                        }
                     }
                     else if (game.score >= 200 && game.difficulty == 2) {
                         game.difficulty = 3;
                         hud_trigger_popup(POPUP_FINAL); 
                         InitObstacles(obs_pool, MAX_OBS);
                         InitSpawnManager(&spawner);
+                        if (sfx_start) {
+                            al_play_sample(sfx_start, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                        }
                     }
                 }
                
-                if(game.hp <= 0) {
+                if (game.hp <= 0) {
                     game.lives--;
                     if (game.lives > 0) {
                         game.hp = 100;
                         InitObstacles(obs_pool, MAX_OBS);
                         InitSpawnManager(&spawner);
+                        if (sfx_respawn) {
+                            // 루프하지 않고(ONCE) 한 번만 재생
+                            al_play_sample(sfx_respawn, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                        }
                     }
                     else {
-                    Record new_record;
-                    strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
-					new_record.name[sizeof(game.player_name) - 1] = '\0';
-					new_record.score = game.score;
-					new_record.difficulty = game.difficulty;
+                        Record new_record;
+                        strncpy(new_record.name, game.player_name, sizeof(game.player_name) - 1);
+                        new_record.name[sizeof(game.player_name) - 1] = '\0';
+                        new_record.score = game.score;
+                        new_record.difficulty = game.difficulty;
 
-					file_write(new_record);
-					game_over_init(game.score);
-                    current_menu = main_menu;
-					cur_screen = SCREEN_GAME_OVER;
+                        file_write(new_record);
+                        game_over_init(game.score);
+                        current_menu = main_menu;
+                        cur_screen = SCREEN_GAME_OVER;
+                        al_stop_sample(&bgm_id);
+                        if (sfx_gameover) {
+                            al_play_sample(sfx_gameover, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                        }
                     }
-				}
+                }
                 // 전역 키보드 배열(key)이 업데이트된다고 가정
                 if (key[ALLEGRO_KEY_ESCAPE]) {
 					on_back_to_menu();
@@ -391,6 +448,12 @@ int main() {
     al_destroy_event_queue(queue);
     al_destroy_display(display);
     destroy_background(&bg);
+    al_destroy_sample(bgm_title);
+    al_destroy_sample(bgm_arcade);
+    al_destroy_sample(sfx_start);
+    al_destroy_sample(sfx_heart);
+    al_destroy_sample(sfx_coin);
+    al_destroy_sample(sfx_respawn);
 
     return 0;
 }

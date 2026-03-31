@@ -3,6 +3,7 @@
 
 #include "global.h"
 #include "Player.h"
+#include "hitbox.h"
 
 #define ITEM_MAX 10
 #define ITEM_SPEED 3
