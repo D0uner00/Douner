@@ -120,7 +120,7 @@ void rank_init() {
         rank_menu[idx++] = (MENU_ITEM)MENU_TEXT(rank_buffer[i]);
     }
 
-    rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(20);
+    rank_menu[idx++] = (MENU_ITEM)MENU_SPACE(10);
     rank_menu[idx++] = (MENU_ITEM)MENU_BUTTON("Back to Menu", on_back_to_menu);
     rank_menu[idx] = (MENU_ITEM)MENU_END();
 
