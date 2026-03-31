@@ -13,7 +13,7 @@ void InitSpawnManager(SpawnManager* sm) {
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game) {
     sm->timer++;
     int dif = 120;
-    if (Game->difficulty == 1) dif = 90;
+    if (Game->difficulty == 1) dif = 120;
     if (Game->difficulty == 2) dif = 60;
     if (Game->difficulty == 3) dif = 30;
     if (sm->timer >= sm->interval) {
@@ -44,7 +44,7 @@ void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game)
         }
         // 타이머 리셋 및 다음 소환 간격 랜덤 설정 (1~3초 사이)
         sm->timer = 0;
-        sm->interval = 60 + (rand() % dif);
+        sm->interval = 30 + (rand() % dif);
     }
 }
 
