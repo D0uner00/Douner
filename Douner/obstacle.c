@@ -3,6 +3,30 @@
 #include "global.h"
 #include <stdlib.h> // rand() 사용을 위해 필요
 
+static ALLEGRO_BITMAP* img_trash = NULL;
+static ALLEGRO_BITMAP* img_doraemon = NULL;
+static ALLEGRO_BITMAP* img_pikachu = NULL;
+static ALLEGRO_BITMAP* img_tornado = NULL;
+static ALLEGRO_BITMAP* img_kirby = NULL;
+static ALLEGRO_BITMAP* img_kirby_jump = NULL;
+static ALLEGRO_BITMAP* img_meteor = NULL;
+static ALLEGRO_BITMAP* img_amongus = NULL;
+static ALLEGRO_BITMAP* img_amongus_jump = NULL;
+static ALLEGRO_BITMAP* img_keroro = NULL;
+
+void obstacle_init() {
+    img_trash = al_load_bitmap("obstacle\\trash.png");
+    img_doraemon = al_load_bitmap("obstacle\\doraemon.png");
+    img_pikachu = al_load_bitmap("obstacle\\pikachu.png");
+    img_tornado = al_load_bitmap("obstacle\\tornado.png");
+    img_kirby = al_load_bitmap("obstacle\\kirby.png");
+    img_kirby_jump = al_load_bitmap("obstacle\\kirby_jump.png");
+    img_meteor = al_load_bitmap("obstacle\\meteor.png");
+    img_amongus = al_load_bitmap("obstacle\\amongus.png");
+    img_amongus_jump = al_load_bitmap("obstacle\\amongus_jump.png");
+    img_keroro = al_load_bitmap("obstacle\\keroro.png");
+}
+
 // 1. 소환 관리자 초기화 (시작 전 1번 호출)
 void InitSpawnManager(SpawnManager* sm) {
     sm->timer = 0;
@@ -165,11 +189,7 @@ void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game) {
 }
 
 // 6. 그리기 (이미지 포인터 사용)
-void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
-    ALLEGRO_BITMAP* trash, ALLEGRO_BITMAP* doraemon, ALLEGRO_BITMAP* pikachu,
-    ALLEGRO_BITMAP* tornado, ALLEGRO_BITMAP* kirby, ALLEGRO_BITMAP* kirby_jump,
-    ALLEGRO_BITMAP* img_meteor, ALLEGRO_BITMAP* img_amongus, ALLEGRO_BITMAP* img_amongus_jump, ALLEGRO_BITMAP* img_keroro) {
-
+void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size){
     for (int i = 0; i < size; i++) {
         if (!obs[i].is_active) continue;
 
@@ -204,35 +224,35 @@ void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size,
             if (obs[i].type == OBS_JUMPING) {
                 // 커비 특수 로직: 공중에 떠 있거나 점프 중일 때
                 if (obs[i].is_jumping || obs[i].y < obs[i].initial_y - 5) {
-                    target_img = kirby_jump; // 점프 전용 이미지 사용
+                    target_img = img_kirby_jump; // 점프 전용 이미지 사용
                     is_animated = false;     // 점프 이미지가 단일 컷이면 false
                     draw_frame = 0;
                 }
                 else {
-                    target_img = kirby;      // 지면에서는 걷는 커비
+                    target_img = img_kirby;      // 지면에서는 걷는 커비
                     is_animated = true;
                 }
             }
             else if (obs[i].type == OBS_FLYING) {
-                target_img = doraemon;   // 하늘은 도라에몽
+                target_img = img_doraemon;   // 하늘은 도라에몽
                 is_animated = true;
             }
             else {
-                target_img = tornado;    // 땅은 회오리
+                target_img = img_tornado;    // 땅은 회오리
                 is_animated = true;
             }
         }
         else { // [이지 모드]
             if (obs[i].type == OBS_JUMPING) {
-                target_img = pikachu;
+                target_img = img_pikachu;
                 is_animated = true;
             }
             else if (obs[i].type == OBS_FLYING) {
-                target_img = doraemon;
+                target_img = img_doraemon;
                 is_animated = true;
             }
             else {
-                target_img = trash;
+                target_img = img_trash;
                 is_animated = false;
             }
         }
@@ -292,4 +312,18 @@ void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameStat
 
         }
     }
+}
+
+void obstacle_deinit() {
+    if (img_trash) al_destroy_bitmap(img_trash);
+    if (img_doraemon) al_destroy_bitmap(img_doraemon);
+    if (img_pikachu) al_destroy_bitmap(img_pikachu);
+    if (img_tornado) al_destroy_bitmap(img_tornado);
+    if (img_kirby) al_destroy_bitmap(img_kirby);
+    if (img_kirby_jump) al_destroy_bitmap(img_kirby_jump);
+    if (img_meteor) al_destroy_bitmap(img_meteor);
+    if (img_amongus) al_destroy_bitmap(img_amongus);
+    if (img_amongus_jump) al_destroy_bitmap(img_amongus_jump);
+    if (img_keroro)al_destroy_bitmap(img_keroro);
+        
 }
