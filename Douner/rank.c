@@ -9,7 +9,6 @@ MENU_ITEM* rank_menu = NULL;
 FILE* rank_file;
 Rect box;
 ALLEGRO_FONT* menu_font;
-ALLEGRO_BITMAP* img_rank_board = NULL;
 ALLEGRO_BITMAP* background = NULL;
 
 extern void on_back_to_menu();
@@ -88,20 +87,13 @@ void file_write(Record record) {
         fclose(rank_file);
     }
 	free(records);
-  fclose(rank_file);
 }
 
 void rank_init() {
-    if (!img_rank_board) img_rank_board = al_load_bitmap("rank_board.png");
     if (!background) background = al_load_bitmap("background\\background_rank.png");
 
-    if (img_rank_board) {
-        box.w = al_get_bitmap_width(img_rank_board);
-        box.h = al_get_bitmap_height(img_rank_board);
-    }
-    else {
-        box.w = 400; box.h = 500; // 이미지 없을 때 예비용
-    }
+    box.w = 400; box.h = 500; // 이미지 없을 때 예비용
+
     box.x = (SCREEN_WIDTH - box.w) / 2;
     box.y = (SCREEN_HEIGHT - box.h) / 2;
 
@@ -125,6 +117,7 @@ void rank_init() {
     rank_menu[idx] = (MENU_ITEM)MENU_END();
 
     menu_init(rank_menu);
+	free(records);
 }
 
 
@@ -134,32 +127,22 @@ int rank_update() {
 
 void rank_draw() {
     if (rank_menu == NULL) return;
-    
+
     al_draw_bitmap(background, 0, 0, 0);
+    draw_box(box);
 
-    if (img_rank_board) {
-        al_draw_bitmap(img_rank_board, box.x, box.y, 0);
-    }
-    else {
-        draw_box(box);
-    }
-
-    int start_y = box.y + 55;  // 'TOP RANKS' 간판 바로 아래부터 시작 (필요시 조절)
-    int line_height = 25;      // 나무 판자 한 칸의 대략적인 높이 (필요시 조절)
-    int text_center_x = box.x + (box.w / 2)+ 15; // 글씨는 무조건 이미지 한가운데
+    int text_center_x = box.x + (box.w / 2); // 글씨는 무조건 이미지 한가운데
 
     for (int i = 0; rank_menu[i].handler != NULL; i++) {
+        int draw_y = rank_menu[i].y;
 
         //Back to Menu
-        if (rank_menu[i + 1].handler == NULL) {
+        if (rank_menu[i].handler == menu_button_handler) {
             al_draw_text(menu_font, al_map_rgb(255, 255, 255),
-                text_center_x, box.y + box.h - 15, // 게시판 맨 밑바닥
+                text_center_x, draw_y,
                 ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
             continue;
         }
-
-        // 랭킹 기록(1~10등)이 그려질 Y 좌표 계산
-        int current_y = start_y + (i * line_height);
 
         // 1, 2, 3등 색깔 구별
         ALLEGRO_COLOR text_color = al_map_rgb(255, 255, 255); // 기본
@@ -168,16 +151,13 @@ void rank_draw() {
         else if (i == 2) text_color = al_map_rgb(205, 127, 50);  // 3등 동
 
         al_draw_text(menu_font, text_color,
-            text_center_x, current_y,
+            text_center_x, draw_y,
             ALLEGRO_ALIGN_CENTER, rank_menu[i].text);
     }
 }
 
 // 게임 종료 시 Main에서 호출하여 이미지 메모리 해제
 void rank_deinit() {
-    if (img_rank_board) {
-        al_destroy_bitmap(img_rank_board);
-        img_rank_board = NULL;
-    }
-
+    al_destroy_bitmap(background);
+    background = NULL;
 }
