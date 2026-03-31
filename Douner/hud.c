@@ -4,7 +4,7 @@
 extern ALLEGRO_FONT* menu_font;
 
 static ALLEGRO_FONT* hud_font = NULL;
-
+static ALLEGRO_BITMAP* lives = NULL;
 static ALLEGRO_BITMAP* img_start = NULL;
 static ALLEGRO_BITMAP* img_next = NULL;
 static ALLEGRO_BITMAP* img_final = NULL;
@@ -25,6 +25,8 @@ void hud_init()
         hud_font = al_create_builtin_font();
     }
 
+
+    lives = al_load_bitmap("hp.png");
     img_start = al_load_bitmap("START.png");
     img_next = al_load_bitmap("NEXT.png");
     img_final = al_load_bitmap("FINAL.png");
@@ -50,6 +52,18 @@ void hud_draw(GameState* game)
 
     // 내부 빨간색 바 (테두리 두께 2px 안쪽으로 배치)
     al_draw_filled_rectangle(62, 14, 62 + hp_width, 35, al_map_rgb(255, 50, 50));
+
+
+    for (int i = 0; i < game->lives; i++) {
+        float dx = 380 + i * (30 + 10);
+        al_draw_scaled_bitmap(
+            lives,           // 원본 이미지 비트맵 (1000x250)
+            0, 0, 250, 250, // 원본 이미지 크기
+            dx, 7,         // 화면에 그릴 X, Y 좌표
+            40, 40,         // 화면에 그릴 가로, 세로 크기
+            0               // 플래그 (0)
+        );
+    }
 
     // SCORE 출력 (기존 유지)
     al_draw_textf(
