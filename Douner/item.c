@@ -1,6 +1,4 @@
 #include "item.h"
-#include "hitbox.h"
-#include <stdio.h>
 
 // 1. Data-Driven Configuration: Everything about an item is defined here.
 // To add a new item, just add an entry to this table and an enum value.
