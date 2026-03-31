@@ -411,6 +411,10 @@ int main() {
                 //debug
                 //draw_player_hitbox(&player);
                 item_draw();
+                draw_player_hitbox(&player);
+                draw_obstacle_hitboxes(obs_pool, MAX_OBS);
+
+                draw_item_hitboxes();
                 hud_draw(&game);
                 hud_draw_popup();
                 break;

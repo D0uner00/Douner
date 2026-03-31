@@ -136,6 +136,7 @@ void item_update(GameState* game, Player* player) {
     }
 }
 
+
 void item_draw() {
     for (int i = 0; i < ITEM_MAX; i++) {
         if (!items[i].active) continue;
