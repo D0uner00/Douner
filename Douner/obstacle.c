@@ -13,10 +13,11 @@ void InitSpawnManager(SpawnManager* sm) {
 void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* Game) {
     sm->timer++;
     int dif = 120;
-    if (Game->difficulty == 1) dif = 120;
+    if (Game->difficulty == 1) dif = 90;
     if (Game->difficulty == 2) dif = 60;
     if (Game->difficulty == 3) dif = 30;
     if (sm->timer >= sm->interval) {
+        // 비어있는(비활성화된) 장애물 칸 찾기
         // 비어있는(비활성화된) 장애물 칸 찾기
         for (int i = 0; i < size; i++) {
             if (!obs[i].is_active) {
