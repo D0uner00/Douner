@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DounerRun — API Reference Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'NeoDunggeunmo';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmo-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-void:    #04080F;
+            --bg-deep:    #080E1A;
+            --bg-surface: #0D1726;
+            --bg-sub:     #111F35;
+            --bg-glass:   rgba(8, 14, 26, 0.85);
+
+            --neon-cyan:  #00F0FF;
+            --neon-pink:  #FF2D78;
+            --neon-amber: #FFB703;
+            --neon-green: #00E676;
+
+            --border-glow: rgba(0, 240, 255, 0.35);
+            --border-dim:  rgba(0, 240, 255, 0.12);
+
+            --text-main:  #E8F4FF;
+            --text-muted: #6A9EC0;
+            --text-dim:   #2C4A6A;
+
+            --code-bg:    #020810;
+
+            --font-title: 'Press Start 2P', 'NeoDunggeunmo', cursive;
+            --font-ui:    'NeoDunggeunmo', sans-serif;
+            --font-doc:   'Noto Sans KR', sans-serif;
+            --font-code:  'Consolas', 'Monaco', monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        img, table, div, button, input {
+            image-rendering: pixelated;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-void);
+        }
+
+        body {
+            font-family: var(--font-doc);
+            font-size: 15px;
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.18) 2px,
+                    rgba(0, 0, 0, 0.18) 4px
+                );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Ambient neon glow blob */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 500px;
+            background: radial-gradient(ellipse, rgba(0, 240, 255, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: relative;
+            padding: 80px 0 60px;
+            text-align: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('background_1.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            filter: brightness(0.18) saturate(0.6);
+            z-index: 0;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(4, 8, 15, 0.3) 0%,
+                rgba(4, 8, 15, 0.6) 60%,
+                rgba(4, 8, 15, 1) 100%
+            );
+            z-index: 1;
+        }
+
+        header .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Neon horizontal lines decoration */
+        .header-deco {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .header-deco-line {
+            height: 1px;
+            width: 80px;
+            background: linear-gradient(to right, transparent, var(--neon-cyan));
+        }
+
+        .header-deco-line.right {
+            background: linear-gradient(to left, transparent, var(--neon-cyan));
+        }
+
+        .header-deco-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+        }
+
+        .game-title {
+            font-family: var(--font-title);
+            font-size: clamp(22px, 4vw, 36px);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.3;
+            text-shadow:
+                0 0 10px rgba(0, 240, 255, 0.8),
+                0 0 30px rgba(0, 240, 255, 0.4),
+                0 0 60px rgba(0, 240, 255, 0.2);
+        }
+
+        .game-subtitle {
+            font-family: var(--font-ui);
+            color: var(--neon-cyan);
+            font-size: 13px;
+            margin-top: 18px;
+            letter-spacing: 3px;
+            opacity: 0.85;
+        }
+
+        .version-badge {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 5px 14px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        /* ── SEARCH ── */
+        .search-wrap {
+            max-width: 580px;
+            margin: 40px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 48px 14px 20px;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            color: var(--neon-cyan);
+            background: var(--bg-surface);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.3),
+                0 0 20px rgba(0, 240, 255, 0.08),
+                inset 0 0 20px rgba(0, 240, 255, 0.03);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        /* autocomplete */
+        .autocomplete {
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            right: 0;
+            background: var(--bg-sub);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-top: none;
+            overflow: hidden;
+            z-index: 100;
+            display: none;
+        }
+
+        .autocomplete.open {
+            display: block;
+        }
+
+        .ac-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.1s;
+        }
+
+        .ac-item:last-child { border-bottom: none; }
+
+        .ac-item:hover {
+            background: rgba(0, 240, 255, 0.06);
+            color: var(--neon-cyan);
+        }
+
+        .ac-item .ac-group {
+            font-size: 10px;
+            color: var(--text-muted);
+            padding: 2px 6px;
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            margin-left: auto;
+            font-family: var(--font-ui);
+        }
+
+        .ac-item .ac-match {
+            color: var(--neon-pink);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 50px 0 24px;
+        }
+
+        .section-label h2 {
+            font-family: var(--font-ui);
+            font-size: 12px;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(0,240,255,0.3), transparent);
+        }
+
+        /* ── CARDS GRID ── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            padding: 24px;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            overflow: hidden;
+        }
+
+        /* top neon accent line */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--neon-cyan), var(--neon-pink));
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(0, 240, 255, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:active {
+            transform: translateY(0);
+        }
+
+        .card-icon {
+            font-size: 24px;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .card-name {
+            font-family: var(--font-ui);
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .card-desc {
+            font-family: var(--font-doc);
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .card-count {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            font-family: var(--font-code);
+            font-size: 11px;
+            color: var(--neon-amber);
+            background: rgba(255, 183, 3, 0.08);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            padding: 2px 8px;
+        }
+
+        /* ── MODAL OVERLAY ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-surface);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.06),
+                0 40px 80px rgba(0, 0, 0, 0.8),
+                0 0 60px rgba(0, 240, 255, 0.05);
+            width: 100%;
+            max-width: 820px;
+            position: relative;
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--border-dim);
+            background: var(--bg-sub);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .modal-header-icon {
+            font-size: 24px;
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-ui);
+            font-size: 16px;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+        }
+
+        .modal-header p {
+            font-family: var(--font-doc);
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: 1px solid rgba(255, 45, 120, 0.3);
+            color: var(--neon-pink);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            cursor: pointer;
+            padding: 7px 12px;
+            margin-left: auto;
+            transition: background 0.15s, box-shadow 0.15s;
+            letter-spacing: 1px;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 45, 120, 0.1);
+            box-shadow: 0 0 12px rgba(255, 45, 120, 0.2);
+        }
+
+        .modal-body {
+            padding: 26px;
+        }
+
+        /* ── FUNCTION LIST (Accordion) ── */
+        .fn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .fn-item {
+            border: 1px solid var(--border-dim);
+            background: var(--bg-deep);
+            transition: border-color 0.15s;
+        }
+
+        .fn-item:has(.fn-trigger.active) {
+            border-color: rgba(0, 240, 255, 0.25);
+        }
+
+        .fn-trigger {
+            width: 100%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
+            transition: background 0.1s;
+        }
+
+        .fn-trigger:hover {
+            background: rgba(0, 240, 255, 0.04);
+        }
+
+        .fn-trigger.active {
+            background: rgba(0, 240, 255, 0.05);
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .fn-name {
+            font-family: var(--font-code);
+            font-size: 14px;
+            color: var(--neon-pink);
+            font-weight: bold;
+        }
+
+        .fn-brief {
+            font-family: var(--font-doc);
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+            padding-left: 10px;
+        }
+
+        .fn-chevron {
+            color: var(--text-dim);
+            font-size: 10px;
+            transition: transform 0.15s, color 0.15s;
+        }
+
+        .fn-trigger.active .fn-chevron {
+            transform: rotate(90deg);
+            color: var(--neon-cyan);
+        }
+
+        .fn-detail {
+            display: none;
+            padding: 22px;
+            background: var(--code-bg);
+            border-top: 1px solid var(--border-dim);
+        }
+
+        .fn-detail.open {
+            display: block;
+        }
+
+        /* detail sections */
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-family: var(--font-ui);
+            font-size: 10px;
+            color: var(--neon-amber);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .detail-text {
+            font-family: var(--font-doc);
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.7;
+        }
+
+        /* param table */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-doc);
+            font-size: 13px;
+            border: 1px solid var(--border-dim);
+        }
+
+        .param-table th {
+            text-align: left;
+            padding: 9px 12px;
+            background: rgba(0, 240, 255, 0.04);
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-dim);
+            font-weight: normal;
+            font-family: var(--font-ui);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .param-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .param-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .param-name {
+            color: var(--neon-green);
+            font-family: var(--font-code);
+        }
+
+        .param-type {
+            color: var(--neon-amber);
+            font-family: var(--font-code);
+            font-size: 12px;
+        }
+
+        /* return badge */
+        .return-badge {
+            display: inline-block;
+            font-family: var(--font-code);
+            color: var(--neon-amber);
+            background: rgba(255, 183, 3, 0.07);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+
+        /* code block */
+        .code-block {
+            background: #000;
+            border: 1px solid rgba(0, 240, 255, 0.12);
+            border-left: 3px solid var(--neon-cyan);
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 13px;
+            line-height: 1.6;
+            color: #c8d8e8;
+            overflow-x: auto;
+            white-space: pre;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '// C API';
+            display: block;
+            color: #2a4a6a;
+            margin-bottom: 8px;
+            font-family: var(--font-code);
+            font-size: 11px;
+        }
+
+        .code-kw  { color: #ff7b72; }
+        .code-fn  { color: #c792ea; }
+        .code-str { color: #a5d6ff; }
+        .code-num { color: var(--neon-amber); }
+        .code-cm  { color: #3a5a7a; }
+        .code-type{ color: #79c0ff; }
+
+        /* ── SEARCH RESULT PANEL ── */
+        #search-result {
+            margin-top: 30px;
+            display: none;
+        }
+
+        #search-result.visible {
+            display: block;
+        }
+
+        .sr-card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .sr-header {
+            padding: 18px 24px;
+            background: var(--bg-sub);
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .sr-fn-sig {
+            font-family: var(--font-code);
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--neon-cyan);
+        }
+
+        .sr-group {
+            display: inline-block;
+            font-family: var(--font-ui);
+            font-size: 10px;
+            color: var(--text-muted);
+            background: rgba(0, 240, 255, 0.06);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 2px 8px;
+            margin-top: 10px;
+        }
+
+        .sr-body {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+            border-top: 1px solid var(--border-dim);
+            background: var(--bg-deep);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        footer span {
+            color: var(--neon-amber);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-deco">
+                <div class="header-deco-line"></div>
+                <div class="header-deco-dot"></div>
+                <div class="header-deco-line right"></div>
+            </div>
+            <div class="game-title">Kkandapia Run</div>
+            <div class="game-subtitle">C API Reference Center</div>
+            <div class="version-badge">DOUNER // 김승희 · 이기윤 · 이승찬 · 임세연</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-wrap">
+            <div class="search-box" id="searchBox">
+                <input type="text" id="searchInput" placeholder="임무(함수)명 입력..." autocomplete="off">
+                <span class="search-icon">⌕</span>
+                <div class="autocomplete" id="autocomplete"></div>
+            </div>
+        </div>
+
+        <div id="search-result"></div>
+        <div id="cards-section">
+            <div class="section-label"><h2>데이터 모듈 선택</h2></div>
+            <div class="cards-grid" id="cardsGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <span class="modal-header-icon" id="modalIcon"></span>
+                <div class="modal-header-info">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalDesc"></p>
+                </div>
+                <button class="modal-close" id="modalClose">✕ CLOSE</button>
+            </div>
+            <div class="modal-body">
+                <div class="fn-list" id="fnList"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>DOUNER_RUN COMMAND CENTER // EST. 2026 // POWERED BY <span>ALLEGRO 5</span> // NO FATE</footer>
+
+    <script>
+        const API = {
+        groups: [
+        {
+        id: 'main',
+        icon: '⚙️',
+        name: 'Main & Scene',
+        desc: 'Main.c 파일의 게임 메인 루프 제어 및 화면(Scene) 상태 전환 관련 이벤트 콜백 함수들입니다.',
+        fns: [
+        { name: 'on_start', sig: 'void on_start()', brief: '게임 시작 및 초기화', desc: '게임 난이도(1)와 생명력(3)을 초기화하고, 팝업 상태를 리셋한 뒤 현재 씬을 플레이 화면(SCREEN_PLAY)으로 전환합니다.', params: [], ret: 'void', example: `<span class="code-fn">on_start</span>();` },
+        { name: 'on_exit', sig: 'void on_exit()', brief: '게임 종료 처리', desc: '전역 변수 <code>done</code> 플래그를 true로 설정하여 메인 루프를 탈출합니다.', params: [], ret: 'void', example: `<span class="code-fn">on_exit</span>();` },
+        { name: 'on_enter_name', sig: 'void on_enter_name()', brief: '이름 입력 씬 전환', desc: '씬을 사용자 이름 텍스트 입력을 대기하는 <code>SCREEN_NAME_INPUT</code>으로 변경합니다.', params: [], ret: 'void', example: `<span class="code-fn">on_enter_name</span>();` },
+        { name: 'on_ranking', sig: 'void on_ranking()', brief: '랭킹 씬 전환', desc: '랭킹 시스템을 초기화(rank_init)하고 <code>SCREEN_RANKING</code>으로 변경합니다.', params: [], ret: 'void', example: `<span class="code-fn">on_ranking</span>();` },
+        { name: 'on_continue', sig: 'void on_continue()', brief: '게임 재개 (일시정지 해제)', desc: '일시정지 메뉴에서 게임 플레이 상태(SCREEN_PLAY)로 화면을 복귀시킵니다.', params: [], ret: 'void', example: `<span class="code-fn">on_continue</span>();` },
+        { name: 'on_back_to_menu', sig: 'void on_back_to_menu()', brief: '메인 메뉴 복귀', desc: '메뉴 컴포넌트들을 초기화하고 화면 상태를 <code>SCREEN_MENU</code>로 복귀시킵니다.', params: [], ret: 'void', example: `<span class="code-fn">on_back_to_menu</span>();` }
+        ]
+        },
+        {
+        id: 'player',
+        icon: '🧍',
+        name: 'Player',
+        desc: 'Player.c 파일의 플레이어 캐릭터 리소스 로드, 애니메이션 갱신, 물리 연산 관련 함수입니다.',
+        fns: [
+        { name: 'init_player', sig: 'void init_player(Player* p)', brief: '플레이어 초기화', desc: '스프라이트 시트를 로드하고 시작 좌표 및 각 상태별 히트박스 오프셋을 설정합니다.', params: [{ name: 'p', type: 'Player*', desc: '전역 플레이어 포인터' }], ret: 'void', example: `<span class="code-fn">init_player</span>(&player);` },
+        { name: 'hp_update', sig: 'void hp_update(GameState* game)', brief: '플레이어 체력 지속 감소', desc: '게임 진행 중 매 프레임 플레이어의 HP를 0.05f씩 소모시킵니다.', params: [{ name: 'game', type: 'GameState*', desc: '게임 전역 상태' }], ret: 'void', example: `<span class="code-fn">hp_update</span>(&game);` },
+        { name: 'update_player', sig: 'void update_player(Player* p)', brief: '물리 및 애니메이션 갱신', desc: '상태에 따라 애니메이션 프레임을 증가시키고 점프 시 Y축 속도를 가감합니다.', params: [{ name: 'p', type: 'Player*', desc: '플레이어 객체' }], ret: 'void', example: `<span class="code-fn">update_player</span>(&player);` },
+        { name: 'get_player_draw_y', sig: 'float get_player_draw_y(Player* p)', brief: '렌더링 Y좌표 반환', desc: '달리기와 점프 상태의 이미지 소스 높이 차이를 보정한 Y 좌표를 반환합니다.', params: [{ name: 'p', type: 'Player*', desc: '플레이어 객체' }], ret: 'float', example: `y = <span class="code-fn">get_player_draw_y</span>(&p);` },
+        { name: 'draw_player', sig: 'void draw_player(Player* p)', brief: '플레이어 화면 출력', desc: '애니메이션 프레임에 맞춰 출력합니다. 피격 중엔 붉은 틴트를 넣습니다.', params: [{ name: 'p', type: 'Player*', desc: '플레이어 객체' }], ret: 'void', example: `<span class="code-fn">draw_player</span>(&player);` },
+        { name: 'get_player_hitbox', sig: 'Rect get_player_hitbox(Player* p)', brief: '충돌 판정 박스 반환', desc: '상태별 지정된 히트박스 오프셋을 결합하여 실제 AABB Rect를 반환합니다.', params: [{ name: 'p', type: 'Player*', desc: '플레이어 객체' }], ret: 'Rect', example: `r = <span class="code-fn">get_player_hitbox</span>(&p);` },
+        { name: 'destroy_player', sig: 'void destroy_player(Player* p)', brief: '플레이어 메모리 해제', desc: '로딩된 3종의 스프라이트 시트 리소스를 모두 반환합니다.', params: [{ name: 'p', type: 'Player*', desc: '플레이어 객체' }], ret: 'void', example: `<span class="code-fn">destroy_player</span>(&player);` }
+        ]
+        },
+        {
+        id: 'device',
+        icon: '⌨️',
+        name: 'Device (IO)',
+        desc: 'keyboard.c 및 mouse.c 파일의 입력 장치 상태 추적 및 이벤트 비트 연산 함수들입니다.',
+        fns: [
+        { name: 'keyboard_init', sig: 'void keyboard_init(void)', brief: '키보드 배열 클리어', desc: 'key 배열을 memset으로 0으로 비웁니다.', params: [], ret: 'void', example: `<span class="code-fn">keyboard_init</span>();` },
+        { name: 'keyboard_update', sig: 'void keyboard_update(ALLEGRO_EVENT* event)', brief: '키보드 이벤트 갱신', desc: '이벤트를 파싱해 DOWN 시 KEY_SEEN | KEY_DOWN 비트를 세팅합니다.', params: [{ name: 'event', type: 'ALLEGRO_EVENT*', desc: '이벤트' }], ret: 'void', example: `<span class="code-fn">keyboard_update</span>(&ev);` },
+        { name: 'key_hold', sig: 'bool key_hold(int keycode)', brief: '키 유지 상태 반환', desc: '키가 꾹 눌려있는지 확인합니다.', params: [{ name: 'keycode', type: 'int', desc: '키코드' }], ret: 'bool', example: `if (<span class="code-fn">key_hold</span>(KEY_UP)) { }` },
+        { name: 'key_pressed', sig: 'bool key_pressed(int keycode)', brief: '단일 키 입력 확인', desc: '방금 눌린 키만 단발성으로 감지합니다.', params: [{ name: 'keycode', type: 'int', desc: '키코드' }], ret: 'bool', example: `if (<span class="code-fn">key_pressed</span>(KEY_UP)) { }` },
+        { name: 'mouse_update', sig: 'void mouse_update(ALLEGRO_EVENT* event)', brief: '마우스 좌표/클릭 갱신', desc: '마우스 위치와 버튼의 프레스/릴리즈 비트를 연산합니다.', params: [{ name: 'event', type: 'ALLEGRO_EVENT*', desc: '이벤트' }], ret: 'void', example: `<span class="code-fn">mouse_update</span>(&ev);` },
+        { name: 'mouse_tick', sig: 'void mouse_tick(void)', brief: '마우스 프레임 클리어', desc: '루프 마지막에 단발성 프레스 비트를 지웁니다.', params: [], ret: 'void', example: `<span class="code-fn">mouse_tick</span>();` },
+        { name: 'mouse_button_down', sig: 'bool mouse_button_down(int button)', brief: '클릭 유지 감지', desc: '버튼이 눌린 상태인지 반환합니다.', params: [{ name: 'button', type: 'int', desc: '마우스 버튼 ID' }], ret: 'bool', example: `if (<span class="code-fn">mouse_button_down</span>(1)) { }` },
+        { name: 'mouse_button_pressed', sig: 'bool mouse_button_pressed(int button)', brief: '단일 클릭 감지', desc: '방금 눌린 상태인지 확인합니다.', params: [{ name: 'button', type: 'int', desc: '마우스 버튼 ID' }], ret: 'bool', example: `if (<span class="code-fn">mouse_button_pressed</span>(1)) { }` },
+        { name: 'mouse_x', sig: 'int mouse_x()', brief: 'X 좌표 반환', desc: '마우스의 현재 X 좌표를 반환합니다.', params: [], ret: 'int', example: `x = <span class="code-fn">mouse_x</span>();` },
+        { name: 'mouse_y', sig: 'int mouse_y()', brief: 'Y 좌표 반환', desc: '마우스의 현재 Y 좌표를 반환합니다.', params: [], ret: 'int', example: `y = <span class="code-fn">mouse_y</span>();` }
+        ]
+        },
+        {
+        id: 'display',
+        icon: '🖥️',
+        name: 'Display',
+        desc: 'Background.c 및 hud.c 파일의 패럴랙스 배경 및 UI 렌더링 함수입니다.',
+        fns: [
+        { name: 'init_background', sig: 'void init_background(Background* bg)', brief: '배경 초기화', desc: '배경 이미지를 로드하고 초기 스크롤 좌표를 설정합니다.', params: [{ name: 'bg', type: 'Background*', desc: '구조체' }], ret: 'void', example: `<span class="code-fn">init_background</span>(&bg);` },
+        { name: 'update_background', sig: 'void update_background(Background* bg, int difficulty)', brief: '배경 스크롤 연산', desc: '난이도에 맞는 이미지를 교체하고 스크롤 오프셋을 감소시킵니다.', params: [{ name: 'bg', type: 'Background*', desc: '구조체' }, { name: 'difficulty', type: 'int', desc: '난이도' }], ret: 'void', example: `<span class="code-fn">update_background</span>(&bg, dif);` },
+        { name: 'draw_background', sig: 'void draw_background(Background* bg)', brief: '배경 출력', desc: '끊김없는 Endless 스크롤을 렌더링합니다.', params: [{ name: 'bg', type: 'Background*', desc: '구조체' }], ret: 'void', example: `<span class="code-fn">draw_background</span>(&bg);` },
+        { name: 'destroy_background', sig: 'void destroy_background(Background* bg)', brief: '배경 리소스 해제', desc: '로드된 배경 비트맵 자원을 소멸시킵니다.', params: [{ name: 'bg', type: 'Background*', desc: '구조체' }], ret: 'void', example: `<span class="code-fn">destroy_background</span>(&bg);` },
+        { name: 'hud_init', sig: 'void hud_init(void)', brief: 'HUD 리소스 초기화', desc: '폰트, 하트, 팝업 이미지를 로드합니다.', params: [], ret: 'void', example: `<span class="code-fn">hud_init</span>();` },
+        { name: 'hud_draw', sig: 'void hud_draw(GameState* game)', brief: 'UI 렌더링', desc: 'HP바, 남은 목숨, SCORE를 상단에 그립니다.', params: [{ name: 'game', type: 'GameState*', desc: '상태 객체' }], ret: 'void', example: `<span class="code-fn">hud_draw</span>(&game);` },
+        { name: 'hud_trigger_popup', sig: 'void hud_trigger_popup(PopupType type)', brief: '팝업 띄우기', desc: 'NEXT, FINAL 등의 팝업 타입 및 60프레임 대기를 설정합니다.', params: [{ name: 'type', type: 'PopupType', desc: '팝업 종류' }], ret: 'void', example: `<span class="code-fn">hud_trigger_popup</span>(POPUP_NEXT);` },
+        { name: 'hud_update_popup', sig: 'bool hud_update_popup()', brief: '팝업 타이머 갱신', desc: '팝업 지속시간을 깎으며, 유지 중이면 true를 반환합니다.', params: [], ret: 'bool', example: `if (<span class="code-fn">hud_update_popup</span>()) return;` },
+        { name: 'hud_draw_popup', sig: 'void hud_draw_popup()', brief: '팝업 렌더링', desc: '화면 중앙에 팝업 이미지를 렌더링합니다.', params: [], ret: 'void', example: `<span class="code-fn">hud_draw_popup</span>();` },
+        { name: 'hud_deinit', sig: 'void hud_deinit(void)', brief: 'HUD 리소스 해제', desc: '로딩된 폰트 및 비트맵 자원을 반환합니다.', params: [], ret: 'void', example: `<span class="code-fn">hud_deinit</span>();` }
+        ]
+        },
+        {
+        id: 'obstacle',
+        icon: '🧱',
+        name: 'Obstacle',
+        desc: 'obstacle.c 파일의 장애물 스폰, 이동, 점프 로직, 충돌 및 애니메이션 렌더링 모듈입니다.',
+        fns: [
+        { name: 'obstacle_init', sig: 'void obstacle_init(void)', brief: '장애물 텍스처 일괄 로드', desc: '쓰레기통, 도라에몽, 피카츄, 커비, 어몽어스 등 장애물/적 캐릭터의 PNG 리소스를 모두 메모리에 올립니다.', params: [], ret: 'void', example: `<span class="code-fn">obstacle_init</span>();` },
+        { name: 'InitSpawnManager', sig: 'void InitSpawnManager(SpawnManager* sm)', brief: '스폰 매니저 초기화', desc: '장애물을 지속적으로 생성할 타이머와 소환 간격(interval, 기본 120프레임)을 초기화합니다.', params: [{ name: 'sm', type: 'SpawnManager*', desc: '소환 관리자 포인터' }], ret: 'void', example: `<span class="code-fn">InitSpawnManager</span>(&spawner);` },
+        { name: 'UpdateSpawning', sig: 'void UpdateSpawning(SpawnManager* sm, Obstacle obs[], int size, GameState* game)', brief: '난이도 비례 장애물 소환', desc: '매 프레임 타이머를 증가시키고, 간격에 도달하면 난이도에 따라 GROUND, FLYING, JUMPING 타입 중 하나를 무작위로 선택해 비어있는 칸에 장애물을 스폰합니다.', params: [{ name: 'sm', type: 'SpawnManager*', desc: '소환 매니저' }, { name: 'obs', type: 'Obstacle[]', desc: '장애물 풀 배열' }, { name: 'size', type: 'int', desc: '풀 사이즈' }, { name: 'game', type: 'GameState*', desc: '난이도 체크용 게임 상태' }], ret: 'void', example: `<span class="code-fn">UpdateSpawning</span>(&spawner, obs_pool, MAX_OBS, &game);` },
+        { name: 'InitObstacles', sig: 'void InitObstacles(Obstacle obs[], int size)', brief: '장애물 배열 클리어', desc: '배열 내의 모든 장애물의 <code>is_active</code> 플래그를 0으로 만들어 화면에서 지웁니다. 스테이지 전환/재시작 시 사용됩니다.', params: [{ name: 'obs', type: 'Obstacle[]', desc: '장애물 풀 배열' }, { name: 'size', type: 'int', desc: '사이즈' }], ret: 'void', example: `<span class="code-fn">InitObstacles</span>(obs_pool, MAX_OBS);` },
+        { name: 'UpdateObstacles', sig: 'void UpdateObstacles(Obstacle obs[], int size, float gravity, float player_x)', brief: '장애물 물리 및 애니메이션 갱신', desc: '활성화된 장애물을 왼쪽으로 이동시키고 화면 밖으로 나가면 삭제합니다. <code>OBS_JUMPING</code> 타입은 플레이어와의 X축 거리가 190 이하가 되면 중력을 적용해 포물선 점프를 시전합니다.', params: [{ name: 'obs', type: 'Obstacle[]', desc: '장애물 풀 배열' }, { name: 'size', type: 'int', desc: '풀 사이즈' }, { name: 'gravity', type: 'float', desc: '게임 중력 상수' }, { name: 'player_x', type: 'float', desc: '점프 트리거용 플레이어 X좌표' }], ret: 'void', example: `<span class="code-fn">UpdateObstacles</span>(obs_pool, MAX_OBS, GRAVITY, player.x);` },
+        { name: 'SpawnObstacle', sig: 'void SpawnObstacle(Obstacle* obs, ObstacleType type, GameState* game)', brief: '신규 장애물 속성 설정', desc: '선택된 타입(지상, 공중, 점프형)과 게임 난이도에 맞추어 장애물의 너비, 높이, Y축 좌표(initial_y), 점프 파워(-13.5f), 속도 및 애니메이션 딜레이를 초기 세팅합니다.', params: [{ name: 'obs', type: 'Obstacle*', desc: '할당할 개별 장애물 포인터' }, { name: 'type', type: 'ObstacleType', desc: '장애물 타입' }, { name: 'game', type: 'GameState*', desc: '난이도 객체' }], ret: 'void', example: `<span class="code-cm">// 내부적으로 UpdateSpawning 에서 호출됨</span>\n<span class="code-fn">SpawnObstacle</span>(&obs[i], OBS_FLYING, &game);` },
+        { name: 'DrawObstaclesWithImage', sig: 'void DrawObstaclesWithImage(GameState* game, Obstacle obs[], int size)', brief: '장애물 스프라이트 렌더링', desc: '난이도(이지, 노말, 하드)와 장애물 타입에 따라 적절한 이미지를 매핑하여 출력합니다. 커비/어몽어스 등은 점프 중일 때 전용 단일 프레임 이미지를 띄우고, 지상에선 4컷짜리 애니메이션 시트를 순회하여 출력합니다.', params: [{ name: 'game', type: 'GameState*', desc: '난이도 파악' }, { name: 'obs', type: 'Obstacle[]', desc: '풀 배열' }, { name: 'size', type: 'int', desc: '배경 사이즈' }], ret: 'void', example: `<span class="code-fn">DrawObstaclesWithImage</span>(&game, obs_pool, MAX_OBS);` },
+        { name: 'obstacle_collision_check', sig: 'void obstacle_collision_check(Player* player, Obstacle obs[], int size, GameState* game, ALLEGRO_SAMPLE* sfx_hit)', brief: '플레이어 AABB 피격 판정', desc: '플레이어의 무적 시간(hurtTimer)이 없을 때 장애물과의 충돌(AABB)을 검사합니다. 충돌 시 HP를 10 차감하고 장애물을 삭제하며 피격 사운드를 재생한 뒤 무적 타이머(30프레임)를 부여합니다.', params: [{ name: 'player', type: 'Player*', desc: '플레이어 객체' }, { name: 'obs', type: 'Obstacle[]', desc: '풀 배열' }, { name: 'size', type: 'int', desc: '사이즈' }, { name: 'game', type: 'GameState*', desc: 'HP 차감용 객체' }, { name: 'sfx_hit', type: 'ALLEGRO_SAMPLE*', desc: '피격 사운드' }], ret: 'void', example: `<span class="code-fn">obstacle_collision_check</span>(&player, obs_pool, MAX_OBS, &game, sfx_hit);` },
+        { name: 'obstacle_deinit', sig: 'void obstacle_deinit(void)', brief: '장애물 텍스처 리소스 반환', desc: '<code>obstacle_init</code>에서 로드했던 모든 장애물 비트맵 리소스 포인터를 <code>al_destroy_bitmap</code>으로 해제합니다.', params: [], ret: 'void', example: `<span class="code-fn">obstacle_deinit</span>();` }
+        ]
+        },
+        {
+        id: 'item',
+        icon: '🎁',
+        name: 'Item',
+        desc: 'item.c 파일의 아이템 스폰 빈도 테이블, 스프라이트 렌더링, 충돌 획득(효과 발동) 모듈입니다.',
+        fns: [
+        { name: 'item_init', sig: 'void item_init(void)', brief: '아이템 속성 맵핑 및 스프라이트 로드', desc: '별(STAR)과 회복(HP) 아이템의 동작(effect 콜백 함수)을 연결하고, 지정된 파일명으로 스프라이트 시트를 로드합니다. 또한 활성화 배열을 비웁니다.', params: [], ret: 'void', example: `<span class="code-fn">item_init</span>();` },
+        { name: 'spawn_item', sig: 'void spawn_item(ItemTypes type)', brief: '특정 아이템 화면 밖 소환', desc: '비활성화된 아이템 배열 공간을 찾아 Y 좌표를 120~320 사이로 무작위 배정하고 <code>active = 1</code> 상태로 만들어 화면 바깥 우측(SCREEN_WIDTH + 100)에 스폰시킵니다.', params: [{ name: 'type', type: 'ItemTypes', desc: '소환할 아이템의 열거형 타입 (ITEM_STAR, ITEM_HP 등)' }], ret: 'void', example: `<span class="code-fn">spawn_item</span>(ITEM_STAR);` },
+        { name: 'item_update', sig: 'void item_update(GameState* game, Player* player)', brief: '아이템 스폰 주기 및 이동 연산', desc: '난이도에 따른 <code>get_spawn_interval</code> 리턴값을 바탕으로 특정 프레임마다 아이템을 생성합니다. 활성화된 아이템은 지정된 <code>ITEM_SPEED</code>로 왼쪽으로 이동하며 애니메이션 프레임을 순환시킵니다.', params: [{ name: 'game', type: 'GameState*', desc: '난이도 획득' }, { name: 'player', type: 'Player*', desc: '플레이어 객체' }], ret: 'void', example: `<span class="code-fn">item_update</span>(&game, &player);` },
+        { name: 'item_collision_check', sig: 'void item_collision_check(GameState* game, Player* player, ALLEGRO_SAMPLE* sfx_coin, ALLEGRO_SAMPLE* sfx_heart)', brief: '아이템 획득 및 이펙트 콜백 호출', desc: '플레이어의 히트박스와 아이템 간의 AABB 충돌을 검사합니다. 닿았을 경우 아이템을 비활성화하고, 해당 아이템의 <code>effect()</code> 포인터 함수를 호출해 사운드 출력 및 점수/체력을 상승시킵니다.', params: [{ name: 'game', type: 'GameState*', desc: '점수/HP 갱신' }, { name: 'player', type: 'Player*', desc: '플레이어 충돌 객체' }, { name: 'sfx_coin', type: 'ALLEGRO_SAMPLE*', desc: '별 획득 사운드' }, { name: 'sfx_heart', type: 'ALLEGRO_SAMPLE*', desc: '회복 사운드' }], ret: 'void', example: `<span class="code-fn">item_collision_check</span>(&game, &player, sfx_coin, sfx_heart);` },
+        { name: 'item_draw', sig: 'void item_draw(void)', brief: '아이템 애니메이션 렌더링', desc: '현재 진행 중인 <code>frame</code> 값과 <code>scale</code> 설정값을 곱하여 맵 위에 떠있는 아이템 스프라이트를 부드럽게 렌더링합니다.', params: [], ret: 'void', example: `<span class="code-fn">item_draw</span>();` },
+        { name: 'item_deinit', sig: 'void item_deinit(void)', brief: '아이템 텍스처 리소스 반환', desc: '아이템 타입 구조체 테이블(<code>itemTypes</code>)에 등록되어 있는 스프라이트 시트 포인터를 해제하여 누수를 방지합니다.', params: [], ret: 'void', example: `<span class="code-fn">item_deinit</span>();` }
+        ]
+        },
+        {
+        id: 'rank',
+        icon: '🏆',
+        name: 'Rank',
+        desc: 'rank.c 파일의 파일 입출력(File I/O) 및 버블/퀵 소팅(qsort) 기반의 점수 랭킹 시스템입니다.',
+        fns: [
+        { name: 'file_read', sig: 'Record* file_read(void)', brief: '랭킹 파일 읽기 및 정렬', desc: '로컬의 <code>rank.txt</code> 파일을 읽어 들여 최대 <code>MAX_RECORD_SIZE</code>만큼의 <code>Record</code> 구조체 메모리를 동적 할당해 이름과 점수를 담습니다. 이후 점수 내림차순으로 <code>qsort</code>를 진행하여 배열 포인터를 반환합니다.', params: [], ret: 'Record*', example: `<span class="code-type">Record</span>* records = <span class="code-fn">file_read</span>();` },
+        { name: 'file_write', sig: 'void file_write(Record record)', brief: '신기록 디스크 저장', desc: '<code>file_read()</code>로 불러온 기존 기록에 새로운 게임 점수를 추가합니다. 배열 한도 초과 시 가장 낮은 점수보다 높을 경우에만 덮어씁니다. 재정렬 후 <code>rank.txt</code>에 결과를 새로 씁니다.', params: [{ name: 'record', type: 'Record', desc: '기록할 새로운 유저 이름과 점수 구조체' }], ret: 'void', example: `<span class="code-fn">file_write</span>(new_record);` },
+        { name: 'rank_init', sig: 'void rank_init(void)', brief: '랭킹 씬 배경 및 메뉴 UI 초기화', desc: '랭킹 전용 배경 이미지(background_rank.png)를 불러오고, 파일에서 파싱한 랭킹 텍스트(1~N등)를 <code>MENU_ITEM</code> 배열 구조체로 변환해 화면 출력 리스트로 조립합니다. 하단에 "Back to Menu" 버튼도 부착합니다.', params: [], ret: 'void', example: `<span class="code-cm">// 랭킹 메뉴 진입 시 호출</span>\n<span class="code-fn">rank_init</span>();` },
+        { name: 'rank_update', sig: 'int rank_update(void)', brief: '랭킹 메뉴 버튼 선택 갱신', desc: '내부적으로 <code>menu_update(rank_menu)</code>를 호출하여, 플레이어가 랭킹 메뉴 창에서 Back to Menu 등의 버튼을 누르는 이벤트를 캐치하고 핸들러 함수로 연결합니다.', params: [], ret: 'int', example: `<span class="code-fn">rank_update</span>();` },
+        { name: 'rank_draw', sig: 'void rank_draw(void)', brief: '랭킹 전광판 렌더링', desc: '랭킹 배경과 반투명 상자를 그리고, 정렬된 점수 리스트를 반복문으로 돌며 텍스트로 출력합니다. 1등, 2등, 3등의 글씨는 각각 금, 은, 동색으로 하드코딩 처리됩니다.', params: [], ret: 'void', example: `<span class="code-fn">rank_draw</span>();` },
+        { name: 'rank_deinit', sig: 'void rank_deinit(void)', brief: '랭킹 배경 메모리 해제', desc: '로딩된 랭킹 전용 배경 비트맵 <code>background</code>를 파괴하고 NULL로 안전하게 비웁니다.', params: [], ret: 'void', example: `<span class="code-fn">rank_deinit</span>();` }
+        ]
+        }
+        ]
+        };
+
+        const fnIndex = [];
+        API.groups.forEach(g => {
+        g.fns.forEach(f => fnIndex.push({ ...f, group: g.name, groupId: g.id }));
+        });
+
+        const grid = document.getElementById('cardsGrid');
+        API.groups.forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+        <span class="card-icon">${g.icon}</span>
+        <span class="card-count">${g.fns.length} fn</span>
+        <div class="card-name">${g.name}</div>
+        <div class="card-desc">${g.desc}</div>
+        `;
+        card.addEventListener('click', () => openModal(g));
+        grid.appendChild(card);
+        });
+
+        const overlay = document.getElementById('modalOverlay');
+        const fnList = document.getElementById('fnList');
+
+        function openModal(group) {
+        document.getElementById('modalIcon').textContent = group.icon;
+        document.getElementById('modalTitle').textContent = group.name;
+        document.getElementById('modalDesc').textContent = group.desc;
+        fnList.innerHTML = '';
+        group.fns.forEach(fn => fnList.appendChild(buildFnItem(fn)));
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        }
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        function buildFnItem(fn) {
+        const item = document.createElement('div');
+        item.className = 'fn-item';
+        const trigger = document.createElement('button');
+        trigger.className = 'fn-trigger';
+        trigger.innerHTML = `<span class="fn-name">${fn.name}</span><span class="fn-brief">${fn.brief}</span><span class="fn-chevron">▶</span>`;
+        const detail = document.createElement('div');
+        detail.className = 'fn-detail';
+        detail.innerHTML = buildDetail(fn);
+        trigger.addEventListener('click', () => {
+        const isOpen = detail.classList.contains('open');
+        fnList.querySelectorAll('.fn-detail').forEach(d => d.classList.remove('open'));
+        fnList.querySelectorAll('.fn-trigger').forEach(t => t.classList.remove('active'));
+        if (!isOpen) { detail.classList.add('open'); trigger.classList.add('active'); }
+        });
+        item.appendChild(trigger);
+        item.appendChild(detail);
+        return item;
+        }
+
+        function buildDetail(fn) {
+        const params = fn.params.length ? fn.params.map(p => `<tr><td class="param-name">${p.name}</td><td class="param-type">${p.type}</td><td>${p.desc}</td></tr>`).join('') : '<tr><td colspan="3">없음</td></tr>';
+        return `<div class="detail-section"><div class="detail-label">Signature</div><div class="code-block"><span class="code-fn">${fn.sig}</span></div></div><div class="detail-section"><div class="detail-label">Description</div><div class="detail-text">${fn.desc}</div></div><div class="detail-section"><div class="detail-label">Parameters</div><table class="param-table"><thead><tr><th>Name</th><th>Type</th><th>Info</th></tr></thead><tbody>${params}</tbody></table></div><div class="detail-section"><div class="detail-label">Return</div><span class="return-badge">${fn.ret}</span></div><div class="detail-section"><div class="detail-label">Example</div><div class="code-block">${fn.example}</div></div>`;
+        }
+
+        const input = document.getElementById('searchInput');
+        const ac = document.getElementById('autocomplete');
+        const srPanel = document.getElementById('search-result');
+        const cardsSection = document.getElementById('cards-section');
+
+        input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q) { ac.classList.remove('open'); showCards(); return; }
+        const matches = fnIndex.filter(f => f.name.toLowerCase().includes(q) || f.brief.toLowerCase().includes(q));
+        renderAC(matches, q);
+        });
+
+        function renderAC(matches, q) {
+        const items = matches.slice(0, 8);
+        if (!items.length) { ac.classList.remove('open'); return; }
+        ac.innerHTML = items.map(f => `<div class="ac-item">${f.name.replace(new RegExp(q, 'gi'), m => `<span class="ac-match">${m}</span>`)}<span class="ac-group">${f.group}</span></div>`).join('');
+        ac.classList.add('open');
+        ac.querySelectorAll('.ac-item').forEach((el, i) => el.addEventListener('click', () => selectFn(items[i])));
+        }
+
+        function selectFn(fn) { input.value = fn.name; ac.classList.remove('open'); showSR(fn); }
+        function showSR(fn) { cardsSection.classList.add('hidden'); srPanel.classList.add('visible'); srPanel.innerHTML = `<div class="section-label"><h2>검색 결과</h2></div><div class="sr-card"><div class="sr-header"><div class="sr-fn-sig">${fn.sig}</div><div class="sr-group">${fn.group}</div></div><div class="sr-body">${buildDetail(fn)}</div></div>`; srPanel.scrollIntoView(); }
+        function showCards() { srPanel.classList.remove('visible'); srPanel.innerHTML = ''; cardsSection.classList.remove('hidden'); }
+    </script>
+</body>
+</html>
